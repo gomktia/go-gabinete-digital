@@ -1,0 +1,162 @@
+import { useTenant } from '../context/TenantContext';
+import { Palette, Shield, Building, Hash, FileText, Mail, Moon, Sun } from 'lucide-react';
+import { motion } from 'framer-motion';
+
+const SettingsPage = () => {
+    const { tenant, updateTenant, toggleTheme } = useTenant();
+
+    return (
+        <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+        >
+            <header style={{ marginBottom: '2.5rem' }}>
+                <h1>Configurações do Gabinete</h1>
+                <p style={{ color: 'var(--text-light)' }}>Personalize a identidade visual e os dados do seu mandato.</p>
+            </header>
+
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(350px, 1fr))', gap: '2rem' }}>
+                <div className="glass-card">
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '2rem' }}>
+                        <Palette size={20} style={{ color: 'var(--primary)' }} />
+                        <h3 style={{ margin: 0 }}>Identidade Visual</h3>
+                    </div>
+
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+                        <div>
+                            <label style={{ margin: 0, marginBottom: '0.5rem' }}>Tema do Sistema</label>
+                            <button
+                                onClick={toggleTheme}
+                                className="flex-center gap-2"
+                                style={{
+                                    width: '100%',
+                                    padding: '0.75rem',
+                                    borderRadius: '0.5rem',
+                                    border: '1px solid #e2e8f0',
+                                    background: 'var(--surface)',
+                                    color: 'var(--text)',
+                                    cursor: 'pointer',
+                                    fontWeight: 600
+                                }}
+                            >
+                                {tenant.theme === 'light' ? <Moon size={18} /> : <Sun size={18} />}
+                                Alternar para Modo {tenant.theme === 'light' ? 'Escuro' : 'Claro'}
+                            </button>
+                        </div>
+
+                        <div>
+                            <label style={{ margin: 0, marginBottom: '0.5rem' }}>Cor Primária (Partido)</label>
+                            <div style={{ display: 'flex', gap: '10px' }}>
+                                <input
+                                    type="color"
+                                    value={tenant.primaryColor}
+                                    onChange={(e) => updateTenant({ primaryColor: e.target.value })}
+                                    style={{ width: '50px', height: '42px', padding: '2px', cursor: 'pointer', marginTop: 0 }}
+                                />
+                                <input
+                                    type="text"
+                                    value={tenant.primaryColor}
+                                    onChange={(e) => updateTenant({ primaryColor: e.target.value })}
+                                    style={{ marginTop: 0 }}
+                                />
+                            </div>
+                        </div>
+
+                        <div>
+                            <label style={{ margin: 0, marginBottom: '0.5rem' }}>Cor Secundária (Destaque)</label>
+                            <div style={{ display: 'flex', gap: '10px' }}>
+                                <input
+                                    type="color"
+                                    value={tenant.secondaryColor}
+                                    onChange={(e) => updateTenant({ secondaryColor: e.target.value })}
+                                    style={{ width: '50px', height: '42px', padding: '2px', cursor: 'pointer', marginTop: 0 }}
+                                />
+                                <input
+                                    type="text"
+                                    value={tenant.secondaryColor}
+                                    onChange={(e) => updateTenant({ secondaryColor: e.target.value })}
+                                    style={{ marginTop: 0 }}
+                                />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div className="glass-card">
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '2rem' }}>
+                        <Building size={20} style={{ color: 'var(--primary)' }} />
+                        <h3 style={{ margin: 0 }}>Dados do Mandato</h3>
+                    </div>
+
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+                        <div>
+                            <label style={{ margin: 0 }}>Nome do Gabinete</label>
+                            <div style={{ position: 'relative' }}>
+                                <Building size={16} style={{ position: 'absolute', left: '12px', top: '1.4rem', opacity: 0.4 }} />
+                                <input
+                                    type="text"
+                                    value={tenant.name}
+                                    onChange={(e) => updateTenant({ name: e.target.value })}
+                                    style={{ paddingLeft: '2.5rem' }}
+                                />
+                            </div>
+                        </div>
+
+                        <div>
+                            <label style={{ margin: 0 }}>E-mail de Login</label>
+                            <div style={{ position: 'relative' }}>
+                                <Mail size={16} style={{ position: 'absolute', left: '12px', top: '1.4rem', opacity: 0.4 }} />
+                                <input
+                                    type="email"
+                                    value={tenant.email}
+                                    onChange={(e) => updateTenant({ email: e.target.value })}
+                                    style={{ paddingLeft: '2.5rem' }}
+                                />
+                            </div>
+                        </div>
+
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1.5fr', gap: '1rem' }}>
+                            <div>
+                                <label style={{ margin: 0 }}>Nº Candidato</label>
+                                <div style={{ position: 'relative' }}>
+                                    <Hash size={16} style={{ position: 'absolute', left: '12px', top: '1.4rem', opacity: 0.4 }} />
+                                    <input
+                                        type="text"
+                                        value={tenant.candidateNumber}
+                                        onChange={(e) => updateTenant({ candidateNumber: e.target.value })}
+                                        style={{ paddingLeft: '2.5rem' }}
+                                    />
+                                </div>
+                            </div>
+                            <div>
+                                <label style={{ margin: 0 }}>CNPJ do Gabinete</label>
+                                <div style={{ position: 'relative' }}>
+                                    <FileText size={16} style={{ position: 'absolute', left: '12px', top: '1.4rem', opacity: 0.4 }} />
+                                    <input
+                                        type="text"
+                                        value={tenant.cnpj}
+                                        onChange={(e) => updateTenant({ cnpj: e.target.value })}
+                                        style={{ paddingLeft: '2.5rem' }}
+                                    />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div className="glass-card" style={{ gridColumn: '1 / -1', background: 'rgba(56, 161, 105, 0.1)', border: '1px solid #38a169' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '1rem' }}>
+                        <Shield size={20} color="#38a169" />
+                        <h3 style={{ margin: 0, color: '#38a169' }}>Segurança Multi-Tenant</h3>
+                    </div>
+                    <p style={{ fontSize: '0.9rem', color: '#2f855a' }}>
+                        Seus dados são isolados. As cores e informações configuradas aqui são exclusivas para o seu Gabinete Digital e não afetam outros usuários do sistema.
+                    </p>
+                </div>
+            </div>
+        </motion.div>
+    );
+};
+
+export default SettingsPage;
