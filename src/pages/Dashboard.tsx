@@ -1,4 +1,4 @@
-import { Users, TrendingUp, Calendar, ArrowUpRight, ArrowDownRight, DollarSign, Share2, Flag } from 'lucide-react';
+import { Users, TrendingUp, Calendar, ArrowUpRight, ArrowDownRight, DollarSign, Share2 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useTenant } from '../context/TenantContext';
 import { useNavigate } from 'react-router-dom';
@@ -7,7 +7,6 @@ const stats = [
     { label: 'Eleitores na Base', value: '1,240', icon: Users, color: '#d4af37', trend: '+55 hoje', trendUp: true, path: '/voters' },
     { label: 'Gastos Campanha', value: '28%', icon: DollarSign, color: '#38a169', trend: 'Controlado', trendUp: true, path: '/finance' },
     { label: 'Engajamento', value: '4.2k', icon: Share2, color: '#E1306C', trend: '+12%', trendUp: true, path: '/social-media' },
-    { label: 'Dias p/ Eleição', value: '45', icon: Flag, color: '#e53e3e', trend: 'Reta Final', trendUp: false, path: '/election-day' },
 ];
 
 const Dashboard = () => {
@@ -97,7 +96,7 @@ const Dashboard = () => {
                 })}
             </div>
 
-            <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 0.8fr', gap: '2rem' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '2rem' }}>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
                     <div className="glass-card" style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -128,11 +127,11 @@ const Dashboard = () => {
                         </div>
 
                         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
-                            <div style={{ padding: '1rem', background: '#f1f5f9', borderRadius: '0.5rem', textAlign: 'center' }}>
+                            <div style={{ padding: '1rem', background: 'var(--bg-color)', borderRadius: '0.5rem', textAlign: 'center' }}>
                                 <p style={{ margin: 0, fontSize: '0.8rem', color: 'var(--text-light)' }}>Gastos (Semana)</p>
                                 <p style={{ margin: 0, fontWeight: 700, color: '#e53e3e' }}>R$ 12.500</p>
                             </div>
-                            <div style={{ padding: '1rem', background: '#f1f5f9', borderRadius: '0.5rem', textAlign: 'center' }}>
+                            <div style={{ padding: '1rem', background: 'var(--bg-color)', borderRadius: '0.5rem', textAlign: 'center' }}>
                                 <p style={{ margin: 0, fontSize: '0.8rem', color: 'var(--text-light)' }}>Novos Apoios</p>
                                 <p style={{ margin: 0, fontWeight: 700, color: '#38a169' }}>+45</p>
                             </div>
@@ -156,7 +155,7 @@ const Dashboard = () => {
                                         <span style={{ fontWeight: 600 }}>{item.name}</span>
                                         <span style={{ fontWeight: 700 }}>{item.visits} visitas</span>
                                     </div>
-                                    <div style={{ height: '8px', background: '#f1f5f9', borderRadius: '4px', overflow: 'hidden' }}>
+                                    <div style={{ height: '8px', background: 'var(--bg-color)', borderRadius: '4px', overflow: 'hidden' }}>
                                         <motion.div
                                             initial={{ width: 0 }}
                                             animate={{ width: `${(item.visits / 45) * 100}%` }}
@@ -180,7 +179,7 @@ const Dashboard = () => {
                             <TrendingUp size={20} color="var(--secondary)" />
                             <h3 style={{ margin: 0, color: 'white' }}>Meta Semanal</h3>
                         </div>
-                        <p style={{ fontSize: '0.9rem', opacity: 0.9, marginBottom: '1.5rem' }}>
+                        <p style={{ fontSize: '0.9rem', opacity: 0.9, marginBottom: '1.5rem', color: 'white' }}>
                             Você está a <b>85%</b> de completar seu objetivo de visitas legislativas desta semana.
                         </p>
                         <div style={{ height: '12px', background: 'rgba(255,255,255,0.1)', borderRadius: '6px', overflow: 'hidden', marginBottom: '0.5rem' }}>
@@ -191,14 +190,14 @@ const Dashboard = () => {
                                 style={{ height: '100%', background: 'var(--secondary)' }}
                             />
                         </div>
-                        <p style={{ fontSize: '0.75rem', textAlign: 'right', opacity: 0.8 }}>falta 1 visita (Bairro Rural)</p>
+                        <p style={{ fontSize: '0.75rem', textAlign: 'right', opacity: 0.8, color: 'white' }}>falta 1 visita (Bairro Rural)</p>
                     </div>
 
                     <div className="glass-card">
                         <h3>Agenda de Hoje</h3>
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
                             <div onClick={() => navigate('/calendar')} style={{ display: 'flex', gap: '1rem', alignItems: 'flex-start', cursor: 'pointer' }}>
-                                <div style={{ background: '#f1f5f9', padding: '0.5rem', borderRadius: '0.5rem', textAlign: 'center', minWidth: '50px' }}>
+                                <div style={{ background: 'var(--bg-color)', padding: '0.5rem', borderRadius: '0.5rem', textAlign: 'center', minWidth: '50px' }}>
                                     <p style={{ margin: 0, fontWeight: 700, color: 'var(--primary)' }}>14:00</p>
                                 </div>
                                 <div>
@@ -207,7 +206,7 @@ const Dashboard = () => {
                                 </div>
                             </div>
                             <div onClick={() => navigate('/calendar')} style={{ display: 'flex', gap: '1rem', alignItems: 'flex-start', cursor: 'pointer' }}>
-                                <div style={{ background: '#f1f5f9', padding: '0.5rem', borderRadius: '0.5rem', textAlign: 'center', minWidth: '50px' }}>
+                                <div style={{ background: 'var(--bg-color)', padding: '0.5rem', borderRadius: '0.5rem', textAlign: 'center', minWidth: '50px' }}>
                                     <p style={{ margin: 0, fontWeight: 700, color: 'var(--primary)' }}>18:30</p>
                                 </div>
                                 <div>

@@ -33,12 +33,14 @@ const LoginPage = () => {
                 style={{
                     maxWidth: '450px',
                     width: '100%',
-                    padding: '3rem',
+                    padding: '2rem', /* Reduced padding for mobile */
                     border: '1px solid rgba(255,255,255,0.1)',
-                    boxShadow: '0 20px 50px rgba(0,0,0,0.5)'
+                    boxShadow: '0 20px 50px rgba(0,0,0,0.5)',
+                    display: 'flex',
+                    flexDirection: 'column'
                 }}
             >
-                <div style={{ textAlign: 'center', marginBottom: '2.5rem' }}>
+                <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
                     <div style={{
                         width: '70px',
                         height: '70px',
@@ -58,7 +60,7 @@ const LoginPage = () => {
 
                 <form onSubmit={handleLogin} style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
                     <div style={{ position: 'relative' }}>
-                        <Mail size={18} style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)', color: 'rgba(255,255,255,0.4)' }} />
+                        <Mail size={18} style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)', color: 'rgba(255,255,255,0.4)', zIndex: 1 }} />
                         <input
                             type="email"
                             placeholder="E-mail"
@@ -73,13 +75,14 @@ const LoginPage = () => {
                                 borderRadius: '1rem',
                                 color: 'white',
                                 outline: 'none',
-                                transition: 'border-color 0.2s'
+                                transition: 'border-color 0.2s',
+                                boxSizing: 'border-box' /* Ensure padding doesn't overflow width */
                             }}
                         />
                     </div>
 
                     <div style={{ position: 'relative' }}>
-                        <Lock size={18} style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)', color: 'rgba(255,255,255,0.4)' }} />
+                        <Lock size={18} style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)', color: 'rgba(255,255,255,0.4)', zIndex: 1 }} />
                         <input
                             type="password"
                             placeholder="Senha"
@@ -93,7 +96,8 @@ const LoginPage = () => {
                                 border: '1px solid rgba(255,255,255,0.1)',
                                 borderRadius: '1rem',
                                 color: 'white',
-                                outline: 'none'
+                                outline: 'none',
+                                boxSizing: 'border-box' /* Ensure padding doesn't overflow width */
                             }}
                         />
                     </div>
@@ -114,7 +118,8 @@ const LoginPage = () => {
                             justifyContent: 'center',
                             gap: '10px',
                             border: 'none',
-                            cursor: 'pointer'
+                            cursor: 'pointer',
+                            width: '100%'
                         }}
                     >
                         <LogIn size={20} /> Entrar no Gabinete
@@ -131,7 +136,7 @@ const LoginPage = () => {
                 {/* Demo Credentials Hint */}
                 <div style={{ marginTop: '2rem', padding: '1rem', background: 'rgba(255,255,255,0.03)', borderRadius: '0.5rem', fontSize: '0.75rem', color: 'rgba(255,255,255,0.4)' }}>
                     <p style={{ margin: '0 0 5px' }}><b>Logins de Demonstração:</b></p>
-                    <ul style={{ margin: 0, paddingLeft: '1.2rem' }}>
+                    <ul style={{ margin: 0, paddingLeft: '1.2rem', lineHeight: '1.5' }}>
                         <li>superadmin@sistema.com / admin123</li>
                         <li>vereador@exemplo.com / vereador123</li>
                         <li>assessor@equipe.com / assessor123</li>
