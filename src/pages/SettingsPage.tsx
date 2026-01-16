@@ -229,6 +229,18 @@ const SettingsPage = () => {
                         Seus dados são isolados. As cores e informações configuradas aqui são exclusivas para o seu Gabinete Digital e não afetam outros usuários do sistema.
                     </p>
                 </div>
+                {/* Sentry Test Button */}
+                <div style={{ gridColumn: '1 / -1', textAlign: 'center' }}>
+                    <button
+                        className="btn-primary"
+                        style={{ background: '#e53e3e', color: 'white' }}
+                        onClick={() => {
+                            throw new Error("This is a Sentry Test Error from SettingsPage");
+                        }}
+                    >
+                        Testar Sentry (Gerar Erro)
+                    </button>
+                </div>
             </div>
         </motion.div>
     );

@@ -58,7 +58,7 @@ const DemandsPage = () => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
         >
-            <header style={{ marginBottom: '2rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <header className="responsive-header">
                 <div>
                     <h1>Mapa de Demandas</h1>
                     <p style={{ color: 'var(--text-light)' }}>Gestão geolocalizada e acompanhamento de visitas em campo.</p>
@@ -105,8 +105,8 @@ const DemandsPage = () => {
                 </div>
             </header>
 
-            <div className="glass-card" style={{ marginBottom: '2rem', display: 'flex', gap: '1rem', flexWrap: 'wrap', alignItems: 'center' }}>
-                <div style={{ flex: 1, minWidth: '250px', position: 'relative' }}>
+            <div className="glass-card flex-col-mobile" style={{ marginBottom: '2rem', display: 'flex', gap: '1rem', flexWrap: 'wrap', alignItems: 'center' }}>
+                <div style={{ flex: 1, minWidth: '250px', position: 'relative', width: '100%' }}>
                     <Search size={18} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-light)' }} />
                     <input
                         type="text"
@@ -116,19 +116,21 @@ const DemandsPage = () => {
                         style={{ width: '100%', padding: '0.75rem 2.5rem', borderRadius: '0.5rem', border: '1px solid var(--border)', background: 'var(--bg-color)', color: 'var(--text)', outline: 'none', marginTop: 0 }}
                     />
                 </div>
-                <select
-                    value={filterResponsible}
-                    onChange={(e) => setFilterResponsible(e.target.value)}
-                    style={{ width: 'auto', minWidth: '180px', marginTop: 0, background: 'var(--bg-color)', color: 'var(--text)', border: '1px solid var(--border)' }}
-                >
-                    <option value="Todos">Por Responsável: Todos</option>
-                    <option value="Vereador João">Vereador João</option>
-                    <option value="Assessor Marcos">Assessor Marcos</option>
-                    <option value="Assessora Sandra">Assessora Sandra</option>
-                </select>
-                <button className="btn-primary flex-center gap-1" style={{ background: 'var(--bg-color)', color: 'var(--primary)', border: '1px solid var(--border)' }}>
-                    <Filter size={18} /> Filtros Avançados
-                </button>
+                <div className="flex-col-mobile" style={{ display: 'flex', gap: '1rem', width: '100%', flex: 1 }}>
+                    <select
+                        value={filterResponsible}
+                        onChange={(e) => setFilterResponsible(e.target.value)}
+                        style={{ width: 'auto', flex: 1, minWidth: '180px', marginTop: 0, background: 'var(--bg-color)', color: 'var(--text)', border: '1px solid var(--border)' }}
+                    >
+                        <option value="Todos">Por Responsável: Todos</option>
+                        <option value="Vereador João">Vereador João</option>
+                        <option value="Assessor Marcos">Assessor Marcos</option>
+                        <option value="Assessora Sandra">Assessora Sandra</option>
+                    </select>
+                    <button className="btn-primary flex-center gap-1" style={{ background: 'var(--bg-color)', color: 'var(--primary)', border: '1px solid var(--border)', width: 'auto' }}>
+                        <Filter size={18} /> Filtros Avançados
+                    </button>
+                </div>
             </div>
 
             <AnimatePresence mode="wait">
@@ -143,7 +145,7 @@ const DemandsPage = () => {
                         {filteredDemands.map((demand) => (
                             <div
                                 key={demand.id}
-                                className="glass-card"
+                                className="glass-card flex-col-mobile"
                                 onClick={() => openDemandDetails(demand)}
                                 style={{
                                     display: 'flex',
@@ -151,6 +153,7 @@ const DemandsPage = () => {
                                     alignItems: 'center',
                                     background: 'var(--surface)',
                                     cursor: 'pointer',
+                                    gap: '1rem',
                                     borderLeft: `4px solid ${demand.status === 'resolved' ? '#38a169' : demand.priority === 'high' ? '#e53e3e' : '#ed8936'}`
                                 }}
                             >
@@ -171,7 +174,7 @@ const DemandsPage = () => {
                                         </div>
                                     </div>
                                 </div>
-                                <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', width: '100%', justifyContent: 'space-between' }}>
                                     <span style={{
                                         padding: '0.25rem 0.75rem',
                                         borderRadius: '1rem',

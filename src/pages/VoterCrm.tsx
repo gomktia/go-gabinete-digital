@@ -58,7 +58,7 @@ const VoterCrm = () => {
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.5 }}
         >
-            <header style={{ marginBottom: '2rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <header className="responsive-header">
                 <div>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '0.5rem' }}>
                         <div style={{ padding: '0.5rem', background: 'var(--primary)', borderRadius: '0.5rem', color: 'var(--secondary)' }}>
@@ -70,7 +70,7 @@ const VoterCrm = () => {
                         Funil de votos e gestão de relacionamento com cidadãos.
                     </p>
                 </div>
-                <div style={{ display: 'flex', gap: '1rem' }}>
+                <div style={{ display: 'flex', gap: '1rem' }} className="flex-col-mobile">
                     <button className="btn-gold outline" style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
                         <Filter size={18} /> Filtrar
                     </button>
@@ -85,7 +85,7 @@ const VoterCrm = () => {
             </header>
 
             {/* Funnel/Stats Section */}
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '1.5rem', marginBottom: '2.5rem' }}>
+            <div className="responsive-grid" style={{ marginBottom: '2.5rem' }}>
                 <div className="glass-card" style={{ background: 'linear-gradient(135deg, rgba(56, 161, 105, 0.1) 0%, rgba(56, 161, 105, 0.05) 100%)', border: '1px solid rgba(56, 161, 105, 0.2)' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '1rem' }}>
                         <span style={{ fontSize: '0.9rem', color: '#38a169', fontWeight: 600 }}>Votos Consolidados</span>
@@ -165,7 +165,7 @@ const VoterCrm = () => {
                 </div>
 
                 <div style={{ padding: '0.5rem', overflowX: 'auto' }}>
-                    <table style={{ width: '100%', borderCollapse: 'collapse', color: 'var(--text)' }}>
+                    <table className="responsive-table" style={{ width: '100%', borderCollapse: 'collapse', color: 'var(--text)' }}>
                         <thead>
                             <tr style={{ borderBottom: '1px solid var(--border)' }}>
                                 <th style={{ padding: '1rem', textAlign: 'left', opacity: 0.8, fontSize: '0.8rem', color: 'var(--text-light)' }}>Nome</th>
@@ -183,7 +183,7 @@ const VoterCrm = () => {
                                     className="hover-bg"
                                     onClick={() => handleVoterClick(voter)}
                                 >
-                                    <td style={{ padding: '1rem' }}>
+                                    <td style={{ padding: '1rem' }} data-label="Nome">
                                         <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
                                             <div style={{ width: '32px', height: '32px', background: 'var(--bg-color)', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.8rem', fontWeight: 700, color: 'var(--primary)' }}>
                                                 {voter.name.charAt(0)}
@@ -194,12 +194,12 @@ const VoterCrm = () => {
                                             </div>
                                         </div>
                                     </td>
-                                    <td style={{ padding: '1rem' }}>
+                                    <td style={{ padding: '1rem' }} data-label="Bairro">
                                         <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', fontSize: '0.9rem', color: 'var(--text)' }}>
                                             <MapPin size={14} style={{ opacity: 0.6 }} /> {voter.neighborhood}
                                         </div>
                                     </td>
-                                    <td style={{ padding: '1rem' }}>
+                                    <td style={{ padding: '1rem' }} data-label="Status">
                                         <span style={{
                                             background: `${getStatusColor(voter.status)}20`,
                                             color: getStatusColor(voter.status),
@@ -212,10 +212,10 @@ const VoterCrm = () => {
                                             {getStatusLabel(voter.status)}
                                         </span>
                                     </td>
-                                    <td style={{ padding: '1rem', fontSize: '0.9rem', color: 'var(--text-light)' }}>
+                                    <td style={{ padding: '1rem', fontSize: '0.9rem', color: 'var(--text-light)' }} data-label="Responsável">
                                         {voter.leader}
                                     </td>
-                                    <td style={{ padding: '1rem', textAlign: 'right' }}>
+                                    <td style={{ padding: '1rem', textAlign: 'right' }} data-label="Ações">
                                         <button className="icon-btn" style={{ marginRight: '0.5rem', background: 'transparent', border: 'none', cursor: 'pointer' }} title="Chamar no WhatsApp">
                                             <MessageCircle size={18} color="#25D366" />
                                         </button>

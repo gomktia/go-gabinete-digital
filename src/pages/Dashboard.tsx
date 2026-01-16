@@ -20,9 +20,9 @@ const Dashboard = () => {
             transition={{ duration: 0.5 }}
             style={{ flex: 1 }}
         >
-            <header style={{ marginBottom: '2.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <header className="responsive-header">
                 <div>
-                    <h1 style={{ fontSize: '2rem', marginBottom: '0.25rem' }}>Olá, Vereador</h1>
+                    <h1 style={{ marginBottom: '0.25rem' }}>Olá, Vereador</h1>
                     <p style={{ color: 'var(--text-light)', fontSize: '1.1rem' }}>
                         {tenant.name} | Gestão do Mandato em Tempo Real
                     </p>
@@ -36,12 +36,7 @@ const Dashboard = () => {
                 </div>
             </header>
 
-            <div style={{
-                display: 'grid',
-                gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))',
-                gap: '1.5rem',
-                marginBottom: '2.5rem'
-            }}>
+            <div className="responsive-grid" style={{ marginBottom: '2.5rem' }}>
                 {stats.map((stat, index) => {
                     const Icon = stat.icon;
                     return (
@@ -96,7 +91,7 @@ const Dashboard = () => {
                 })}
             </div>
 
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '2rem' }}>
+            <div className="responsive-grid-large" style={{ display: 'grid', gap: '2rem' }}>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
                     <div className="glass-card" style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>

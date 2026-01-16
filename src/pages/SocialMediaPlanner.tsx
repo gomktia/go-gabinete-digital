@@ -79,7 +79,7 @@ const SocialMediaPlanner = () => {
             transition={{ duration: 0.5 }}
             style={{ paddingBottom: '2rem' }}
         >
-            <header style={{ marginBottom: '2.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <header className="responsive-header">
                 <div>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '0.5rem' }}>
                         <div style={{ padding: '0.5rem', background: 'var(--primary)', borderRadius: '0.5rem', color: 'var(--secondary)' }}>
@@ -110,7 +110,7 @@ const SocialMediaPlanner = () => {
             </header>
 
             {activeTab === 'create' && (
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1.5fr', gap: '2rem' }}>
+                <div className="responsive-grid-large">
 
                     {/* Input Section */}
                     <div className="glass-card">
@@ -233,7 +233,7 @@ const SocialMediaPlanner = () => {
                         </div>
                     </div>
 
-                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: '1rem' }}>
+                    <div className="grid-week">
                         {weekSchedule.map((day, i) => (
                             <div key={i} style={{ background: 'rgba(255,255,255,0.05)', borderRadius: '0.5rem', padding: '1rem', minHeight: '300px' }}>
                                 <div style={{ marginBottom: '1rem', textAlign: 'center', paddingBottom: '0.5rem', borderBottom: '1px solid rgba(255,255,255,0.1)' }}>
