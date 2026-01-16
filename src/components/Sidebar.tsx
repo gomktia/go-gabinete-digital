@@ -1,10 +1,11 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
     LayoutDashboard, Map, FileText, Bot, Share2, DollarSign, Users,
-    Settings, LogOut, MessageSquare, ChevronLeft, ChevronRight, Menu, X, Calendar, Sun, Moon, User, Shield, Zap, Globe
+    Settings, LogOut, MessageSquare, ChevronLeft, ChevronRight, Menu, X, Calendar, Sun, Moon, User, Shield, Zap, Globe, Briefcase, ChevronDown
 } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
 import { useTenant } from '../context/TenantContext';
+import { AnimatePresence, motion } from 'framer-motion';
 
 const Sidebar = () => {
     const location = useLocation();
@@ -12,32 +13,69 @@ const Sidebar = () => {
     const [isCollapsed, setIsCollapsed] = useState(false);
     const [isMobileOpen, setIsMobileOpen] = useState(false);
 
+    // State to track expanded groups. 
+    // In collapsed sidebar mode, groups might behavior differently (e.g. popups), but for now we'll just keep them expandable.
+    const [expandedGroups, setExpandedGroups] = useState<string[]>(['gestao', 'legislativo', 'comunicacao', 'estrategia']);
+
     const toggleSidebar = () => setIsCollapsed(!isCollapsed);
     const toggleMobile = () => setIsMobileOpen(!isMobileOpen);
 
-    const navItems = [
-        // Super Admin Items
-        { id: 'super-admin', label: 'Super Admin', icon: Shield, path: '/super-admin', roles: ['SUPER_ADMIN'] },
+    const toggleGroup = (groupId: string) => {
+        if (isCollapsed) return; // Don't toggle in collapsed mode
+        setExpandedGroups(prev =>
+            prev.includes(groupId) ? prev.filter(id => id !== groupId) : [...prev, groupId]
+        );
+    };
 
-        // Cabinet Items
-        { id: 'dashboard', label: 'Painel', icon: LayoutDashboard, path: '/', roles: ['SUPER_ADMIN', 'VEREADOR', 'ASSESSOR'] },
-        { id: 'calendar', label: 'Agenda', icon: Calendar, path: '/calendar', roles: ['SUPER_ADMIN', 'VEREADOR', 'ASSESSOR'] },
-        { id: 'docs', label: 'Tramitação', icon: FileText, path: '/documents', roles: ['SUPER_ADMIN', 'VEREADOR', 'ASSESSOR'] },
-        { id: 'site', label: 'Meu Site', icon: Globe, path: '/site-builder', roles: ['SUPER_ADMIN', 'VEREADOR', 'ASSESSOR'] },
-        { id: 'demands', label: 'Demandas', icon: Map, path: '/demands', roles: ['SUPER_ADMIN', 'VEREADOR', 'ASSESSOR'] },
-        { id: 'proposals', label: 'Proposições', icon: FileText, path: '/proposals', roles: ['SUPER_ADMIN', 'VEREADOR', 'ASSESSOR'] },
-        { id: 'ai-advisor', label: 'Estratégia IA', icon: Bot, path: '/advisor', roles: ['SUPER_ADMIN', 'VEREADOR', 'ASSESSOR'] },
-        { id: 'social-media', label: 'Agente Social', icon: Share2, path: '/social-media', roles: ['SUPER_ADMIN', 'VEREADOR', 'ASSESSOR'] },
-        { id: 'finance', label: 'Financeiro', icon: DollarSign, path: '/finance', roles: ['SUPER_ADMIN', 'VEREADOR', 'ASSESSOR'] },
-        { id: 'team', label: 'Equipe', icon: Users, path: '/team', roles: ['SUPER_ADMIN', 'VEREADOR', 'ASSESSOR'] },
-        { id: 'voters', label: 'Eleitores (CRM)', icon: Users, path: '/voters', roles: ['SUPER_ADMIN', 'VEREADOR', 'ASSESSOR'] },
-        { id: 'messages', label: 'WhatsApp', icon: MessageSquare, path: '/messages', roles: ['SUPER_ADMIN', 'VEREADOR', 'ASSESSOR'] },
-
-        // Config Items (Visible only to Vereador/Admin)
-        { id: 'wa-config', label: 'Conexão Zap', icon: Zap, path: '/wa-config', roles: ['SUPER_ADMIN', 'VEREADOR'] },
+    // Organized Groups
+    const navGroups = [
+        {
+            id: 'gestao',
+            label: 'Gestão',
+            icon: Briefcase,
+            items: [
+                { id: 'dashboard', label: 'Painel', icon: LayoutDashboard, path: '/', roles: ['SUPER_ADMIN', 'VEREADOR', 'ASSESSOR'] },
+                { id: 'calendar', label: 'Agenda', icon: Calendar, path: '/calendar', roles: ['SUPER_ADMIN', 'VEREADOR', 'ASSESSOR'] },
+                { id: 'finance', label: 'Financeiro', icon: DollarSign, path: '/finance', roles: ['SUPER_ADMIN', 'VEREADOR', 'ASSESSOR'] },
+                { id: 'team', label: 'Equipe', icon: Users, path: '/team', roles: ['SUPER_ADMIN', 'VEREADOR', 'ASSESSOR'] },
+            ]
+        },
+        {
+            id: 'legislativo',
+            label: 'Legislativo',
+            icon: FileText,
+            items: [
+                { id: 'docs', label: 'Tramitação', icon: FileText, path: '/documents', roles: ['SUPER_ADMIN', 'VEREADOR', 'ASSESSOR'] },
+                { id: 'proposals', label: 'Proposições', icon: FileText, path: '/proposals', roles: ['SUPER_ADMIN', 'VEREADOR', 'ASSESSOR'] },
+                { id: 'demands', label: 'Demandas', icon: Map, path: '/demands', roles: ['SUPER_ADMIN', 'VEREADOR', 'ASSESSOR'] },
+            ]
+        },
+        {
+            id: 'comunicacao',
+            label: 'Comunicação',
+            icon: Share2,
+            items: [
+                { id: 'site', label: 'Meu Site', icon: Globe, path: '/site-builder', roles: ['SUPER_ADMIN', 'VEREADOR', 'ASSESSOR'] },
+                { id: 'social-media', label: 'Agente Social', icon: Share2, path: '/social-media', roles: ['SUPER_ADMIN', 'VEREADOR', 'ASSESSOR'] },
+                { id: 'messages', label: 'WhatsApp', icon: MessageSquare, path: '/messages', roles: ['SUPER_ADMIN', 'VEREADOR', 'ASSESSOR'] },
+                { id: 'voters', label: 'Eleitores CRM', icon: Users, path: '/voters', roles: ['SUPER_ADMIN', 'VEREADOR', 'ASSESSOR'] },
+                { id: 'wa-config', label: 'Conexão Zap', icon: Zap, path: '/wa-config', roles: ['SUPER_ADMIN', 'VEREADOR'] },
+            ]
+        },
+        {
+            id: 'estrategia',
+            label: 'Estratégia',
+            icon: Bot,
+            items: [
+                { id: 'ai-advisor', label: 'Estratégia IA', icon: Bot, path: '/advisor', roles: ['SUPER_ADMIN', 'VEREADOR', 'ASSESSOR'] },
+            ]
+        }
     ];
 
-    const filteredItems = navItems.filter(item => item.roles.includes(tenant.role));
+    // Check if a group has any visible items for the current role
+    const getVisibleItems = (groupItems: any[]) => {
+        return groupItems.filter(item => item.roles.includes(tenant.role));
+    };
 
     return (
         <>
@@ -49,7 +87,7 @@ const Sidebar = () => {
             </div>
 
             <aside className={`sidebar ${isCollapsed ? 'collapsed' : ''} ${isMobileOpen ? 'mobile-open' : ''}`}>
-                <div className="sidebar-logo" style={{ marginBottom: '2rem', textAlign: 'center', position: 'relative' }}>
+                <div className="sidebar-logo" style={{ marginBottom: '1.5rem', textAlign: 'center', position: 'relative' }}>
                     {!isCollapsed && (
                         <>
                             <div style={{
@@ -105,35 +143,112 @@ const Sidebar = () => {
                 </div>
 
                 <nav style={{ flex: 1, overflowY: 'auto' }} className="sidebar-scroll">
-                    <ul style={{ listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
-                        {filteredItems.map((item) => {
-                            const Icon = item.icon;
-                            const isActive = location.pathname === item.path;
+                    <ul style={{ listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                        {navGroups.map((group) => {
+                            const visibleItems = getVisibleItems(group.items);
+                            if (visibleItems.length === 0) return null;
+
+                            const isExpanded = expandedGroups.includes(group.id);
+                            const GroupIcon = group.icon;
 
                             return (
-                                <li key={item.id}>
-                                    <Link
-                                        to={item.path}
-                                        onClick={() => setIsMobileOpen(false)}
-                                        style={{
-                                            display: 'flex',
-                                            alignItems: 'center',
-                                            gap: '1rem',
-                                            padding: '0.75rem 1rem',
-                                            color: isActive ? 'var(--sidebar-active-text)' : 'var(--sidebar-text)',
-                                            textDecoration: 'none',
-                                            borderRadius: '0.5rem',
-                                            background: isActive ? 'var(--sidebar-active-bg)' : 'transparent',
-                                            fontWeight: isActive ? 600 : 400,
-                                            transition: 'all 0.2s',
-                                            margin: isCollapsed ? '0 auto' : '0 0.5rem',
-                                            justifyContent: isCollapsed ? 'center' : 'flex-start'
-                                        }}
-                                        title={isCollapsed ? item.label : ''}
-                                    >
-                                        <Icon size={20} />
-                                        {!isCollapsed && <span>{item.label}</span>}
-                                    </Link>
+                                <li key={group.id} style={{ marginBottom: isCollapsed ? '0.5rem' : '0' }}>
+                                    {!isCollapsed ? (
+                                        // Expanded Sidebar Group Header
+                                        <div>
+                                            <div
+                                                onClick={() => toggleGroup(group.id)}
+                                                style={{
+                                                    padding: '0.5rem 1rem',
+                                                    fontSize: '0.75rem',
+                                                    fontWeight: 700,
+                                                    color: 'var(--text-light)',
+                                                    textTransform: 'uppercase',
+                                                    letterSpacing: '0.05em',
+                                                    display: 'flex',
+                                                    justifyContent: 'space-between',
+                                                    alignItems: 'center',
+                                                    cursor: 'pointer',
+                                                    userSelect: 'none'
+                                                }}
+                                            >
+                                                {group.label}
+                                                <ChevronDown size={14} style={{ transform: isExpanded ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 0.2s' }} />
+                                            </div>
+
+                                            <AnimatePresence>
+                                                {isExpanded && (
+                                                    <motion.ul
+                                                        initial={{ height: 0, opacity: 0 }}
+                                                        animate={{ height: 'auto', opacity: 1 }}
+                                                        exit={{ height: 0, opacity: 0 }}
+                                                        transition={{ duration: 0.2 }}
+                                                        style={{ listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '2px', overflow: 'hidden' }}
+                                                    >
+                                                        {visibleItems.map(item => {
+                                                            const Icon = item.icon;
+                                                            const isActive = location.pathname === item.path;
+                                                            return (
+                                                                <li key={item.id}>
+                                                                    <Link
+                                                                        to={item.path}
+                                                                        onClick={() => setIsMobileOpen(false)}
+                                                                        style={{
+                                                                            display: 'flex',
+                                                                            alignItems: 'center',
+                                                                            gap: '0.75rem',
+                                                                            padding: '0.6rem 1rem 0.6rem 1.5rem',
+                                                                            color: isActive ? 'var(--sidebar-active-text)' : 'var(--sidebar-text)',
+                                                                            textDecoration: 'none',
+                                                                            borderRadius: '0.5rem',
+                                                                            background: isActive ? 'var(--sidebar-active-bg)' : 'transparent',
+                                                                            fontWeight: isActive ? 600 : 400,
+                                                                            transition: 'all 0.2s',
+                                                                            margin: '0 0.5rem',
+                                                                            fontSize: '0.9rem'
+                                                                        }}
+                                                                    >
+                                                                        <Icon size={18} />
+                                                                        <span>{item.label}</span>
+                                                                    </Link>
+                                                                </li>
+                                                            );
+                                                        })}
+                                                    </motion.ul>
+                                                )}
+                                            </AnimatePresence>
+                                        </div>
+                                    ) : (
+                                        // Collapsed Sidebar - Show Icons Only (Linear)
+                                        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', alignItems: 'center' }}>
+                                            <div style={{ width: '20px', height: '1px', background: 'var(--border)', margin: '0.5rem 0' }} title={group.label} />
+                                            {visibleItems.map(item => {
+                                                const Icon = item.icon;
+                                                const isActive = location.pathname === item.path;
+                                                return (
+                                                    <Link
+                                                        key={item.id}
+                                                        to={item.path}
+                                                        onClick={() => setIsMobileOpen(false)}
+                                                        style={{
+                                                            display: 'flex',
+                                                            alignItems: 'center',
+                                                            justifyContent: 'center',
+                                                            width: '40px',
+                                                            height: '40px',
+                                                            color: isActive ? 'var(--sidebar-active-text)' : 'var(--sidebar-text)',
+                                                            borderRadius: '0.5rem',
+                                                            background: isActive ? 'var(--sidebar-active-bg)' : 'transparent',
+                                                            transition: 'all 0.2s',
+                                                        }}
+                                                        title={item.label}
+                                                    >
+                                                        <Icon size={20} />
+                                                    </Link>
+                                                );
+                                            })}
+                                        </div>
+                                    )}
                                 </li>
                             );
                         })}

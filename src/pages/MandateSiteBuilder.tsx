@@ -413,7 +413,7 @@ const MandateSiteBuilder = () => {
                     >
                         {isPublishing ? 'Publicando...' : <><Save size={18} /> Publicar Site</>}
                     </button>
-                    <button className="btn-primary" style={{ width: '100%', marginTop: '0.5rem', background: 'transparent', border: '1px solid var(--border)' }}>
+                    <button className="btn-primary" style={{ width: '100%', marginTop: '0.5rem', background: 'transparent', border: '1px solid var(--primary)', color: 'var(--primary)' }}>
                         <Eye size={18} /> Ver Online
                     </button>
                 </div>

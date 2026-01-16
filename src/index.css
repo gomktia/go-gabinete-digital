@@ -126,6 +126,14 @@ body {
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
 }
 
+/* Responsive Grid - GLOBAL DESKTOP DEFAULT */
+.responsive-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 2rem;
+  /* Increased gap for breathing room */
+}
+
 @media (max-width: 768px) {
   .app-container {
     flex-direction: column;
