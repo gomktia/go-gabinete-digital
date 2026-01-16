@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Shield, Mail, Lock, LogIn, Sparkles } from 'lucide-react';
+import { Mail, Lock, LogIn, Sparkles } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useTenant } from '../context/TenantContext';
 
@@ -53,25 +53,7 @@ const LoginPage = () => {
                 }}
             >
                 <div style={{ textAlign: 'center', marginBottom: '2.5rem' }}>
-                    <motion.div
-                        initial={{ scale: 0.8, opacity: 0 }}
-                        animate={{ scale: 1, opacity: 1 }}
-                        transition={{ delay: 0.2, type: 'spring' }}
-                        style={{
-                            width: '80px',
-                            height: '80px',
-                            background: 'linear-gradient(135deg, var(--secondary) 0%, #b7950b 100%)', // Gold gradient
-                            borderRadius: '20px',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            margin: '0 auto 1.5rem',
-                            boxShadow: '0 10px 25px rgba(212, 175, 55, 0.3)',
-                            position: 'relative'
-                        }}
-                    >
-                        <Shield size={40} color="#1a202c" fill="rgba(26, 32, 44, 0.2)" strokeWidth={1.5} />
-                    </motion.div>
+
                     <h1 style={{ color: 'white', fontSize: '1.8rem', fontWeight: 700, marginBottom: '0.75rem', letterSpacing: '-0.5px' }}>Gabinete Digital</h1>
                     <p style={{ color: '#a0aec0', fontSize: '0.95rem', lineHeight: '1.5' }}>Plataforma integrada de gestão parlamentar.</p>
                 </div>
@@ -182,19 +164,7 @@ const LoginPage = () => {
                 </div>
 
                 {/* Improved Demo Credentials */}
-                <div style={{ marginTop: '1.5rem', padding: '1rem', background: 'rgba(0, 0, 0, 0.4)', borderRadius: '0.75rem', border: '1px solid rgba(255,255,255,0.05)' }}>
-                    <p style={{ margin: '0 0 10px', fontSize: '0.75rem', color: 'rgba(255,255,255,0.5)', textTransform: 'uppercase', letterSpacing: '0.5px', fontWeight: 600 }}>Acesso Rápido (Demo)</p>
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.8rem', color: 'rgba(255,255,255,0.9)' }}>
-                            <span>Super Admin</span>
-                            <code style={{ background: 'rgba(255,255,255,0.1)', padding: '2px 6px', borderRadius: '4px', fontFamily: 'monospace', color: '#90cdf4' }}>superadmin@sistema.com</code>
-                        </div>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.8rem', color: 'rgba(255,255,255,0.9)' }}>
-                            <span>Vereador</span>
-                            <code style={{ background: 'rgba(255,255,255,0.1)', padding: '2px 6px', borderRadius: '4px', fontFamily: 'monospace', color: '#90cdf4' }}>vereador@exemplo.com</code>
-                        </div>
-                    </div>
-                </div>
+
             </motion.div>
         </div>
     );
