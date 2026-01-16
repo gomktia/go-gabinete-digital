@@ -240,7 +240,7 @@ const SocialMediaPlanner = () => {
                                     <span style={{ fontWeight: 700 }}>{day.day}</span>
                                 </div>
                                 {Array.from({ length: day.posts }).map((_, p) => (
-                                    <div key={p} style={{ background: 'var(--card-bg)', padding: '0.5rem', borderRadius: '0.5rem', marginBottom: '0.5rem', fontSize: '0.8rem', borderLeft: `3px solid ${p % 2 === 0 ? '#E1306C' : '#4267B2'}` }}>
+                                    <div key={p} style={{ background: 'var(--surface)', padding: '0.5rem', borderRadius: '0.5rem', marginBottom: '0.5rem', fontSize: '0.8rem', borderLeft: `3px solid ${p % 2 === 0 ? '#E1306C' : '#4267B2'}` }}>
                                         <p style={{ margin: 0, fontWeight: 600 }}>Post Campanha</p>
                                         <p style={{ margin: 0, opacity: 0.7, fontSize: '0.7rem' }}>1{4 + p}:00</p>
                                     </div>

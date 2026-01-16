@@ -33,18 +33,18 @@ const CalendarPage = () => {
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
                         <h2 style={{ fontSize: '1.25rem', marginBottom: 0 }}>Janeiro 2026</h2>
                         <div style={{ display: 'flex', gap: '0.5rem' }}>
-                            <button style={{ background: '#edf2f7', border: 'none', padding: '0.5rem', borderRadius: '0.5rem', cursor: 'pointer' }}><ChevronLeft size={18} /></button>
-                            <button style={{ background: '#edf2f7', border: 'none', padding: '0.5rem', borderRadius: '0.5rem', cursor: 'pointer' }}><ChevronRight size={18} /></button>
+                            <button style={{ background: 'var(--bg-color)', border: 'none', padding: '0.5rem', borderRadius: '0.5rem', cursor: 'pointer', color: 'var(--text)' }}><ChevronLeft size={18} /></button>
+                            <button style={{ background: 'var(--bg-color)', border: 'none', padding: '0.5rem', borderRadius: '0.5rem', cursor: 'pointer', color: 'var(--text)' }}><ChevronRight size={18} /></button>
                         </div>
                     </div>
 
-                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: '1px', background: '#e2e8f0', border: '1px solid #e2e8f0' }}>
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: '1px', background: 'var(--border)', border: '1px solid var(--border)' }}>
                         {['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'].map(day => (
-                            <div key={day} style={{ background: '#f8fafc', padding: '0.75rem', textAlign: 'center', fontWeight: 600, fontSize: '0.8rem' }}>{day}</div>
+                            <div key={day} style={{ background: 'var(--bg-color)', padding: '0.75rem', textAlign: 'center', fontWeight: 600, fontSize: '0.8rem', color: 'var(--text-light)' }}>{day}</div>
                         ))}
                         {[...Array(31)].map((_, i) => (
                             <div key={i} style={{
-                                background: 'white',
+                                background: 'var(--surface)',
                                 minHeight: '100px',
                                 padding: '0.5rem',
                                 position: 'relative',
@@ -54,12 +54,12 @@ const CalendarPage = () => {
                                     {i + 1}
                                 </span>
                                 {i + 1 === 14 && (
-                                    <div style={{ marginTop: '0.25rem', padding: '0.25rem', background: 'rgba(212, 175, 55, 0.2)', borderLeft: '3px solid var(--secondary)', fontSize: '0.65rem', borderRadius: '2px' }}>
+                                    <div style={{ marginTop: '0.25rem', padding: '0.25rem', background: 'rgba(212, 175, 55, 0.2)', borderLeft: '3px solid var(--secondary)', fontSize: '0.65rem', borderRadius: '2px', color: 'var(--text)' }}>
                                         Sessão Câmara...
                                     </div>
                                 )}
                                 {i + 1 === 14 && (
-                                    <div style={{ marginTop: '0.25rem', padding: '0.25rem', background: 'rgba(26, 54, 93, 0.1)', borderLeft: '3px solid var(--primary)', fontSize: '0.65rem', borderRadius: '2px' }}>
+                                    <div style={{ marginTop: '0.25rem', padding: '0.25rem', background: 'rgba(26, 54, 93, 0.1)', borderLeft: '3px solid var(--primary)', fontSize: '0.65rem', borderRadius: '2px', color: 'var(--text)' }}>
                                         Reunião Vila...
                                     </div>
                                 )}
@@ -73,7 +73,7 @@ const CalendarPage = () => {
                         <h3>Compromissos de Hoje</h3>
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
                             {events.map((event) => (
-                                <div key={event.id} style={{ padding: '1rem', background: 'white', borderRadius: '0.8rem', border: '1px solid #edf2f7', boxShadow: '0 2px 4px rgba(0,0,0,0.02)' }}>
+                                <div key={event.id} style={{ padding: '1rem', background: 'var(--surface)', borderRadius: '0.8rem', border: '1px solid var(--border)', boxShadow: '0 2px 4px rgba(0,0,0,0.02)' }}>
                                     <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
                                         <span style={{ fontSize: '0.7rem', fontWeight: 700, padding: '2px 8px', borderRadius: '10px', background: 'var(--primary)', color: 'white' }}>
                                             {event.category}

@@ -29,43 +29,45 @@ const Propositions = () => {
                 </button>
             </header>
 
-            <div className="glass-card" style={{ marginBottom: '2rem', display: 'flex', gap: '1rem', alignItems: 'center' }}>
-                <div style={{ flex: 1, position: 'relative' }}>
+            <div className="glass-card" style={{ marginBottom: '2rem', display: 'flex', gap: '1rem', alignItems: 'center', flexWrap: 'wrap' }}>
+                <div style={{ flex: 1, position: 'relative', minWidth: '250px' }}>
                     <Search size={18} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-light)' }} />
                     <input
                         type="text"
                         placeholder="Buscar por título, categoria ou palavra-chave..."
-                        style={{ width: '100%', padding: '0.75rem 0.75rem 0.75rem 2.5rem', borderRadius: '0.5rem', border: '1px solid #e2e8f0', background: 'white', outline: 'none', marginTop: 0 }}
+                        style={{ width: '100%', padding: '0.75rem 0.75rem 0.75rem 2.5rem', borderRadius: '0.5rem', border: '1px solid var(--border)', background: 'var(--bg-color)', color: 'var(--text)', outline: 'none', marginTop: 0 }}
                     />
                 </div>
-                <button className="btn-primary flex-center gap-1" style={{ background: '#edf2f7', color: 'var(--primary)' }}>
+                <button className="btn-primary flex-center gap-1" style={{ background: 'var(--bg-color)', color: 'var(--primary)', border: '1px solid var(--border)' }}>
                     <Filter size={18} /> Filtros
                 </button>
             </div>
 
             <div style={{ display: 'grid', gap: '1rem' }}>
                 {projects.map((project) => (
-                    <div key={project.id} className="glass-card" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'white' }}>
+                    <div key={project.id} className="glass-card" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem', background: 'var(--surface)' }}>
                         <div style={{ display: 'flex', gap: '1.5rem', alignItems: 'center' }}>
                             <div style={{ padding: '0.75rem', background: 'rgba(212, 175, 55, 0.1)', borderRadius: '0.5rem', color: 'var(--secondary)' }}>
                                 <BookOpen size={24} />
                             </div>
                             <div>
-                                <h3 style={{ margin: 0, fontSize: '1.1rem' }}>{project.title}</h3>
-                                <div style={{ display: 'flex', gap: '1rem', fontSize: '0.85rem', color: 'var(--text-light)', marginTop: '0.25rem' }}>
+                                <h3 style={{ margin: 0, fontSize: '1.1rem', color: 'var(--text)' }}>{project.title}</h3>
+                                <div style={{ display: 'flex', gap: '1rem', fontSize: '0.85rem', color: 'var(--text-light)', marginTop: '0.25rem', flexWrap: 'wrap' }}>
                                     <span><b>Categoria:</b> {project.category}</span>
                                     <span><b>Autor:</b> {project.author}</span>
                                 </div>
                             </div>
                         </div>
-                        <div style={{ textAlign: 'right' }}>
+                        <div style={{ textAlign: 'right', minWidth: '120px' }}>
                             <span style={{
                                 padding: '0.25rem 0.75rem',
                                 borderRadius: '1rem',
                                 fontSize: '0.75rem',
                                 fontWeight: 600,
-                                background: project.status === 'Aprovado' ? '#c6f6d5' : project.status === 'Rascunho' ? '#edf2f7' : '#feebc8',
-                                color: project.status === 'Aprovado' ? '#22543d' : project.status === 'Rascunho' ? '#4a5568' : '#744210',
+                                background: project.status === 'Aprovado' ? 'rgba(56, 161, 105, 0.1)' : project.status === 'Rascunho' ? 'var(--bg-color)' : 'rgba(237, 137, 54, 0.1)',
+                                color: project.status === 'Aprovado' ? '#38a169' : project.status === 'Rascunho' ? 'var(--text-light)' : '#ed8936',
+                                border: '1px solid transparent',
+                                borderColor: project.status === 'Aprovado' ? '#38a169' : 'transparent',
                                 display: 'inline-block'
                             }}>
                                 {project.status}

@@ -29,10 +29,10 @@ const Dashboard = () => {
                 </div>
                 <div
                     onClick={() => navigate('/calendar')}
-                    style={{ padding: '0.75rem 1.25rem', background: 'white', borderRadius: '1rem', boxShadow: 'var(--shadow)', display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer' }}
+                    style={{ padding: '0.75rem 1.25rem', background: 'var(--surface)', borderRadius: '1rem', boxShadow: 'var(--shadow)', display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer', border: '1px solid var(--border)' }}
                 >
                     <Calendar size={20} style={{ color: 'var(--primary)' }} />
-                    <span style={{ fontWeight: 600, fontSize: '0.9rem' }}>Quarta, 14 de Janeiro</span>
+                    <span style={{ fontWeight: 600, fontSize: '0.9rem', color: 'var(--text)' }}>Quarta, 14 de Janeiro</span>
                 </div>
             </header>
 

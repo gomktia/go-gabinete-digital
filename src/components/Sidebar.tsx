@@ -52,7 +52,7 @@ const Sidebar = () => {
                             <div style={{
                                 width: '60px',
                                 height: '60px',
-                                background: 'white',
+                                background: 'var(--primary)',
                                 borderRadius: '12px',
                                 display: 'flex',
                                 alignItems: 'center',
@@ -60,19 +60,19 @@ const Sidebar = () => {
                                 margin: '0 auto 1rem',
                                 boxShadow: '0 4px 6px rgba(0,0,0,0.1)'
                             }}>
-                                <Shield size={32} color="var(--primary)" />
+                                <Shield size={32} color="white" />
                             </div>
-                            <h2 style={{ color: 'white', fontSize: '1.1rem', marginBottom: '0.25rem' }}>
+                            <h2 style={{ color: 'var(--sidebar-text)', fontSize: '1.1rem', marginBottom: '0.25rem' }}>
                                 {tenant.name}
                             </h2>
-                            <div style={{ fontSize: '0.8rem', opacity: 0.7, color: 'white' }}>
+                            <div style={{ fontSize: '0.8rem', opacity: 0.7, color: 'var(--sidebar-text)' }}>
                                 Mandato Inovador
                             </div>
                         </>
                     )}
                     {isCollapsed && (
                         <div style={{ display: 'flex', justifyContent: 'center' }}>
-                            <Shield size={28} color="white" />
+                            <Shield size={28} color="var(--primary)" />
                         </div>
                     )}
 
@@ -83,8 +83,8 @@ const Sidebar = () => {
                             position: 'absolute',
                             right: '-12px',
                             top: '20px',
-                            background: 'white',
-                            border: '1px solid #e2e8f0',
+                            background: 'var(--surface)',
+                            border: '1px solid var(--border)',
                             borderRadius: '50%',
                             width: '24px',
                             height: '24px',
@@ -117,10 +117,10 @@ const Sidebar = () => {
                                             alignItems: 'center',
                                             gap: '1rem',
                                             padding: '0.75rem 1rem',
-                                            color: isActive ? 'var(--primary)' : 'rgba(255,255,255,0.8)',
+                                            color: isActive ? 'var(--sidebar-active-text)' : 'var(--sidebar-text)',
                                             textDecoration: 'none',
                                             borderRadius: '0.5rem',
-                                            background: isActive ? 'white' : 'transparent',
+                                            background: isActive ? 'var(--sidebar-active-bg)' : 'transparent',
                                             fontWeight: isActive ? 600 : 400,
                                             transition: 'all 0.2s',
                                             margin: isCollapsed ? '0 auto' : '0 0.5rem',
@@ -137,7 +137,7 @@ const Sidebar = () => {
                     </ul>
                 </nav>
 
-                <div className="sidebar-footer" style={{ borderTop: '1px solid rgba(255,255,255,0.1)', paddingTop: '1.5rem', marginTop: '1rem', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                <div className="sidebar-footer" style={{ borderTop: '1px solid var(--border)', paddingTop: '1.5rem', marginTop: '1rem', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
 
                     <div style={{
                         display: 'flex',
@@ -145,14 +145,14 @@ const Sidebar = () => {
                         gap: '12px',
                         padding: '0.5rem',
                         borderRadius: '0.5rem',
-                        background: 'rgba(0,0,0,0.2)',
+                        background: 'var(--sidebar-active-bg)',
                         marginBottom: '10px'
                     }}>
                         <div style={{
                             width: '36px',
                             height: '36px',
                             borderRadius: '50%',
-                            background: 'white',
+                            background: 'var(--surface)',
                             display: 'flex',
                             alignItems: 'center',
                             justifyContent: 'center',
@@ -167,14 +167,14 @@ const Sidebar = () => {
                         </div>
                         {!isCollapsed && (
                             <div style={{ overflow: 'hidden', flex: 1 }}>
-                                <p style={{ margin: 0, fontSize: '0.8rem', color: 'white', fontWeight: 600, whiteSpace: 'nowrap', textOverflow: 'ellipsis' }}>
+                                <p style={{ margin: 0, fontSize: '0.8rem', color: 'var(--sidebar-text)', fontWeight: 600, whiteSpace: 'nowrap', textOverflow: 'ellipsis' }}>
                                     {tenant.name.split(' ')[0]}
                                 </p>
                                 <div
                                     onClick={toggleTheme}
                                     style={{
                                         fontSize: '0.7rem',
-                                        color: 'rgba(255,255,255,0.7)',
+                                        color: 'var(--text-light)',
                                         cursor: 'pointer',
                                         display: 'flex',
                                         alignItems: 'center',
@@ -190,7 +190,7 @@ const Sidebar = () => {
                     </div>
 
                     {!isCollapsed && (tenant.role === 'SUPER_ADMIN' || tenant.role === 'VEREADOR') && (
-                        <Link to="/settings" onClick={() => setIsMobileOpen(false)} style={{ color: 'white', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '1rem', fontSize: '0.9rem', opacity: 0.8, padding: '0.5rem', borderRadius: '0.5rem', transition: 'background 0.2s' }}>
+                        <Link to="/settings" onClick={() => setIsMobileOpen(false)} style={{ color: 'var(--sidebar-text)', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '1rem', fontSize: '0.9rem', opacity: 0.8, padding: '0.5rem', borderRadius: '0.5rem', transition: 'background 0.2s' }}>
                             <Settings size={18} />
                             <span>Configurações</span>
                         </Link>
@@ -198,7 +198,7 @@ const Sidebar = () => {
 
                     <button
                         onClick={logout}
-                        style={{ background: 'none', border: 'none', color: '#ff8a8a', display: 'flex', alignItems: 'center', gap: '1rem', cursor: 'pointer', outline: 'none', padding: '0.5rem', fontSize: '0.9rem', justifyContent: isCollapsed ? 'center' : 'flex-start' }}
+                        style={{ background: 'none', border: 'none', color: '#ff6b6b', display: 'flex', alignItems: 'center', gap: '1rem', cursor: 'pointer', outline: 'none', padding: '0.5rem', fontSize: '0.9rem', justifyContent: isCollapsed ? 'center' : 'flex-start' }}
                     >
                         <LogOut size={18} />
                         {!isCollapsed && <span>Sair</span>}

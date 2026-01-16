@@ -20,6 +20,7 @@ const LoginPage = () => {
     return (
         <div style={{
             minHeight: '100vh',
+            width: '100%', // Fix centering issue
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',

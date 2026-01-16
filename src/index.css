@@ -11,6 +11,14 @@
   --text-light: #64748b;
   --border: #e2e8f0;
 
+  /* Sidebar Variables - Light Mode (White Sidebar) */
+  --sidebar-bg: #ffffff;
+  --sidebar-text: #475569;
+  --sidebar-active-bg: #f1f5f9;
+  --sidebar-active-text: #1a365d;
+  --sidebar-hover: #f8fafc;
+  --sidebar-border: #e2e8f0;
+
   /* Glass Effect Variables */
   --glass: rgba(255, 255, 255, 0.7);
   --glass-border: rgba(255, 255, 255, 0.5);
@@ -28,6 +36,15 @@
   --text: #f8fafc;
   --text-light: #94a3b8;
   --border: #334155;
+
+  /* Sidebar Variables - Dark Mode (Blue Sidebar) */
+  --sidebar-bg: #1a365d;
+  --sidebar-text: #e2e8f0;
+  --sidebar-active-bg: rgba(255, 255, 255, 0.1);
+  --sidebar-active-text: #ffffff;
+  --sidebar-hover: rgba(255, 255, 255, 0.05);
+  --sidebar-border: #2c5282;
+
   --glass: rgba(30, 41, 59, 0.7);
   --glass-border: rgba(255, 255, 255, 0.1);
   --shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
@@ -63,18 +80,18 @@ body {
 /* Layout Components */
 .sidebar {
   width: var(--sidebar-width);
-  background: var(--primary) !important;
-  /* Force Blue Background */
-  color: white !important;
+  background: var(--sidebar-bg) !important;
+  color: var(--sidebar-text) !important;
+  border-right: 1px solid var(--sidebar-border);
   padding: 2rem 1.5rem;
   display: flex;
   flex-direction: column;
   height: 100vh;
   position: sticky;
   top: 0;
-  transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.3s ease;
   z-index: 1000;
-  box-shadow: 4px 0 20px rgba(0, 0, 0, 0.1);
+  box-shadow: 4px 0 20px rgba(0, 0, 0, 0.05);
   flex-shrink: 0;
 }
 

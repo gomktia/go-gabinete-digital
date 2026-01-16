@@ -125,9 +125,9 @@ const VoterCrm = () => {
 
             {/* Main List */}
             <div className="glass-card" style={{ padding: '0' }}>
-                <div style={{ padding: '1.5rem', borderBottom: '1px solid rgba(255,255,255,0.1)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <div style={{ position: 'relative', width: '300px' }}>
-                        <Search size={18} style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)', opacity: 0.5 }} />
+                <div style={{ padding: '1.5rem', borderBottom: '1px solid var(--border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
+                    <div style={{ position: 'relative', width: '100%', maxWidth: '300px' }}>
+                        <Search size={18} style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)', opacity: 0.5, color: 'var(--text)' }} />
                         <input
                             type="text"
                             placeholder="Buscar por nome, bairro ou telefone..."
@@ -135,26 +135,27 @@ const VoterCrm = () => {
                                 width: '100%',
                                 padding: '0.75rem 1rem 0.75rem 2.8rem',
                                 borderRadius: '0.5rem',
-                                background: 'rgba(255,255,255,0.05)',
-                                border: '1px solid rgba(255,255,255,0.1)',
-                                color: 'white'
+                                background: 'var(--bg-color)',
+                                border: '1px solid var(--border)',
+                                color: 'var(--text)'
                             }}
                         />
                     </div>
-                    <div style={{ display: 'flex', gap: '0.5rem' }}>
+                    <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
                         {['todos', 'ganho', 'indeciso', 'pendente'].map(status => (
                             <button
                                 key={status}
                                 onClick={() => setFilterStatus(status)}
                                 style={{
-                                    background: filterStatus === status ? 'rgba(212, 175, 55, 0.2)' : 'transparent',
-                                    border: filterStatus === status ? '1px solid var(--secondary)' : '1px solid rgba(255,255,255,0.1)',
-                                    color: filterStatus === status ? 'var(--secondary)' : 'var(--text-light)',
+                                    background: filterStatus === status ? 'var(--secondary)' : 'transparent',
+                                    border: filterStatus === status ? '1px solid var(--secondary)' : '1px solid var(--border)',
+                                    color: filterStatus === status ? 'var(--primary)' : 'var(--text-light)',
                                     padding: '0.4rem 1rem',
                                     borderRadius: '2rem',
                                     cursor: 'pointer',
                                     fontSize: '0.8rem',
-                                    textTransform: 'capitalize'
+                                    textTransform: 'capitalize',
+                                    fontWeight: filterStatus === status ? 700 : 400
                                 }}
                             >
                                 {status}
@@ -163,38 +164,38 @@ const VoterCrm = () => {
                     </div>
                 </div>
 
-                <div style={{ padding: '0.5rem' }}>
-                    <table style={{ width: '100%', borderCollapse: 'collapse', color: 'white' }}>
+                <div style={{ padding: '0.5rem', overflowX: 'auto' }}>
+                    <table style={{ width: '100%', borderCollapse: 'collapse', color: 'var(--text)' }}>
                         <thead>
-                            <tr style={{ borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
-                                <th style={{ padding: '1rem', textAlign: 'left', opacity: 0.6, fontSize: '0.8rem' }}>Nome</th>
-                                <th style={{ padding: '1rem', textAlign: 'left', opacity: 0.6, fontSize: '0.8rem' }}>Bairro</th>
-                                <th style={{ padding: '1rem', textAlign: 'left', opacity: 0.6, fontSize: '0.8rem' }}>Status</th>
-                                <th style={{ padding: '1rem', textAlign: 'left', opacity: 0.6, fontSize: '0.8rem' }}>Responsável</th>
-                                <th style={{ padding: '1rem', textAlign: 'right', opacity: 0.6, fontSize: '0.8rem' }}>Ações</th>
+                            <tr style={{ borderBottom: '1px solid var(--border)' }}>
+                                <th style={{ padding: '1rem', textAlign: 'left', opacity: 0.8, fontSize: '0.8rem', color: 'var(--text-light)' }}>Nome</th>
+                                <th style={{ padding: '1rem', textAlign: 'left', opacity: 0.8, fontSize: '0.8rem', color: 'var(--text-light)' }}>Bairro</th>
+                                <th style={{ padding: '1rem', textAlign: 'left', opacity: 0.8, fontSize: '0.8rem', color: 'var(--text-light)' }}>Status</th>
+                                <th style={{ padding: '1rem', textAlign: 'left', opacity: 0.8, fontSize: '0.8rem', color: 'var(--text-light)' }}>Responsável</th>
+                                <th style={{ padding: '1rem', textAlign: 'right', opacity: 0.8, fontSize: '0.8rem', color: 'var(--text-light)' }}>Ações</th>
                             </tr>
                         </thead>
                         <tbody>
                             {voters.filter(v => filterStatus === 'todos' || v.status === filterStatus).map((voter) => (
                                 <tr
                                     key={voter.id}
-                                    style={{ cursor: 'pointer', transition: 'background 0.2s', borderBottom: '1px solid rgba(255,255,255,0.02)' }}
+                                    style={{ cursor: 'pointer', transition: 'background 0.2s', borderBottom: '1px solid var(--border)' }}
                                     className="hover-bg"
                                     onClick={() => handleVoterClick(voter)}
                                 >
                                     <td style={{ padding: '1rem' }}>
                                         <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                                            <div style={{ width: '32px', height: '32px', background: 'rgba(255,255,255,0.1)', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.8rem', fontWeight: 700 }}>
+                                            <div style={{ width: '32px', height: '32px', background: 'var(--bg-color)', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.8rem', fontWeight: 700, color: 'var(--primary)' }}>
                                                 {voter.name.charAt(0)}
                                             </div>
                                             <div>
-                                                <div style={{ fontWeight: 600 }}>{voter.name}</div>
-                                                <div style={{ fontSize: '0.75rem', opacity: 0.6 }}>{voter.phone}</div>
+                                                <div style={{ fontWeight: 600, color: 'var(--text)' }}>{voter.name}</div>
+                                                <div style={{ fontSize: '0.75rem', opacity: 0.8, color: 'var(--text-light)' }}>{voter.phone}</div>
                                             </div>
                                         </div>
                                     </td>
                                     <td style={{ padding: '1rem' }}>
-                                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', fontSize: '0.9rem' }}>
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', fontSize: '0.9rem', color: 'var(--text)' }}>
                                             <MapPin size={14} style={{ opacity: 0.6 }} /> {voter.neighborhood}
                                         </div>
                                     </td>
@@ -215,10 +216,10 @@ const VoterCrm = () => {
                                         {voter.leader}
                                     </td>
                                     <td style={{ padding: '1rem', textAlign: 'right' }}>
-                                        <button className="icon-btn" style={{ marginRight: '0.5rem' }} title="Chamar no WhatsApp">
+                                        <button className="icon-btn" style={{ marginRight: '0.5rem', background: 'transparent', border: 'none', cursor: 'pointer' }} title="Chamar no WhatsApp">
                                             <MessageCircle size={18} color="#25D366" />
                                         </button>
-                                        <button className="icon-btn">
+                                        <button className="icon-btn" style={{ background: 'transparent', border: 'none', cursor: 'pointer', color: 'var(--text-light)' }}>
                                             <MoreHorizontal size={18} />
                                         </button>
                                     </td>

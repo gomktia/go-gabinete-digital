@@ -63,21 +63,22 @@ const DemandsPage = () => {
                     <h1>Mapa de Demandas</h1>
                     <p style={{ color: 'var(--text-light)' }}>Gestão geolocalizada e acompanhamento de visitas em campo.</p>
                 </div>
-                <div style={{ display: 'flex', background: '#edf2f7', padding: '4px', borderRadius: '0.75rem' }}>
+                <div style={{ display: 'flex', background: 'var(--bg-color)', padding: '4px', borderRadius: '0.75rem', border: '1px solid var(--border)' }}>
                     <button
                         onClick={() => setView('list')}
                         style={{
                             padding: '0.5rem 1rem',
                             borderRadius: '0.5rem',
                             border: 'none',
-                            background: view === 'list' ? 'white' : 'transparent',
+                            background: view === 'list' ? 'var(--surface)' : 'transparent',
                             boxShadow: view === 'list' ? '0 2px 4px rgba(0,0,0,0.1)' : 'none',
                             cursor: 'pointer',
                             display: 'flex',
                             alignItems: 'center',
                             gap: '8px',
                             fontWeight: 600,
-                            color: view === 'list' ? 'var(--primary)' : 'var(--text-light)'
+                            color: view === 'list' ? 'var(--primary)' : 'var(--text-light)',
+                            transition: 'all 0.2s'
                         }}
                     >
                         <List size={18} /> Lista
@@ -88,14 +89,15 @@ const DemandsPage = () => {
                             padding: '0.5rem 1rem',
                             borderRadius: '0.5rem',
                             border: 'none',
-                            background: view === 'map' ? 'white' : 'transparent',
+                            background: view === 'map' ? 'var(--surface)' : 'transparent',
                             boxShadow: view === 'map' ? '0 2px 4px rgba(0,0,0,0.1)' : 'none',
                             cursor: 'pointer',
                             display: 'flex',
                             alignItems: 'center',
                             gap: '8px',
                             fontWeight: 600,
-                            color: view === 'map' ? 'var(--primary)' : 'var(--text-light)'
+                            color: view === 'map' ? 'var(--primary)' : 'var(--text-light)',
+                            transition: 'all 0.2s'
                         }}
                     >
                         <MapIcon size={18} /> Mapa
@@ -103,7 +105,7 @@ const DemandsPage = () => {
                 </div>
             </header>
 
-            <div className="glass-card" style={{ marginBottom: '2rem', display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
+            <div className="glass-card" style={{ marginBottom: '2rem', display: 'flex', gap: '1rem', flexWrap: 'wrap', alignItems: 'center' }}>
                 <div style={{ flex: 1, minWidth: '250px', position: 'relative' }}>
                     <Search size={18} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-light)' }} />
                     <input
@@ -111,20 +113,20 @@ const DemandsPage = () => {
                         placeholder="Buscar por local ou descrição..."
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
-                        style={{ width: '100%', padding: '0.75rem 2.5rem', borderRadius: '0.5rem', border: '1px solid #e2e8f0', outline: 'none', marginTop: 0 }}
+                        style={{ width: '100%', padding: '0.75rem 2.5rem', borderRadius: '0.5rem', border: '1px solid var(--border)', background: 'var(--bg-color)', color: 'var(--text)', outline: 'none', marginTop: 0 }}
                     />
                 </div>
                 <select
                     value={filterResponsible}
                     onChange={(e) => setFilterResponsible(e.target.value)}
-                    style={{ width: 'auto', minWidth: '180px', marginTop: 0 }}
+                    style={{ width: 'auto', minWidth: '180px', marginTop: 0, background: 'var(--bg-color)', color: 'var(--text)', border: '1px solid var(--border)' }}
                 >
                     <option value="Todos">Por Responsável: Todos</option>
                     <option value="Vereador João">Vereador João</option>
                     <option value="Assessor Marcos">Assessor Marcos</option>
                     <option value="Assessora Sandra">Assessora Sandra</option>
                 </select>
-                <button className="btn-primary flex-center gap-1" style={{ background: '#edf2f7', color: 'var(--primary)' }}>
+                <button className="btn-primary flex-center gap-1" style={{ background: 'var(--bg-color)', color: 'var(--primary)', border: '1px solid var(--border)' }}>
                     <Filter size={18} /> Filtros Avançados
                 </button>
             </div>
@@ -147,7 +149,7 @@ const DemandsPage = () => {
                                     display: 'flex',
                                     justifyContent: 'space-between',
                                     alignItems: 'center',
-                                    background: 'white',
+                                    background: 'var(--surface)',
                                     cursor: 'pointer',
                                     borderLeft: `4px solid ${demand.status === 'resolved' ? '#38a169' : demand.priority === 'high' ? '#e53e3e' : '#ed8936'}`
                                 }}
@@ -155,14 +157,14 @@ const DemandsPage = () => {
                                 <div style={{ display: 'flex', gap: '1.5rem', alignItems: 'center' }}>
                                     <div style={{
                                         padding: '0.75rem',
-                                        background: demand.status === 'resolved' ? '#f0fff4' : demand.priority === 'high' ? '#fff5f5' : '#fffaf0',
+                                        background: demand.status === 'resolved' ? 'rgba(56, 161, 105, 0.1)' : demand.priority === 'high' ? 'rgba(229, 62, 62, 0.1)' : 'rgba(237, 137, 54, 0.1)',
                                         borderRadius: '0.5rem',
                                         color: demand.status === 'resolved' ? '#38a169' : demand.priority === 'high' ? '#e53e3e' : '#ed8936'
                                     }}>
                                         {demand.status === 'resolved' ? <CheckCircle size={24} /> : <AlertTriangle size={24} />}
                                     </div>
                                     <div>
-                                        <h3 style={{ margin: 0, fontSize: '1.1rem' }}>{demand.title}</h3>
+                                        <h3 style={{ margin: 0, fontSize: '1.1rem', color: 'var(--text)' }}>{demand.title}</h3>
                                         <div style={{ display: 'flex', gap: '1rem', fontSize: '0.85rem', color: 'var(--text-light)', marginTop: '0.25rem' }}>
                                             <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}><MapPin size={14} /> {demand.local}</span>
                                             <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}><Clock size={14} /> {demand.visits.length > 0 ? `${demand.visits.length} visitas` : 'Sem visitas'}</span>
@@ -175,12 +177,13 @@ const DemandsPage = () => {
                                         borderRadius: '1rem',
                                         fontSize: '0.75rem',
                                         fontWeight: 700,
-                                        background: demand.status === 'resolved' ? '#c6f6d5' : demand.status === 'in-progress' ? '#bee3f8' : '#feebc8',
-                                        color: demand.status === 'resolved' ? '#22543d' : demand.status === 'in-progress' ? '#2a4365' : '#744210'
+                                        background: demand.status === 'resolved' ? 'rgba(56, 161, 105, 0.1)' : demand.status === 'in-progress' ? 'rgba(49, 130, 206, 0.1)' : 'rgba(237, 137, 54, 0.1)',
+                                        color: demand.status === 'resolved' ? '#38a169' : demand.status === 'in-progress' ? '#3182ce' : '#ed8936',
+                                        border: '1px solid transparent'
                                     }}>
                                         {demand.status === 'resolved' ? 'Resolvido' : demand.status === 'in-progress' ? 'Em Andamento' : 'Pendente'}
                                     </span>
-                                    <ChevronRight size={20} color="#cbd5e0" />
+                                    <ChevronRight size={20} color="var(--text-light)" />
                                 </div>
                             </div>
                         ))}
