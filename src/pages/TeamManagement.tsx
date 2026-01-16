@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { motion } from 'framer-motion';
 import {
     Users, MapPin, DollarSign, CheckCircle, Clock, Plus, Filter,
-    Briefcase, AlertTriangle, Calendar
+    Briefcase, AlertTriangle
 } from 'lucide-react';
 import { Modal } from '../components/UIComponents';
 
@@ -16,7 +16,6 @@ const initialTeam = [
 const TeamManagement = () => {
     const [team, setTeam] = useState(initialTeam);
     const [isAddModalOpen, setIsAddModalOpen] = useState(false);
-    const [filterStatus, setFilterStatus] = useState('todos');
 
     // Stats
     const totalActive = team.filter(t => t.status === 'active').length;

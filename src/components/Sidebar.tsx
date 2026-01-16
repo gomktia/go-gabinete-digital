@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import {
     LayoutDashboard, Map, FileText, Bot, Share2, DollarSign, Users,
     Settings, LogOut, MessageSquare, ChevronLeft, ChevronRight, Menu, X, Calendar, Sun, Moon, User, Shield, Zap, Globe, Briefcase, ChevronDown
@@ -149,7 +149,6 @@ const Sidebar = () => {
                             if (visibleItems.length === 0) return null;
 
                             const isExpanded = expandedGroups.includes(group.id);
-                            const GroupIcon = group.icon;
 
                             return (
                                 <li key={group.id} style={{ marginBottom: isCollapsed ? '0.5rem' : '0' }}>

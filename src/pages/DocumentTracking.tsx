@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { FileText, Calendar, Clock, AlertTriangle, Search, Filter, Plus, Eye, Download, CheckCircle, Bell, Upload, PenTool, Check } from 'lucide-react';
+import { FileText, Calendar, AlertTriangle, Filter, Plus, Download, Bell, Upload, PenTool, Check } from 'lucide-react';
 import { Modal } from '../components/UIComponents';
 
 const initialDocs = [
@@ -16,7 +16,6 @@ const DocumentTracking = () => {
     const [isGovModalOpen, setIsGovModalOpen] = useState(false);
     const [selectedDocId, setSelectedDocId] = useState<number | null>(null);
     const [isSigning, setIsSigning] = useState(false);
-    const [filterStatus, setFilterStatus] = useState('all');
 
     const handleSignDocument = (id: number) => {
         setSelectedDocId(id);
