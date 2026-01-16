@@ -32,7 +32,7 @@ const AIAssistant = () => {
         <>
             {/* Floating Button */}
             <motion.button
-                className="btn-gold flex-center"
+                className="btn-gold"
                 onClick={() => setIsOpen(true)}
                 whileHover={{ scale: 1.1 }}
                 whileTap={{ scale: 0.9 }}
@@ -46,7 +46,11 @@ const AIAssistant = () => {
                     boxShadow: '0 8px 30px rgba(212, 175, 55, 0.4)',
                     zIndex: 1000,
                     border: 'none',
-                    cursor: 'pointer'
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    padding: 0
                 }}
             >
                 <Bot size={28} />
