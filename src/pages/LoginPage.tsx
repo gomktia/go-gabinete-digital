@@ -20,131 +20,180 @@ const LoginPage = () => {
     return (
         <div style={{
             minHeight: '100vh',
-            width: '100%', // Fix centering issue
+            width: '100%',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            background: 'radial-gradient(circle at top left, #1a365d 0%, #0a192f 100%)',
-            padding: '20px'
+            background: 'radial-gradient(circle at 50% 10%, #2a4365 0%, #1a202c 40%, #000000 100%)', // Deep premium night sky
+            padding: '20px',
+            position: 'relative',
+            overflow: 'hidden'
         }}>
+            {/* Background Decor */}
+            <div style={{ position: 'absolute', top: '-10%', right: '-5%', width: '300px', height: '300px', background: 'var(--primary)', filter: 'blur(150px)', opacity: 0.15, borderRadius: '50%' }}></div>
+            <div style={{ position: 'absolute', bottom: '-10%', left: '-5%', width: '400px', height: '400px', background: 'var(--secondary)', filter: 'blur(150px)', opacity: 0.1, borderRadius: '50%' }}></div>
+
             <motion.div
                 initial={{ opacity: 0, y: 30 }}
                 animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, ease: "easeOut" }}
                 className="glass-card"
                 style={{
-                    maxWidth: '450px',
+                    maxWidth: '420px',
                     width: '100%',
-                    padding: '2rem',
-                    /* Force dark translucent background for login card */
-                    background: 'rgba(255, 255, 255, 0.1)',
-                    backdropFilter: 'blur(10px)',
-                    border: '1px solid rgba(255,255,255,0.2)',
-                    boxShadow: '0 20px 50px rgba(0,0,0,0.5)',
+                    padding: '2.5rem',
+                    background: 'rgba(255, 255, 255, 0.03)', // Ultra thin glass
+                    backdropFilter: 'blur(20px)', // Heavy blur
+                    border: '1px solid rgba(255,255,255,0.08)',
+                    boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)',
                     display: 'flex',
-                    flexDirection: 'column'
+                    flexDirection: 'column',
+                    position: 'relative',
+                    zIndex: 10
                 }}
             >
-                <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
-                    <div style={{
-                        width: '70px',
-                        height: '70px',
-                        background: 'var(--secondary)',
-                        borderRadius: '1.5rem',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        margin: '0 auto 1.5rem',
-                        boxShadow: '0 0 30px rgba(212, 175, 55, 0.4)'
-                    }}>
-                        <Shield size={35} color="#1a365d" />
-                    </div>
-                    <h1 style={{ color: 'white', fontSize: '1.75rem', marginBottom: '0.5rem' }}>Gabinete Digital</h1>
-                    <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.9rem' }}>Acesse sua plataforma de gestão legislativa.</p>
+                <div style={{ textAlign: 'center', marginBottom: '2.5rem' }}>
+                    <motion.div
+                        initial={{ scale: 0.8, opacity: 0 }}
+                        animate={{ scale: 1, opacity: 1 }}
+                        transition={{ delay: 0.2, type: 'spring' }}
+                        style={{
+                            width: '80px',
+                            height: '80px',
+                            background: 'linear-gradient(135deg, var(--secondary) 0%, #b7950b 100%)', // Gold gradient
+                            borderRadius: '20px',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            margin: '0 auto 1.5rem',
+                            boxShadow: '0 10px 25px rgba(212, 175, 55, 0.3)',
+                            position: 'relative'
+                        }}
+                    >
+                        <Shield size={40} color="#1a202c" fill="rgba(26, 32, 44, 0.2)" strokeWidth={1.5} />
+                    </motion.div>
+                    <h1 style={{ color: 'white', fontSize: '1.8rem', fontWeight: 700, marginBottom: '0.75rem', letterSpacing: '-0.5px' }}>Gabinete Digital</h1>
+                    <p style={{ color: '#a0aec0', fontSize: '0.95rem', lineHeight: '1.5' }}>Plataforma integrada de gestão parlamentar.</p>
                 </div>
 
-                <form onSubmit={handleLogin} style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+                <form onSubmit={handleLogin} style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
                     <div style={{ position: 'relative' }}>
-                        <Mail size={18} style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)', color: 'rgba(255,255,255,0.4)', zIndex: 1 }} />
+                        <Mail size={20} style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)', color: '#718096', zIndex: 1 }} />
                         <input
                             type="email"
-                            placeholder="E-mail"
+                            placeholder="Seu e-mail profissional"
                             value={email}
                             onChange={(e) => setEmail(e.target.value)}
                             required
                             style={{
                                 width: '100%',
-                                padding: '1.1rem 1.1rem 1.1rem 3rem',
-                                background: 'rgba(255,255,255,0.05)',
-                                border: '1px solid rgba(255,255,255,0.1)',
-                                borderRadius: '1rem',
+                                padding: '1rem 1rem 1rem 3rem',
+                                background: 'rgba(0, 0, 0, 0.2)', // Darker input
+                                border: '1px solid rgba(255, 255, 255, 0.1)',
+                                borderRadius: '0.75rem',
                                 color: 'white',
                                 outline: 'none',
-                                transition: 'border-color 0.2s',
-                                boxSizing: 'border-box' /* Ensure padding doesn't overflow width */
+                                transition: 'all 0.2s',
+                                fontSize: '0.95rem'
+                            }}
+                            onFocus={(e) => {
+                                e.target.style.borderColor = 'var(--secondary)';
+                                e.target.style.background = 'rgba(0, 0, 0, 0.3)';
+                            }}
+                            onBlur={(e) => {
+                                e.target.style.borderColor = 'rgba(255, 255, 255, 0.1)';
+                                e.target.style.background = 'rgba(0, 0, 0, 0.2)';
                             }}
                         />
                     </div>
 
                     <div style={{ position: 'relative' }}>
-                        <Lock size={18} style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)', color: 'rgba(255,255,255,0.4)', zIndex: 1 }} />
+                        <Lock size={20} style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)', color: '#718096', zIndex: 1 }} />
                         <input
                             type="password"
-                            placeholder="Senha"
+                            placeholder="Sua senha segura"
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
                             required
                             style={{
                                 width: '100%',
-                                padding: '1.1rem 1.1rem 1.1rem 3rem',
-                                background: 'rgba(255,255,255,0.05)',
-                                border: '1px solid rgba(255,255,255,0.1)',
-                                borderRadius: '1rem',
+                                padding: '1rem 1rem 1rem 3rem',
+                                background: 'rgba(0, 0, 0, 0.2)',
+                                border: '1px solid rgba(255, 255, 255, 0.1)',
+                                borderRadius: '0.75rem',
                                 color: 'white',
                                 outline: 'none',
-                                boxSizing: 'border-box' /* Ensure padding doesn't overflow width */
+                                transition: 'all 0.2s',
+                                fontSize: '0.95rem'
+                            }}
+                            onFocus={(e) => {
+                                e.target.style.borderColor = 'var(--secondary)';
+                                e.target.style.background = 'rgba(0, 0, 0, 0.3)';
+                            }}
+                            onBlur={(e) => {
+                                e.target.style.borderColor = 'rgba(255, 255, 255, 0.1)';
+                                e.target.style.background = 'rgba(0, 0, 0, 0.2)';
                             }}
                         />
                     </div>
 
                     {error && (
-                        <p style={{ color: '#ff6b6b', fontSize: '0.85rem', textAlign: 'center', margin: 0 }}>{error}</p>
+                        <motion.div
+                            initial={{ opacity: 0, height: 0 }}
+                            animate={{ opacity: 1, height: 'auto' }}
+                            style={{ background: 'rgba(229, 62, 62, 0.15)', border: '1px solid #e53e3e', borderRadius: '0.5rem', padding: '0.75rem', color: '#fc8181', fontSize: '0.85rem', textAlign: 'center', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}
+                        >
+                            <span style={{ width: '6px', height: '6px', background: '#fc8181', borderRadius: '50%' }}></span>
+                            {error}
+                        </motion.div>
                     )}
 
                     <button
                         type="submit"
                         className="btn-gold"
                         style={{
-                            padding: '1.1rem',
-                            borderRadius: '1rem',
+                            padding: '1rem',
+                            borderRadius: '0.75rem',
                             fontSize: '1rem',
+                            fontWeight: 600,
                             display: 'flex',
                             alignItems: 'center',
                             justifyContent: 'center',
-                            gap: '10px',
+                            gap: '12px',
                             border: 'none',
                             cursor: 'pointer',
-                            width: '100%'
+                            width: '100%',
+                            marginTop: '0.5rem',
+                            boxShadow: '0 4px 15px rgba(212, 175, 55, 0.25)',
+                            transition: 'transform 0.2s'
                         }}
+                        onMouseOver={(e) => e.currentTarget.style.transform = 'translateY(-2px)'}
+                        onMouseOut={(e) => e.currentTarget.style.transform = 'translateY(0)'}
                     >
-                        <LogIn size={20} /> Entrar no Gabinete
+                        <LogIn size={20} /> Entrar no Sistema
                     </button>
                 </form>
 
-                <div style={{ marginTop: '2.5rem', borderTop: '1px solid rgba(255,255,255,0.1)', paddingTop: '1.5rem', textAlign: 'center' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', color: 'var(--secondary)', fontSize: '0.8rem', fontWeight: 600 }}>
-                        <Sparkles size={14} />
-                        Powered by Gabinete AI v2.0
+                <div style={{ marginTop: '2.5rem', textAlign: 'center' }}>
+                    <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', color: 'rgba(255,255,255,0.3)', fontSize: '0.75rem', letterSpacing: '1px', textTransform: 'uppercase' }}>
+                        <Sparkles size={12} />
+                        Powered by Gabinete AI
                     </div>
                 </div>
 
-                {/* Demo Credentials Hint */}
-                <div style={{ marginTop: '2rem', padding: '1rem', background: 'rgba(255,255,255,0.03)', borderRadius: '0.5rem', fontSize: '0.75rem', color: 'rgba(255,255,255,0.4)' }}>
-                    <p style={{ margin: '0 0 5px' }}><b>Logins de Demonstração:</b></p>
-                    <ul style={{ margin: 0, paddingLeft: '1.2rem', lineHeight: '1.5' }}>
-                        <li>superadmin@sistema.com / admin123</li>
-                        <li>vereador@exemplo.com / vereador123</li>
-                        <li>assessor@equipe.com / assessor123</li>
-                    </ul>
+                {/* Improved Demo Credentials */}
+                <div style={{ marginTop: '1.5rem', padding: '1rem', background: 'rgba(0, 0, 0, 0.4)', borderRadius: '0.75rem', border: '1px solid rgba(255,255,255,0.05)' }}>
+                    <p style={{ margin: '0 0 10px', fontSize: '0.75rem', color: 'rgba(255,255,255,0.5)', textTransform: 'uppercase', letterSpacing: '0.5px', fontWeight: 600 }}>Acesso Rápido (Demo)</p>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.8rem', color: 'rgba(255,255,255,0.9)' }}>
+                            <span>Super Admin</span>
+                            <code style={{ background: 'rgba(255,255,255,0.1)', padding: '2px 6px', borderRadius: '4px', fontFamily: 'monospace', color: '#90cdf4' }}>superadmin@sistema.com</code>
+                        </div>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.8rem', color: 'rgba(255,255,255,0.9)' }}>
+                            <span>Vereador</span>
+                            <code style={{ background: 'rgba(255,255,255,0.1)', padding: '2px 6px', borderRadius: '4px', fontFamily: 'monospace', color: '#90cdf4' }}>vereador@exemplo.com</code>
+                        </div>
+                    </div>
                 </div>
             </motion.div>
         </div>
