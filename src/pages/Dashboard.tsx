@@ -1,13 +1,13 @@
-import { Users, FileCheck, MessageSquare, AlertTriangle, TrendingUp, Calendar, ArrowUpRight, ArrowDownRight } from 'lucide-react';
+import { Users, TrendingUp, Calendar, ArrowUpRight, ArrowDownRight, DollarSign, Share2, Flag } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useTenant } from '../context/TenantContext';
 import { useNavigate } from 'react-router-dom';
 
 const stats = [
-    { label: 'Demandas Ativas', value: '24', icon: MessageSquare, color: '#3182ce', trend: '+12%', trendUp: true, path: '/demands' },
-    { label: 'Proposições', value: '8', icon: FileCheck, color: '#38a169', trend: '+2', trendUp: true, path: '/proposals' },
-    { label: 'Cidadãos', value: '1,240', icon: Users, color: '#d4af37', trend: '+55', trendUp: true, path: '/' },
-    { label: 'Urgências', value: '3', icon: AlertTriangle, color: '#e53e3e', trend: '-20%', trendUp: false, path: '/demands' },
+    { label: 'Eleitores na Base', value: '1,240', icon: Users, color: '#d4af37', trend: '+55 hoje', trendUp: true, path: '/voters' },
+    { label: 'Gastos Campanha', value: '28%', icon: DollarSign, color: '#38a169', trend: 'Controlado', trendUp: true, path: '/finance' },
+    { label: 'Engajamento', value: '4.2k', icon: Share2, color: '#E1306C', trend: '+12%', trendUp: true, path: '/social-media' },
+    { label: 'Dias p/ Eleição', value: '45', icon: Flag, color: '#e53e3e', trend: 'Reta Final', trendUp: false, path: '/election-day' },
 ];
 
 const Dashboard = () => {
@@ -101,26 +101,40 @@ const Dashboard = () => {
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
                     <div className="glass-card" style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                            <h3 style={{ margin: 0 }}>Atividade nos Bairros</h3>
+                            <h3 style={{ margin: 0 }}>Funil de Votos (Quociente)</h3>
                             <span
-                                onClick={() => navigate('/demands')}
+                                onClick={() => navigate('/voters')}
                                 style={{ fontSize: '0.8rem', color: 'var(--primary)', fontWeight: 700, cursor: 'pointer' }}
                             >
-                                Ver Mapa Completo
+                                Ver CRM
                             </span>
                         </div>
-                        <div
-                            onClick={() => navigate('/demands')}
-                            style={{ height: '350px', background: '#f1f5f9', borderRadius: '1rem', position: 'relative', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}
-                        >
-                            <div style={{ width: '100%', height: '100%', opacity: 0.2, background: 'repeating-linear-gradient(90deg, #cbd5e1 0, #cbd5e1 1px, transparent 0, transparent 40px)' }}></div>
-                            <div style={{ position: 'absolute', top: '30%', left: '40%', width: '120px', height: '120px', background: 'rgba(212, 175, 55, 0.4)', borderRadius: '50%', filter: 'blur(20px)' }}></div>
-                            <div style={{ position: 'absolute', top: '50%', left: '20%', width: '80px', height: '80px', background: 'rgba(229, 62, 62, 0.3)', borderRadius: '50%', filter: 'blur(15px)' }}></div>
+                        <div style={{ padding: '1rem', background: 'linear-gradient(135deg, rgba(212, 175, 55, 0.1) 0%, rgba(212, 175, 55, 0.05) 100%)', borderRadius: '1rem' }}>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem', color: 'var(--secondary)', fontWeight: 700 }}>
+                                <span>1.240 Votos</span>
+                                <span>Meta: 3.500</span>
+                            </div>
+                            <div style={{ width: '100%', height: '12px', background: 'rgba(0,0,0,0.1)', borderRadius: '6px', overflow: 'hidden' }}>
+                                <motion.div
+                                    initial={{ width: 0 }}
+                                    animate={{ width: '35%' }}
+                                    transition={{ duration: 1 }}
+                                    style={{ width: '35%', height: '100%', background: 'var(--secondary)' }}
+                                />
+                            </div>
+                            <p style={{ fontSize: '0.8rem', marginTop: '0.5rem', color: 'var(--text-light)' }}>
+                                Focando em indecisos, podemos atingir 50% da meta até semana que vem.
+                            </p>
+                        </div>
 
-                            <div style={{ zIndex: 1, textAlign: 'center' }}>
-                                <AlertTriangle size={32} color="var(--primary)" style={{ opacity: 0.5, marginBottom: '0.5rem' }} />
-                                <p style={{ fontWeight: 700, color: 'var(--primary)' }}>Centro: Pico de demandas (Saúde)</p>
-                                <p style={{ fontSize: '0.8rem', color: 'var(--text-light)' }}>3 novas mensagens nas últimas 2 horas.</p>
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                            <div style={{ padding: '1rem', background: '#f1f5f9', borderRadius: '0.5rem', textAlign: 'center' }}>
+                                <p style={{ margin: 0, fontSize: '0.8rem', color: 'var(--text-light)' }}>Gastos (Semana)</p>
+                                <p style={{ margin: 0, fontWeight: 700, color: '#e53e3e' }}>R$ 12.500</p>
+                            </div>
+                            <div style={{ padding: '1rem', background: '#f1f5f9', borderRadius: '0.5rem', textAlign: 'center' }}>
+                                <p style={{ margin: 0, fontSize: '0.8rem', color: 'var(--text-light)' }}>Novos Apoios</p>
+                                <p style={{ margin: 0, fontWeight: 700, color: '#38a169' }}>+45</p>
                             </div>
                         </div>
                     </div>

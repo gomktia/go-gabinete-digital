@@ -10,6 +10,7 @@ export interface TenantSettings {
     theme: 'light' | 'dark';
     role: 'SUPER_ADMIN' | 'VEREADOR' | 'ASSESSOR';
     isLoggedIn: boolean;
+    photoUrl?: string;
 }
 
 interface TenantContextType {
@@ -30,7 +31,8 @@ const defaultSettings: TenantSettings = {
     email: 'vereador@exemplo.com.br',
     theme: 'dark',
     role: 'VEREADOR',
-    isLoggedIn: false
+    isLoggedIn: false,
+    photoUrl: undefined
 };
 
 const TenantContext = createContext<TenantContextType | undefined>(undefined);

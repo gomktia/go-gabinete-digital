@@ -11,6 +11,10 @@ import DemandsPage from './pages/DemandsPage';
 import WhatsAppConfig from './pages/WhatsAppConfig';
 import SuperAdmin from './pages/SuperAdmin';
 import LoginPage from './pages/LoginPage';
+import SocialMediaPlanner from './pages/SocialMediaPlanner';
+import CampaignFinance from './pages/CampaignFinance';
+import VoterCrm from './pages/VoterCrm';
+import ElectionDay from './pages/ElectionDay';
 import { TenantProvider, useTenant } from './context/TenantContext';
 
 function AppContent() {
@@ -30,6 +34,10 @@ function AppContent() {
           <Route path="/demands" element={<DemandsPage />} />
           <Route path="/proposals" element={<Propositions />} />
           <Route path="/advisor" element={<VirtualAdvisor />} />
+          <Route path="/social-media" element={<SocialMediaPlanner />} />
+          <Route path="/finance" element={<CampaignFinance />} />
+          <Route path="/voters" element={<VoterCrm />} />
+          <Route path="/election-day" element={<ElectionDay />} />
           <Route path="/messages" element={<WhatsAppIntegration />} />
           <Route path="/settings" element={<SettingsPage />} />
           <Route path="/wa-config" element={<WhatsAppConfig />} />

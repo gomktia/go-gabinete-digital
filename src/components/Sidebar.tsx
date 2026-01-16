@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import {
-    LayoutDashboard, Map, FileText, Bot,
+    LayoutDashboard, Map, FileText, Bot, Share2, DollarSign, Users, Flag,
     Settings, LogOut, MessageSquare, ChevronLeft, ChevronRight, Menu, X, Calendar, Sun, Moon, User, Shield, Zap
 } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
@@ -25,6 +25,10 @@ const Sidebar = () => {
         { id: 'demands', label: 'Demandas', icon: Map, path: '/demands', roles: ['SUPER_ADMIN', 'VEREADOR', 'ASSESSOR'] },
         { id: 'proposals', label: 'Proposições', icon: FileText, path: '/proposals', roles: ['SUPER_ADMIN', 'VEREADOR', 'ASSESSOR'] },
         { id: 'ai-advisor', label: 'Estratégia IA', icon: Bot, path: '/advisor', roles: ['SUPER_ADMIN', 'VEREADOR', 'ASSESSOR'] },
+        { id: 'social-media', label: 'Agente Social', icon: Share2, path: '/social-media', roles: ['SUPER_ADMIN', 'VEREADOR', 'ASSESSOR'] },
+        { id: 'finance', label: 'Financeiro', icon: DollarSign, path: '/finance', roles: ['SUPER_ADMIN', 'VEREADOR', 'ASSESSOR'] },
+        { id: 'voters', label: 'Eleitores (CRM)', icon: Users, path: '/voters', roles: ['SUPER_ADMIN', 'VEREADOR', 'ASSESSOR'] },
+        { id: 'election', label: 'Dia D (Operação)', icon: Flag, path: '/election-day', roles: ['SUPER_ADMIN', 'VEREADOR', 'ASSESSOR'] },
         { id: 'messages', label: 'WhatsApp', icon: MessageSquare, path: '/messages', roles: ['SUPER_ADMIN', 'VEREADOR', 'ASSESSOR'] },
 
         // Config Items (Visible only to Vereador/Admin)
@@ -130,8 +134,13 @@ const Sidebar = () => {
                             display: 'flex',
                             alignItems: 'center',
                             justifyContent: 'center',
+                            overflow: 'hidden'
                         }}>
-                            <User size={16} color="white" />
+                            {tenant.photoUrl ? (
+                                <img src={tenant.photoUrl} alt="User" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                            ) : (
+                                <User size={16} color="white" />
+                            )}
                         </div>
                         {!isCollapsed && (
                             <div style={{ overflow: 'hidden' }}>

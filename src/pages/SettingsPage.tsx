@@ -1,5 +1,5 @@
 import { useTenant } from '../context/TenantContext';
-import { Palette, Shield, Building, Hash, FileText, Mail, Moon, Sun } from 'lucide-react';
+import { Palette, Shield, Building, Hash, FileText, Mail, Moon, Sun, User, Upload } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 const SettingsPage = () => {
@@ -17,6 +17,81 @@ const SettingsPage = () => {
             </header>
 
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(350px, 1fr))', gap: '2rem' }}>
+                <div className="glass-card">
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '2rem' }}>
+                        <User size={20} style={{ color: 'var(--primary)' }} />
+                        <h3 style={{ margin: 0 }}>Perfil do Usuário</h3>
+                    </div>
+
+                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1.5rem' }}>
+                        <div style={{ position: 'relative' }}>
+                            <div style={{
+                                width: '120px',
+                                height: '120px',
+                                borderRadius: '50%',
+                                overflow: 'hidden',
+                                border: '4px solid var(--primary)',
+                                background: '#f1f5f9',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center'
+                            }}>
+                                {tenant.photoUrl ? (
+                                    <img src={tenant.photoUrl} alt="Perfil" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                                ) : (
+                                    <User size={64} style={{ opacity: 0.2 }} />
+                                )}
+                            </div>
+                            <label htmlFor="photo-upload" style={{
+                                position: 'absolute',
+                                bottom: '0',
+                                right: '0',
+                                background: 'var(--secondary)',
+                                color: 'var(--primary)',
+                                width: '36px',
+                                height: '36px',
+                                borderRadius: '50%',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                cursor: 'pointer',
+                                boxShadow: '0 4px 6px rgba(0,0,0,0.1)'
+                            }}>
+                                <Upload size={18} />
+                            </label>
+                            <input
+                                id="photo-upload"
+                                type="file"
+                                accept="image/*"
+                                style={{ display: 'none' }}
+                                onChange={(e) => {
+                                    const file = e.target.files?.[0];
+                                    if (file) {
+                                        const reader = new FileReader();
+                                        reader.onloadend = () => {
+                                            updateTenant({ photoUrl: reader.result as string });
+                                        };
+                                        reader.readAsDataURL(file);
+                                    }
+                                }}
+                            />
+                        </div>
+                        <div style={{ textAlign: 'center' }}>
+                            <h4 style={{ margin: '0 0 0.5rem 0', fontSize: '1.2rem' }}>{tenant.name}</h4>
+                            <span style={{
+                                background: 'var(--primary)',
+                                color: 'var(--secondary)',
+                                padding: '0.25rem 0.75rem',
+                                borderRadius: '1rem',
+                                fontSize: '0.8rem',
+                                fontWeight: 600
+                            }}>
+                                {tenant.role}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
                 <div className="glass-card">
                     <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '2rem' }}>
                         <Palette size={20} style={{ color: 'var(--primary)' }} />
