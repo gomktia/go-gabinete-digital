@@ -1,9 +1,52 @@
+import { useState } from 'react';
 import { useTenant } from '../context/TenantContext';
-import { Palette, Shield, Building, Hash, FileText, Mail, Moon, Sun, User, Upload } from 'lucide-react';
+import { supabase } from '../lib/supabase';
+import { Palette, Shield, Building, Hash, FileText, Mail, Moon, Sun, User, Upload, Save, Loader } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 const SettingsPage = () => {
-    const { tenant, updateTenant, toggleTheme } = useTenant();
+    const { tenant, updateTenant, toggleTheme, saveSettings } = useTenant();
+    const [saving, setSaving] = useState(false);
+    const [uploading, setUploading] = useState(false);
+
+    const handleSave = async () => {
+        setSaving(true);
+        const { success, error } = await saveSettings();
+        setSaving(false);
+        if (success) {
+            alert('Configurações salvas com sucesso!');
+        } else {
+            alert('Erro ao salvar: ' + error);
+        }
+    };
+
+    const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+
+        try {
+            setUploading(true);
+            const fileExt = file.name.split('.').pop();
+            const fileName = `${tenant.id}-${Math.random()}.${fileExt}`;
+            const filePath = `${fileName}`;
+
+            const { error: uploadError } = await supabase.storage
+                .from('avatars')
+                .upload(filePath, file);
+
+            if (uploadError) throw uploadError;
+
+            const { data: { publicUrl } } = supabase.storage
+                .from('avatars')
+                .getPublicUrl(filePath);
+
+            updateTenant({ photoUrl: publicUrl });
+        } catch (error: any) {
+            alert('Erro ao fazer upload da imagem: ' + error.message);
+        } finally {
+            setUploading(false);
+        }
+    };
 
     return (
         <motion.div
@@ -11,12 +54,23 @@ const SettingsPage = () => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
         >
-            <header style={{ marginBottom: '2.5rem' }}>
-                <h1>Configurações do Gabinete</h1>
-                <p style={{ color: 'var(--text-light)' }}>Personalize a identidade visual e os dados do seu mandato.</p>
+            <header style={{ marginBottom: '2.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <div>
+                    <h1>Configurações do Gabinete</h1>
+                    <p style={{ color: 'var(--text-light)' }}>Personalize a identidade visual e os dados do seu mandato.</p>
+                </div>
+                <button
+                    onClick={handleSave}
+                    className="btn-primary"
+                    disabled={saving}
+                    style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.8rem 1.5rem' }}
+                >
+                    {saving ? <Loader className="animate-spin" size={20} /> : <Save size={20} />}
+                    {saving ? 'Salvando...' : 'Salvar Alterações'}
+                </button>
             </header>
 
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(350px, 1fr))', gap: '2rem' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(350px, 1fr))', gap: '2rem', marginBottom: '4rem' }}>
                 <div className="glass-card">
                     <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '2rem' }}>
                         <User size={20} style={{ color: 'var(--primary)' }} />
@@ -41,6 +95,11 @@ const SettingsPage = () => {
                                 ) : (
                                     <User size={64} style={{ opacity: 0.2 }} />
                                 )}
+                                {uploading && (
+                                    <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                        <Loader className="animate-spin" color="white" />
+                                    </div>
+                                )}
                             </div>
                             <label htmlFor="photo-upload" style={{
                                 position: 'absolute',
@@ -64,16 +123,8 @@ const SettingsPage = () => {
                                 type="file"
                                 accept="image/*"
                                 style={{ display: 'none' }}
-                                onChange={(e) => {
-                                    const file = e.target.files?.[0];
-                                    if (file) {
-                                        const reader = new FileReader();
-                                        reader.onloadend = () => {
-                                            updateTenant({ photoUrl: reader.result as string });
-                                        };
-                                        reader.readAsDataURL(file);
-                                    }
-                                }}
+                                onChange={handleImageUpload}
+                                disabled={uploading}
                             />
                         </div>
                         <div style={{ textAlign: 'center' }}>
@@ -228,18 +279,6 @@ const SettingsPage = () => {
                     <p style={{ fontSize: '0.9rem', color: '#2f855a' }}>
                         Seus dados são isolados. As cores e informações configuradas aqui são exclusivas para o seu Gabinete Digital e não afetam outros usuários do sistema.
                     </p>
-                </div>
-                {/* Sentry Test Button */}
-                <div style={{ gridColumn: '1 / -1', textAlign: 'center' }}>
-                    <button
-                        className="btn-primary"
-                        style={{ background: '#e53e3e', color: 'white' }}
-                        onClick={() => {
-                            throw new Error("This is a Sentry Test Error from SettingsPage");
-                        }}
-                    >
-                        Testar Sentry (Gerar Erro)
-                    </button>
                 </div>
             </div>
         </motion.div>
