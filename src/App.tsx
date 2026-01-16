@@ -12,8 +12,11 @@ import WhatsAppConfig from './pages/WhatsAppConfig';
 import SuperAdmin from './pages/SuperAdmin';
 import LoginPage from './pages/LoginPage';
 import SocialMediaPlanner from './pages/SocialMediaPlanner';
+import MandateSiteBuilder from './pages/MandateSiteBuilder';
 import CampaignFinance from './pages/CampaignFinance';
+import DocumentTracking from './pages/DocumentTracking';
 import VoterCrm from './pages/VoterCrm';
+import TeamManagement from './pages/TeamManagement';
 import { TenantProvider, useTenant } from './context/TenantContext';
 
 function AppContent() {
@@ -30,11 +33,14 @@ function AppContent() {
         <Routes>
           <Route path="/" element={<Dashboard />} />
           <Route path="/calendar" element={<CalendarPage />} />
+          <Route path="/documents" element={<DocumentTracking />} />
           <Route path="/demands" element={<DemandsPage />} />
           <Route path="/proposals" element={<Propositions />} />
           <Route path="/advisor" element={<VirtualAdvisor />} />
+          <Route path="/site-builder" element={<MandateSiteBuilder />} />
           <Route path="/social-media" element={<SocialMediaPlanner />} />
           <Route path="/finance" element={<CampaignFinance />} />
+          <Route path="/team" element={<TeamManagement />} />
           <Route path="/voters" element={<VoterCrm />} />
           <Route path="/messages" element={<WhatsAppIntegration />} />
           <Route path="/settings" element={<SettingsPage />} />

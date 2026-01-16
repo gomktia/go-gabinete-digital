@@ -32,6 +32,23 @@ const DemandsPage = () => {
         setIsDrawerOpen(true);
     };
 
+    const handleUpdateStatus = () => {
+        const newStatus = selectedDemand?.status === 'resolved' ? 'in-progress' : 'resolved';
+
+        // Update local state for immediate feedback
+        const updatedDemands = demands.map(d =>
+            d.id === selectedDemand.id ? { ...d, status: newStatus } : d
+        );
+        setDemands(updatedDemands);
+        setSelectedDemand({ ...selectedDemand, status: newStatus });
+
+        alert(`Status atualizado para: ${newStatus === 'resolved' ? 'Resolvido' : 'Em Andamento'}`);
+    };
+
+    const handleCreateIndication = () => {
+        alert("Criando Minuta de Indicação...\n\nO sistema irá gerar um documento oficial baseado nos dados desta demanda.");
+    };
+
     const handleRegisterVisit = (visit: any) => {
         const updatedDemands = demands.map(d => {
             if (d.id === selectedDemand.id) {
@@ -329,8 +346,10 @@ const DemandsPage = () => {
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
                             <h4>Ações de Gabinete</h4>
                             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
-                                <button className="btn-primary">Atualizar Status</button>
-                                <button className="btn-gold">Criar Indicação</button>
+                                <button className="btn-primary" onClick={handleUpdateStatus}>
+                                    {selectedDemand.status === 'resolved' ? 'Reabrir Demanda' : 'Marcar como Resolvido'}
+                                </button>
+                                <button className="btn-gold" onClick={handleCreateIndication}>Criar Indicação</button>
                             </div>
                         </div>
                     </div>

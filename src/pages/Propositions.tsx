@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Search, Filter, Plus, BookOpen } from 'lucide-react';
 import { motion } from 'framer-motion';
-import { Modal } from '../components/UIComponents';
+import { Drawer, Modal } from '../components/UIComponents';
 
 const projects = [
     { id: 1, title: 'Programa Escola Conectada', category: 'Educação', author: 'Vereador Silva', status: 'Em Tramitação' },
@@ -12,6 +12,13 @@ const projects = [
 
 const Propositions = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [selectedProject, setSelectedProject] = useState<any>(null);
+    const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+
+    const openProjectDetails = (project: any) => {
+        setSelectedProject(project);
+        setIsDrawerOpen(true);
+    };
 
     return (
         <motion.div
@@ -73,7 +80,12 @@ const Propositions = () => {
                                 {project.status}
                             </span>
                             <div style={{ marginTop: '0.5rem' }}>
-                                <a href="#" style={{ fontSize: '0.85rem', color: 'var(--primary)', fontWeight: 600, textDecoration: 'none' }}>Ver Detalhes →</a>
+                                <button
+                                    onClick={() => openProjectDetails(project)}
+                                    style={{ fontSize: '0.85rem', color: 'var(--primary)', fontWeight: 600, textDecoration: 'none', background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}
+                                >
+                                    Ver Detalhes →
+                                </button>
                             </div>
                         </div>
                     </div>
@@ -118,6 +130,91 @@ const Propositions = () => {
                     </div>
                 </form>
             </Modal>
+
+            <Drawer
+                isOpen={isDrawerOpen}
+                onClose={() => setIsDrawerOpen(false)}
+                title="Detalhes da Proposição"
+            >
+                {selectedProject && (
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                            <span style={{
+                                padding: '4px 12px',
+                                borderRadius: '20px',
+                                fontSize: '0.75rem',
+                                fontWeight: 700,
+                                background: 'rgba(212, 175, 55, 0.1)',
+                                color: 'var(--secondary)',
+                                border: '1px solid var(--secondary)'
+                            }}>
+                                {selectedProject.category}
+                            </span>
+                            <span style={{ fontSize: '0.8rem', color: 'var(--text-light)' }}>PL #{selectedProject.id}/2024</span>
+                        </div>
+
+                        <h2 style={{ fontSize: '1.5rem', margin: 0 }}>{selectedProject.title}</h2>
+
+                        <div style={{ background: 'var(--bg-color)', padding: '1rem', borderRadius: '0.5rem', border: '1px solid var(--border)' }}>
+                            <h4 style={{ margin: '0 0 0.5rem 0', fontSize: '0.9rem', color: 'var(--text-light)' }}>Autor:</h4>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                <div style={{ width: '24px', height: '24px', borderRadius: '50%', background: 'var(--primary)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontSize: '0.7rem' }}>
+                                    {selectedProject.author.charAt(0)}
+                                </div>
+                                <span style={{ fontWeight: 600 }}>{selectedProject.author}</span>
+                            </div>
+                        </div>
+
+                        <div>
+                            <h3 style={{ fontSize: '1.1rem', marginBottom: '0.5rem' }}>Resumo & Tramitação</h3>
+                            <p style={{ color: 'var(--text)', lineHeight: '1.6', fontSize: '0.95rem' }}>
+                                Esta proposição visa instituir normas e diretrizes para melhoria do setor de {selectedProject.category.toLowerCase()} no município.
+                                O projeto encontra-se atualmente <strong>{selectedProject.status}</strong> e aguarda pauta para próxima sessão.
+                            </p>
+                        </div>
+
+                        <div style={{ borderTop: '1px solid var(--border)', paddingTop: '1.5rem' }}>
+                            <h4 style={{ marginBottom: '1rem' }}>Linha do Tempo</h4>
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                                <div style={{ display: 'flex', gap: '1rem' }}>
+                                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                                        <div style={{ width: '10px', height: '10px', borderRadius: '50%', background: 'var(--secondary)' }}></div>
+                                        <div style={{ width: '2px', flex: 1, background: 'var(--border)', minHeight: '30px' }}></div>
+                                    </div>
+                                    <div>
+                                        <p style={{ margin: 0, fontWeight: 600, fontSize: '0.9rem' }}>Protocolado na Mesa Diretora</p>
+                                        <span style={{ fontSize: '0.8rem', color: 'var(--text-light)' }}>15 Out 2024 - 14:30</span>
+                                    </div>
+                                </div>
+                                <div style={{ display: 'flex', gap: '1rem' }}>
+                                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                                        <div style={{ width: '10px', height: '10px', borderRadius: '50%', background: '#3182ce' }}></div>
+                                        <div style={{ width: '2px', flex: 1, background: 'var(--border)', minHeight: '30px' }}></div>
+                                    </div>
+                                    <div>
+                                        <p style={{ margin: 0, fontWeight: 600, fontSize: '0.9rem' }}>Encaminhado para CCJ</p>
+                                        <span style={{ fontSize: '0.8rem', color: 'var(--text-light)' }}>18 Out 2024 - 10:00</span>
+                                    </div>
+                                </div>
+                                <div style={{ display: 'flex', gap: '1rem' }}>
+                                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                                        <div style={{ width: '10px', height: '10px', borderRadius: '50%', background: 'var(--border)' }}></div>
+                                    </div>
+                                    <div>
+                                        <p style={{ margin: 0, fontWeight: 600, fontSize: '0.9rem', opacity: 0.6 }}>Aguardando Parecer</p>
+                                        <span style={{ fontSize: '0.8rem', color: 'var(--text-light)' }}>Previsão: 25 Out 2024</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div style={{ marginTop: 'auto', display: 'grid', gap: '0.5rem' }}>
+                            <button className="btn-primary">Ver Texto Completo (PDF)</button>
+                            <button className="btn-gold outline">Criar Emenda</button>
+                        </div>
+                    </div>
+                )}
+            </Drawer>
         </motion.div>
     );
 };

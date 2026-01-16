@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import {
     LayoutDashboard, Map, FileText, Bot, Share2, DollarSign, Users,
-    Settings, LogOut, MessageSquare, ChevronLeft, ChevronRight, Menu, X, Calendar, Sun, Moon, User, Shield, Zap
+    Settings, LogOut, MessageSquare, ChevronLeft, ChevronRight, Menu, X, Calendar, Sun, Moon, User, Shield, Zap, Globe
 } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
 import { useTenant } from '../context/TenantContext';
@@ -22,11 +22,14 @@ const Sidebar = () => {
         // Cabinet Items
         { id: 'dashboard', label: 'Painel', icon: LayoutDashboard, path: '/', roles: ['SUPER_ADMIN', 'VEREADOR', 'ASSESSOR'] },
         { id: 'calendar', label: 'Agenda', icon: Calendar, path: '/calendar', roles: ['SUPER_ADMIN', 'VEREADOR', 'ASSESSOR'] },
+        { id: 'docs', label: 'Tramitação', icon: FileText, path: '/documents', roles: ['SUPER_ADMIN', 'VEREADOR', 'ASSESSOR'] },
+        { id: 'site', label: 'Meu Site', icon: Globe, path: '/site-builder', roles: ['SUPER_ADMIN', 'VEREADOR', 'ASSESSOR'] },
         { id: 'demands', label: 'Demandas', icon: Map, path: '/demands', roles: ['SUPER_ADMIN', 'VEREADOR', 'ASSESSOR'] },
         { id: 'proposals', label: 'Proposições', icon: FileText, path: '/proposals', roles: ['SUPER_ADMIN', 'VEREADOR', 'ASSESSOR'] },
         { id: 'ai-advisor', label: 'Estratégia IA', icon: Bot, path: '/advisor', roles: ['SUPER_ADMIN', 'VEREADOR', 'ASSESSOR'] },
         { id: 'social-media', label: 'Agente Social', icon: Share2, path: '/social-media', roles: ['SUPER_ADMIN', 'VEREADOR', 'ASSESSOR'] },
         { id: 'finance', label: 'Financeiro', icon: DollarSign, path: '/finance', roles: ['SUPER_ADMIN', 'VEREADOR', 'ASSESSOR'] },
+        { id: 'team', label: 'Equipe', icon: Users, path: '/team', roles: ['SUPER_ADMIN', 'VEREADOR', 'ASSESSOR'] },
         { id: 'voters', label: 'Eleitores (CRM)', icon: Users, path: '/voters', roles: ['SUPER_ADMIN', 'VEREADOR', 'ASSESSOR'] },
         { id: 'messages', label: 'WhatsApp', icon: MessageSquare, path: '/messages', roles: ['SUPER_ADMIN', 'VEREADOR', 'ASSESSOR'] },
 
