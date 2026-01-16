@@ -489,7 +489,7 @@ const MandateSiteBuilder = () => {
                                     />
                                 </div>
 
-                                <span style={{ background: siteConfig.textColor, color: siteConfig.primaryColor, padding: '0.3rem 1rem', borderRadius: '20px', fontWeight: 'bold', fontSize: '0.9rem', marginBottom: '1rem', display: 'inline-block' }}>
+                                <span style={{ background: siteConfig.textColor, color: siteConfig.primaryColor, padding: '0.5rem 1.5rem', borderRadius: '30px', fontWeight: 'bold', fontSize: '2rem', marginBottom: '1rem', display: 'inline-block', boxShadow: '0 4px 6px rgba(0,0,0,0.1)' }}>
                                     {siteConfig.vereadorNumber}
                                 </span>
 
