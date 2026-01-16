@@ -76,7 +76,7 @@ const WhatsAppIntegration = () => {
 
             <div style={{ display: 'grid', gridTemplateColumns: 'minmax(300px, 1fr) 1.5fr', gap: '2rem' }}>
                 <div className="glass-card" style={{ padding: 0, overflow: 'hidden' }}>
-                    <div style={{ padding: '1rem', borderBottom: '1px solid #edf2f7', background: '#f8f9fa' }}>
+                    <div style={{ padding: '1rem', borderBottom: '1px solid var(--border)', background: 'var(--bg-color)' }}>
                         <h3 style={{ margin: 0, fontSize: '1rem' }}>Fluxo de Entrada</h3>
                     </div>
                     <div style={{ maxHeight: '600px', overflowY: 'auto' }}>
@@ -86,14 +86,14 @@ const WhatsAppIntegration = () => {
                                 onClick={() => { setSelectedMsg(msg); setDraft(null); }}
                                 style={{
                                     padding: '1rem',
-                                    borderBottom: '1px solid #edf2f7',
+                                    borderBottom: '1px solid var(--border)',
                                     cursor: 'pointer',
                                     background: selectedMsg?.id === msg.id ? 'rgba(212, 175, 55, 0.1)' : 'transparent',
                                     borderLeft: `4px solid ${msg.sentiment === 'negative' ? '#e53e3e' : msg.sentiment === 'positive' ? '#38a169' : '#cbd5e0'}`
                                 }}
                             >
                                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
-                                    <span style={{ fontWeight: 700, fontSize: '0.9rem' }}>{msg.sender}</span>
+                                    <span style={{ fontWeight: 700, fontSize: '0.9rem', color: 'var(--text)' }}>{msg.sender}</span>
                                     <span style={{ fontSize: '0.75rem', color: 'var(--text-light)' }}>{msg.time}</span>
                                 </div>
                                 <p style={{ fontSize: '0.85rem', color: 'var(--text)', marginBottom: '0.75rem' }}>{msg.text}</p>
@@ -117,7 +117,7 @@ const WhatsAppIntegration = () => {
                                     Sentimento: {selectedMsg.sentiment === 'negative' ? 'Insatisfação' : 'Elogio/Neutro'}
                                 </span>
                                 <h3 style={{ marginTop: '1rem' }}>Processar Demanda</h3>
-                                <p style={{ background: '#f8fafc', padding: '1rem', borderRadius: '0.5rem', border: '1px solid #e2e8f0', fontStyle: 'italic' }}>
+                                <p style={{ background: 'var(--bg-color)', padding: '1rem', borderRadius: '0.5rem', border: '1px solid var(--border)', fontStyle: 'italic', color: 'var(--text)' }}>
                                     "{selectedMsg.text}"
                                 </p>
                             </div>
@@ -129,7 +129,7 @@ const WhatsAppIntegration = () => {
                                 <button className="btn-gold flex-center gap-1" onClick={generateDraft} disabled={isGenerating}>
                                     <Sparkles size={18} /> {isGenerating ? 'IA escrevendo...' : 'Gerar Minuta de Lei'}
                                 </button>
-                                <button className="btn-primary flex-center gap-1" style={{ background: '#edf2f7', color: 'var(--primary)' }} onClick={() => openDrawer('visit')}>
+                                <button className="btn-primary flex-center gap-1" style={{ background: 'var(--bg-color)', color: 'var(--primary)', border: '1px solid var(--border)' }} onClick={() => openDrawer('visit')}>
                                     <Clock size={18} /> Agendar Visita
                                 </button>
                             </div>
@@ -177,11 +177,11 @@ const WhatsAppIntegration = () => {
                     <div>
                         <p style={{ fontSize: '0.9rem', color: 'var(--text-light)', marginBottom: '1.5rem' }}>Selecione um projeto de lei ou indicação já cadastrada para vincular a esta demanda do WhatsApp.</p>
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                            <div style={{ padding: '1rem', border: '1px solid #e2e8f0', borderRadius: '0.5rem', cursor: 'pointer' }}>
+                            <div style={{ padding: '1rem', border: '1px solid var(--border)', borderRadius: '0.5rem', cursor: 'pointer', background: 'var(--bg-color)' }}>
                                 <h4 style={{ margin: 0 }}>Programa Escola Conectada</h4>
                                 <span style={{ fontSize: '0.75rem', color: 'var(--text-light)' }}>Educação • Em Tramitação</span>
                             </div>
-                            <div style={{ padding: '1rem', border: '1px solid #e2e8f0', borderRadius: '0.5rem', cursor: 'pointer' }}>
+                            <div style={{ padding: '1rem', border: '1px solid var(--border)', borderRadius: '0.5rem', cursor: 'pointer', background: 'var(--bg-color)' }}>
                                 <h4 style={{ margin: 0 }}>Rede de Apoio à Saúde Mental</h4>
                                 <span style={{ fontSize: '0.75rem', color: 'var(--text-light)' }}>Saúde • Aprovado</span>
                             </div>
@@ -191,19 +191,19 @@ const WhatsAppIntegration = () => {
                     <form style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
                         <div>
                             <label>Data da Visita</label>
-                            <input type="date" />
+                            <input type="date" style={{ width: '100%', padding: '0.75rem', background: 'var(--bg-color)', color: 'var(--text)', border: '1px solid var(--border)', borderRadius: '0.5rem' }} />
                         </div>
                         <div>
                             <label>Horário</label>
-                            <input type="time" />
+                            <input type="time" style={{ width: '100%', padding: '0.75rem', background: 'var(--bg-color)', color: 'var(--text)', border: '1px solid var(--border)', borderRadius: '0.5rem' }} />
                         </div>
                         <div>
                             <label>Acompanhantes</label>
-                            <input type="text" placeholder="Ex: Assessor Jurídico, Engenheiro" />
+                            <input type="text" placeholder="Ex: Assessor Jurídico, Engenheiro" style={{ width: '100%', padding: '0.75rem', background: 'var(--bg-color)', color: 'var(--text)', border: '1px solid var(--border)', borderRadius: '0.5rem' }} />
                         </div>
                         <div>
                             <label>Notas de Campo</label>
-                            <textarea rows={4} placeholder="O que deve ser verificado no local?"></textarea>
+                            <textarea rows={4} placeholder="O que deve ser verificado no local?" style={{ width: '100%', padding: '0.75rem', background: 'var(--bg-color)', color: 'var(--text)', border: '1px solid var(--border)', borderRadius: '0.5rem', fontFamily: 'inherit' }}></textarea>
                         </div>
                         <button type="button" className="btn-primary" style={{ marginTop: '1rem' }}>Confirmar Agendamento</button>
                     </form>
