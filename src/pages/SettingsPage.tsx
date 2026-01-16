@@ -173,7 +173,7 @@ const SettingsPage = () => {
                                     type="text"
                                     value={tenant.name}
                                     onChange={(e) => updateTenant({ name: e.target.value })}
-                                    style={{ paddingLeft: '2.5rem' }}
+                                    style={{ padding: '0.75rem 0.75rem 0.75rem 2.5rem', width: '100%', background: 'var(--bg-color)', color: 'var(--text)', border: '1px solid var(--border)', borderRadius: '0.5rem' }}
                                 />
                             </div>
                         </div>
@@ -181,12 +181,12 @@ const SettingsPage = () => {
                         <div>
                             <label style={{ margin: 0 }}>E-mail de Login</label>
                             <div style={{ position: 'relative' }}>
-                                <Mail size={16} style={{ position: 'absolute', left: '12px', top: '1.4rem', opacity: 0.4 }} />
+                                <Mail size={16} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', opacity: 0.4, color: 'var(--text)' }} />
                                 <input
                                     type="email"
                                     value={tenant.email}
                                     onChange={(e) => updateTenant({ email: e.target.value })}
-                                    style={{ paddingLeft: '2.5rem' }}
+                                    style={{ padding: '0.75rem 0.75rem 0.75rem 2.5rem', width: '100%', background: 'var(--bg-color)', color: 'var(--text)', border: '1px solid var(--border)', borderRadius: '0.5rem' }}
                                 />
                             </div>
                         </div>
@@ -195,24 +195,24 @@ const SettingsPage = () => {
                             <div>
                                 <label style={{ margin: 0 }}>Nº Candidato</label>
                                 <div style={{ position: 'relative' }}>
-                                    <Hash size={16} style={{ position: 'absolute', left: '12px', top: '1.4rem', opacity: 0.4 }} />
+                                    <Hash size={16} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', opacity: 0.4, color: 'var(--text)' }} />
                                     <input
                                         type="text"
                                         value={tenant.candidateNumber}
                                         onChange={(e) => updateTenant({ candidateNumber: e.target.value })}
-                                        style={{ paddingLeft: '2.5rem' }}
+                                        style={{ padding: '0.75rem 0.75rem 0.75rem 2.5rem', width: '100%', background: 'var(--bg-color)', color: 'var(--text)', border: '1px solid var(--border)', borderRadius: '0.5rem' }}
                                     />
                                 </div>
                             </div>
                             <div>
                                 <label style={{ margin: 0 }}>CNPJ do Gabinete</label>
                                 <div style={{ position: 'relative' }}>
-                                    <FileText size={16} style={{ position: 'absolute', left: '12px', top: '1.4rem', opacity: 0.4 }} />
+                                    <FileText size={16} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', opacity: 0.4, color: 'var(--text)' }} />
                                     <input
                                         type="text"
                                         value={tenant.cnpj}
                                         onChange={(e) => updateTenant({ cnpj: e.target.value })}
-                                        style={{ paddingLeft: '2.5rem' }}
+                                        style={{ padding: '0.75rem 0.75rem 0.75rem 2.5rem', width: '100%', background: 'var(--bg-color)', color: 'var(--text)', border: '1px solid var(--border)', borderRadius: '0.5rem' }}
                                     />
                                 </div>
                             </div>

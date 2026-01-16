@@ -115,7 +115,7 @@ const WhatsAppConfig = () => {
 
                     <div style={{ marginTop: '2rem' }}>
                         <h4 style={{ marginBottom: '1rem' }}>Configurações de Webhook</h4>
-                        <div style={{ background: '#f8fafc', padding: '1rem', borderRadius: '0.5rem', fontSize: '0.8rem', fontFamily: 'monospace', border: '1px solid #e2e8f0' }}>
+                        <div style={{ background: 'var(--bg-color)', color: 'var(--text)', padding: '1rem', borderRadius: '0.5rem', fontSize: '0.8rem', fontFamily: 'monospace', border: '1px solid var(--border)', wordBreak: 'break-all' }}>
                             https://api.gabinetedigital.com.br/v1/webhook/unique-id-tenant
                         </div>
                         <p style={{ fontSize: '0.75rem', color: 'var(--text-light)', marginTop: '0.5rem' }}>

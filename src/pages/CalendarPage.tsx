@@ -146,7 +146,7 @@ const CalendarPage = () => {
                     </div>
                     <div style={{ display: 'flex', gap: '1rem', marginTop: '1.5rem' }}>
                         <button type="button" className="btn-primary" style={{ flex: 1 }}>Salvar Evento</button>
-                        <button type="button" className="btn-primary" style={{ background: '#f1f5f9', color: 'var(--text)' }} onClick={() => setIsModalOpen(false)}>Cancelar</button>
+                        <button type="button" className="btn-primary" style={{ background: 'var(--bg-color)', color: 'var(--text)', border: '1px solid var(--border)' }} onClick={() => setIsModalOpen(false)}>Cancelar</button>
                     </div>
                 </form>
             </Modal>
