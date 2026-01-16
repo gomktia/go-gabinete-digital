@@ -135,7 +135,7 @@ export const TenantProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     };
 
     const login = async (email: string, pass: string) => {
-        const { data, error } = await supabase.auth.signInWithPassword({
+        const { error } = await supabase.auth.signInWithPassword({
             email,
             password: pass,
         });
@@ -150,7 +150,7 @@ export const TenantProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     };
 
     const signUp = async (email: string, pass: string, fullName: string, role: string) => {
-        const { data, error } = await supabase.auth.signUp({
+        const { error } = await supabase.auth.signUp({
             email,
             password: pass,
             options: {

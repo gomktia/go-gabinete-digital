@@ -1,8 +1,8 @@
 import { useState } from 'react';
-import { Mail, Lock, LogIn, Sparkles, UserPlus, HelpCircle } from 'lucide-react';
+import { Mail, Lock, LogIn, Sparkles, UserPlus } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useTenant } from '../context/TenantContext';
-import { Modal } from '../components/UIComponents';
+
 
 const LoginPage = () => {
     const [isLoginView, setIsLoginView] = useState(true);
