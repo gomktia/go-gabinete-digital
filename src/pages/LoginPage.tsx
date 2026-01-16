@@ -33,8 +33,11 @@ const LoginPage = () => {
                 style={{
                     maxWidth: '450px',
                     width: '100%',
-                    padding: '2rem', /* Reduced padding for mobile */
-                    border: '1px solid rgba(255,255,255,0.1)',
+                    padding: '2rem',
+                    /* Force dark translucent background for login card */
+                    background: 'rgba(255, 255, 255, 0.1)',
+                    backdropFilter: 'blur(10px)',
+                    border: '1px solid rgba(255,255,255,0.2)',
                     boxShadow: '0 20px 50px rgba(0,0,0,0.5)',
                     display: 'flex',
                     flexDirection: 'column'

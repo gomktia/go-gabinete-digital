@@ -1,57 +1,240 @@
 :root {
-  /* Cores Globais - Tema Claro (Padrão) */
+  /* Core Colors */
   --primary: #1a365d;
-  /* Azul Profundo */
+  --primary-light: #2c5282;
   --secondary: #d4af37;
-  /* Dourado Premium */
-  --background: #f8fafc;
-  /* Cinza Gelo */
+
+  /* Theme Variables - Default (Light) */
+  --bg-color: #f8fafc;
   --surface: #ffffff;
-  /* Branco Puro */
-  --text: #2d3748;
-  /* Cinza Escuro */
-  --text-light: #718096;
-  /* Cinza Médio */
+  --text: #1e293b;
+  --text-light: #64748b;
   --border: #e2e8f0;
-  /* Bordas Suaves */
-  --success: #38a169;
-  --error: #e53e3e;
-  --warning: #d69e2e;
+
+  /* Glass Effect Variables */
+  --glass: rgba(255, 255, 255, 0.7);
+  --glass-border: rgba(255, 255, 255, 0.5);
   --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-  --glass-bg: rgba(255, 255, 255, 0.8);
-  --glass-border: rgba(255, 255, 255, 0.3);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+
+  --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  --sidebar-width: 280px;
+  --sidebar-collapsed-width: 80px;
 }
 
-/* Tema Escuro */
 [data-theme='dark'] {
-  --primary: #90cdf4;
-  /* Azul Claro */
-  --secondary: #d4af37;
-  /* Dourado (Mantém) */
-  --background: #1a202c;
-  /* Azul/Preto Profundo */
-  --surface: #2d3748;
-  /* Cinza Azulado */
-  --text: #f7fafc;
-  /* Branco Suave */
-  --text-light: #a0aec0;
-  /* Cinza Claro */
-  --border: #4a5568;
-  /* Bordas Escuras */
-  --glass-bg: rgba(26, 32, 44, 0.8);
+  --bg-color: #0f172a;
+  --surface: #1e293b;
+  --text: #f8fafc;
+  --text-light: #94a3b8;
+  --border: #334155;
+  --glass: rgba(30, 41, 59, 0.7);
   --glass-border: rgba(255, 255, 255, 0.1);
+  --shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
 }
 
 body {
-  margin: 0;
-  font-family: 'Inter', sans-serif;
-  background-color: var(--background);
+  font-family: 'Poppins', sans-serif;
+  background-color: var(--bg-color);
   color: var(--text);
+  line-height: 1.6;
+  transition: background-color 0.4s ease, color 0.4s ease;
   overflow-x: hidden;
-  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
-/* Scrollbar Personalizada */
+#root {
+  display: flex;
+  min-height: 100vh;
+  width: 100%;
+}
+
+.app-container {
+  display: flex;
+  min-height: 100vh;
+  width: 100%;
+}
+
+/* Layout Components */
+.sidebar {
+  width: var(--sidebar-width);
+  background: var(--primary) !important;
+  /* Force Blue Background */
+  color: white !important;
+  padding: 2rem 1.5rem;
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  position: sticky;
+  top: 0;
+  transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  z-index: 1000;
+  box-shadow: 4px 0 20px rgba(0, 0, 0, 0.1);
+  flex-shrink: 0;
+}
+
+.sidebar.collapsed {
+  width: var(--sidebar-collapsed-width);
+  padding: 2rem 1rem;
+}
+
+.main-content {
+  flex: 1;
+  padding: 2.5rem;
+  max-width: 1600px;
+  margin: 0 auto;
+  width: 100%;
+  overflow-x: hidden;
+}
+
+/* Mobile Header */
+.mobile-header {
+  display: none;
+  height: 60px;
+  background: var(--primary);
+  color: white;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 1.5rem;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 999;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+@media (max-width: 768px) {
+  .app-container {
+    flex-direction: column;
+  }
+
+  .sidebar {
+    position: fixed;
+    left: 0;
+    top: 60px;
+    /* Below header */
+    bottom: 0;
+    transform: translateX(-100%);
+    width: 280px !important;
+    height: calc(100vh - 60px);
+  }
+
+  .sidebar.mobile-open {
+    transform: translateX(0);
+  }
+
+  .main-content {
+    padding: 1rem;
+    padding-top: 80px;
+    /* Space for header */
+    width: 100%;
+  }
+
+  .mobile-header {
+    display: flex;
+  }
+
+  .desktop-only {
+    display: none !important;
+  }
+}
+
+/* Glass Card */
+.glass-card {
+  background: var(--surface);
+  /* Default to surface for readability */
+  border: 1px solid var(--border);
+  border-radius: 1rem;
+  padding: 1.5rem;
+  box-shadow: var(--shadow);
+  transition: var(--transition);
+}
+
+.glass-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-lg);
+}
+
+/* Typography */
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 1rem;
+}
+
+p,
+span,
+label,
+li {
+  color: var(--text);
+}
+
+/* Buttons */
+.btn-primary {
+  background: var(--primary);
+  color: white;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  font-weight: 600;
+  transition: var(--transition);
+}
+
+.btn-primary:hover {
+  background: var(--primary-light);
+  transform: scale(1.02);
+}
+
+.btn-gold {
+  background: var(--secondary);
+  color: var(--primary);
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  font-weight: 700;
+  transition: var(--transition);
+}
+
+.btn-gold:hover {
+  filter: brightness(1.1);
+  transform: scale(1.02);
+}
+
+/* Inputs */
+input,
+select,
+textarea {
+  width: 100%;
+  background: var(--surface);
+  color: var(--text);
+  padding: 0.75rem;
+  border-radius: 0.5rem;
+  border: 1px solid var(--border);
+  font-family: inherit;
+  outline: none;
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 2px rgba(26, 54, 93, 0.1);
+}
+
+/* Scrollbar */
 ::-webkit-scrollbar {
   width: 8px;
 }
@@ -61,228 +244,61 @@ body {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: var(--text-light);
+  background: #cbd5e1;
   border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--secondary);
+  background: #94a3b8;
 }
 
-/* Glassmorphism Classes */
-.glass-card {
-  background: var(--surface);
-  backdrop-filter: blur(12px);
-  border: 1px solid var(--border);
-  border-radius: 1rem;
-  padding: 1.5rem;
-  box-shadow: var(--shadow);
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-}
-
-/* Em dark mode, forçar background translúcido se desejar efeito de vidro real,
-   mas por legibilidade, var(--surface) sólido ou semi-transparente é melhor.
-   A variável --glass-bg pode ser usada para sobreposições. */
-
-.glass-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-}
-
-/* Utilitários */
-.flex-center {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.btn-primary {
-  background: var(--primary);
-  color: white;
-  /* Sempre branco para contraste com azul escuro */
-  border: none;
-  padding: 0.75rem 1.5rem;
-  border-radius: 0.5rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: filter 0.2s;
-}
-
-[data-theme='dark'] .btn-primary {
-  color: #1a202c;
-  /* Texto escuro no botão claro do tema dark */
-}
-
-.btn-primary:hover {
-  filter: brightness(1.1);
-}
-
-.btn-gold {
-  background: var(--secondary);
-  color: #1a202c;
-  /* Contraste com dourado */
-  border: none;
-  padding: 0.75rem 1.5rem;
-  border-radius: 0.5rem;
-  font-weight: 700;
-  cursor: pointer;
-  transition: transform 0.1s;
-}
-
-.btn-gold:hover {
-  transform: scale(1.02);
-}
-
-.btn-gold.outline {
-  background: transparent;
-  border: 2px solid var(--secondary);
-  color: var(--secondary);
-}
-
-.btn-gold.outline:hover {
-  background: var(--secondary);
-  color: #1a202c;
-}
-
-/* Inputs e Selects */
-input,
-select,
-textarea {
-  background: var(--background);
-  color: var(--text);
-  border: 1px solid var(--border);
-  padding: 0.75rem;
-  border-radius: 0.5rem;
-  font-family: inherit;
-  outline: none;
-}
-
-input:focus,
-select:focus,
-textarea:focus {
-  border-color: var(--secondary);
-  box-shadow: 0 0 0 2px rgba(212, 175, 55, 0.2);
-}
-
-/* Sidebar Custom Scroll */
-.sidebar-scroll::-webkit-scrollbar {
-  width: 4px;
-}
-
-/* Animações e Transições Globais */
-a {
-  color: inherit;
-  text-decoration: none;
-}
-
-/* Modal Overlay */
+/* Modal & Drawer */
 .modal-overlay {
   position: fixed;
   top: 0;
   left: 0;
-  width: 100vw;
-  height: 100vh;
-  background: rgba(0, 0, 0, 0.6);
-  backdrop-filter: blur(4px);
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 1000;
+  z-index: 2000;
   padding: 1rem;
+  backdrop-filter: blur(4px);
 }
 
 .modal-content {
   background: var(--surface);
+  border-radius: 1rem;
   width: 100%;
   max-width: 500px;
-  border-radius: 1rem;
-  padding: 2rem;
-  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
-  position: relative;
   max-height: 90vh;
   overflow-y: auto;
-  border: 1px solid var(--border);
+  padding: 2rem;
+  box-shadow: var(--shadow-lg);
 }
 
-.modal-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 1.5rem;
-}
-
-.close-btn {
-  background: transparent;
-  border: none;
-  cursor: pointer;
-  color: var(--text-light);
-  padding: 4px;
-  border-radius: 50%;
-}
-
-.close-btn:hover {
-  background: var(--background);
-  color: var(--error);
-}
-
-/* Drawer Styles */
 .drawer-overlay {
   position: fixed;
   top: 0;
   left: 0;
-  width: 100vw;
-  height: 100vh;
+  right: 0;
+  bottom: 0;
   background: rgba(0, 0, 0, 0.5);
-  z-index: 999;
+  z-index: 2000;
 }
 
 .drawer-content {
   position: fixed;
   top: 0;
   right: 0;
+  bottom: 0;
   width: 100%;
   max-width: 400px;
-  height: 100vh;
   background: var(--surface);
-  box-shadow: -4px 0 15px rgba(0, 0, 0, 0.1);
-  z-index: 1000;
   padding: 2rem;
+  box-shadow: -5px 0 20px rgba(0, 0, 0, 0.1);
+  z-index: 2001;
   overflow-y: auto;
-  border-left: 1px solid var(--border);
-}
-
-.drawer-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 2rem;
-  padding-bottom: 1rem;
-  border-bottom: 1px solid var(--border);
-}
-
-/* Responsividade básica para textos */
-h1,
-h2,
-h3,
-h4,
-h5,
-h6 {
-  color: var(--text);
-}
-
-p,
-span,
-label {
-  color: var(--text);
-}
-
-/* Ajustes Específicos para Mobile */
-@media (max-width: 768px) {
-  .glass-card {
-    padding: 1rem;
-  }
-
-  .modal-content {
-    padding: 1.5rem;
-  }
 }
