@@ -20,7 +20,15 @@ import TeamManagement from './pages/TeamManagement';
 import { TenantProvider, useTenant } from './context/TenantContext';
 
 function AppContent() {
-  const { tenant } = useTenant();
+  const { tenant, loading } = useTenant();
+
+  if (loading) {
+    return (
+      <div style={{ height: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#0f172a', color: 'white' }}>
+        Carregando Sistema...
+      </div>
+    );
+  }
 
   if (!tenant.isLoggedIn) {
     return <LoginPage />;

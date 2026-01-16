@@ -1,6 +1,8 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import { supabase } from '../lib/supabase';
 
 export interface TenantSettings {
+    id: string; // Tenant ID
     primaryColor: string;
     secondaryColor: string;
     name: string;
@@ -11,25 +13,29 @@ export interface TenantSettings {
     role: 'SUPER_ADMIN' | 'VEREADOR' | 'ASSESSOR';
     isLoggedIn: boolean;
     photoUrl?: string;
+    userId?: string;
 }
 
 interface TenantContextType {
     tenant: TenantSettings;
+    loading: boolean;
     updateTenant: (updates: Partial<TenantSettings>) => void;
     toggleTheme: () => void;
     switchRole: (role: 'SUPER_ADMIN' | 'VEREADOR' | 'ASSESSOR') => void;
-    login: (email: string, pass: string) => boolean;
+    login: (email: string, pass: string) => Promise<{ success: boolean; error?: string }>;
+    signUp: (email: string, pass: string, fullName: string, role: string) => Promise<{ success: boolean; error?: string }>;
     logout: () => void;
 }
 
 const defaultSettings: TenantSettings = {
+    id: '',
     primaryColor: '#1a365d',
     secondaryColor: '#d4af37',
     name: 'GABINETE DIGITAL',
     candidateNumber: '11.222',
     cnpj: '00.000.000/0001-00',
-    email: 'vereador@exemplo.com.br',
-    theme: 'dark',
+    email: '',
+    theme: 'dark', // Default dark
     role: 'VEREADOR',
     isLoggedIn: false,
     photoUrl: undefined
@@ -38,17 +44,83 @@ const defaultSettings: TenantSettings = {
 const TenantContext = createContext<TenantContextType | undefined>(undefined);
 
 export const TenantProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-    const [tenant, setTenant] = useState<TenantSettings>(() => {
-        const saved = localStorage.getItem('tenant_settings');
-        return saved ? { ...defaultSettings, ...JSON.parse(saved) } : defaultSettings;
-    });
+    const [tenant, setTenant] = useState<TenantSettings>(defaultSettings);
+    const [loading, setLoading] = useState(true);
+
+    // Initial Session Check
+    useEffect(() => {
+        checkSession();
+
+        const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+            if (event === 'SIGNED_IN' && session) {
+                await fetchProfileAndTenant(session.user.id);
+            } else if (event === 'SIGNED_OUT') {
+                setTenant(defaultSettings);
+            }
+        });
+
+        return () => subscription.unsubscribe();
+    }, []);
+
+    const checkSession = async () => {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (session) {
+            await fetchProfileAndTenant(session.user.id);
+        } else {
+            setLoading(false);
+        }
+    };
+
+    const fetchProfileAndTenant = async (userId: string) => {
+        setLoading(true);
+        try {
+            // 1. Get Profile (to find Tenant ID)
+            const { data: profile, error: profileError } = await supabase
+                .from('profiles')
+                .select('*')
+                .eq('id', userId)
+                .single();
+
+            if (profileError) throw profileError;
+
+            // 2. Get Tenant Details
+            if (profile && profile.tenant_id) {
+                const { data: tenantData, error: tenantError } = await supabase
+                    .from('tenants')
+                    .select('*')
+                    .eq('id', profile.tenant_id)
+                    .single();
+
+                if (tenantError) throw tenantError;
+
+                // Merge into state
+                setTenant(prev => ({
+                    ...prev,
+                    id: tenantData.id,
+                    name: tenantData.name || 'Gabinete Digital',
+                    email: profile.email || 'usuario@sistema.com',
+                    role: (profile.role?.toUpperCase() as any) || 'VEREADOR',
+                    isLoggedIn: true,
+                    userId: userId,
+                    // Use settings from JSONB if available, else defaults
+                    primaryColor: tenantData.settings?.primaryColor || prev.primaryColor,
+                    secondaryColor: tenantData.settings?.secondaryColor || prev.secondaryColor
+                }));
+            }
+        } catch (error) {
+            console.error('Error loading tenant data:', error);
+            // Fallback or error handling
+        } finally {
+            setLoading(false);
+        }
+    };
 
     useEffect(() => {
-        localStorage.setItem('tenant_settings', JSON.stringify(tenant));
+        // App-wide CSS variables for theming
         document.documentElement.style.setProperty('--primary', tenant.primaryColor);
         document.documentElement.style.setProperty('--secondary', tenant.secondaryColor);
         document.documentElement.setAttribute('data-theme', tenant.theme);
-    }, [tenant]);
+    }, [tenant.primaryColor, tenant.secondaryColor, tenant.theme]);
 
     const updateTenant = (updates: Partial<TenantSettings>) => {
         setTenant(prev => ({ ...prev, ...updates }));
@@ -62,33 +134,47 @@ export const TenantProvider: React.FC<{ children: React.ReactNode }> = ({ childr
         setTenant(prev => ({ ...prev, role }));
     };
 
-    const login = (email: string, pass: string): boolean => {
-        const users = [
-            { email: 'superadmin@sistema.com', pass: 'admin123', role: 'SUPER_ADMIN' as const, name: 'Admin Global' },
-            { email: 'vereador@exemplo.com', pass: 'vereador123', role: 'VEREADOR' as const, name: 'Vereador João Silva' },
-            { email: 'assessor@equipe.com', pass: 'assessor123', role: 'ASSESSOR' as const, name: 'Assessor Marcos' },
-        ];
+    const login = async (email: string, pass: string) => {
+        const { data, error } = await supabase.auth.signInWithPassword({
+            email,
+            password: pass,
+        });
 
-        const user = users.find(u => u.email === email && u.pass === pass);
-        if (user) {
-            setTenant(prev => ({
-                ...prev,
-                email: user.email,
-                role: user.role,
-                name: user.name,
-                isLoggedIn: true
-            }));
-            return true;
+        if (error) {
+            console.error('Login error:', error.message);
+            return { success: false, error: error.message };
         }
-        return false;
+
+        // State update happens in onAuthStateChange
+        return { success: true };
     };
 
-    const logout = () => {
-        setTenant(prev => ({ ...prev, isLoggedIn: false }));
+    const signUp = async (email: string, pass: string, fullName: string, role: string) => {
+        const { data, error } = await supabase.auth.signUp({
+            email,
+            password: pass,
+            options: {
+                data: {
+                    full_name: fullName,
+                    role: role // This will be used by the trigger we created
+                }
+            }
+        });
+
+        if (error) {
+            console.error('Signup error:', error.message);
+            return { success: false, error: error.message };
+        }
+        return { success: true };
+    };
+
+    const logout = async () => {
+        await supabase.auth.signOut();
+        setTenant(defaultSettings);
     };
 
     return (
-        <TenantContext.Provider value={{ tenant, updateTenant, toggleTheme, switchRole, login, logout }}>
+        <TenantContext.Provider value={{ tenant, loading, updateTenant, toggleTheme, switchRole, login, signUp, logout }}>
             {children}
         </TenantContext.Provider>
     );

@@ -1,73 +1,191 @@
-import { MapPin, Filter, Search, Clock, CheckCircle, AlertTriangle, List, Map as MapIcon, ChevronRight, Camera, User, Plus } from 'lucide-react';
+import { MapPin, Filter, Search, Clock, CheckCircle, AlertTriangle, List, Map as MapIcon, ChevronRight, Camera, User, Plus, Loader2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Drawer, Modal } from '../components/UIComponents';
+import { supabase } from '../lib/supabase';
+import { useTenant } from '../context/TenantContext';
 
-const initialDemands = [
-    { id: 1, title: 'Buraco Crítico na Via Principal', local: 'Vila Nova - Rua A, 450', category: 'Infraestrutura', status: 'pending', time: 'há 2h', priority: 'high', description: 'Moradores relatam que o buraco está causando acidentes leves e danos aos veículos.', visits: [] },
-    {
-        id: 2, title: 'Iluminação Pública Queimada', local: 'Centro - Praça Getúlio Vargas', category: 'Urbanismo', status: 'in-progress', time: 'há 5h', priority: 'medium', description: 'Cinco postes sem luz na praça central, gerando insegurança no período noturno.', visits: [
-            { id: 101, date: '2024-01-14', responsible: 'Assessor Marcos', notes: 'Fui ao local e confirmei os 5 postes apagados. Solicitei reparo à prefeitura.', photo: 'https://via.placeholder.com/150' }
-        ]
-    },
-    { id: 3, title: 'Falta de Medicamento Básico', local: 'Bairro Rural - UBS Rural', category: 'Saúde', status: 'pending', time: 'Ontem', priority: 'high', description: 'Falta de dipirona e outros insumos básicos na unidade de saúde.', visits: [] },
-    {
-        id: 4, title: 'Limpeza de Terreno Baldio', local: 'São José - Rua das Flores', category: 'Saneamento', status: 'resolved', time: 'há 3 dias', priority: 'low', description: 'Acúmulo de lixo e mato alto gerando focos de dengue.', visits: [
-            { id: 102, date: '2024-01-12', responsible: 'Vereador João', notes: 'Limpeza concluída pela equipe de mutirão.', photo: 'https://via.placeholder.com/150' }
-        ]
-    },
-];
+// Interfaces matching Supabase schema
+interface Visit {
+    id: number;
+    created_at: string;
+    demand_id: number;
+    date: string;
+    responsible: string;
+    notes: string;
+    photo_url?: string;
+}
+
+interface Demand {
+    id: number;
+    created_at: string;
+    title: string;
+    local: string;
+    category: string;
+    status: 'pending' | 'in-progress' | 'resolved';
+    priority: 'low' | 'medium' | 'high';
+    description: string;
+    visits: Visit[];
+}
 
 const DemandsPage = () => {
+    const { tenant } = useTenant();
     const [view, setView] = useState<'list' | 'map'>('list');
     const [isDrawerOpen, setIsDrawerOpen] = useState(false);
     const [isVisitModalOpen, setIsVisitModalOpen] = useState(false);
-    const [selectedDemand, setSelectedDemand] = useState<any>(null);
-    const [demands, setDemands] = useState(initialDemands);
+    const [selectedDemand, setSelectedDemand] = useState<Demand | null>(null);
+
+    // Data Loading
+    const [demands, setDemands] = useState<Demand[]>([]);
+    const [isLoading, setIsLoading] = useState(true);
+
     const [filterResponsible, setFilterResponsible] = useState('Todos');
     const [searchTerm, setSearchTerm] = useState('');
 
-    const openDemandDetails = (demand: any) => {
+    useEffect(() => {
+        if (tenant.id) {
+            fetchDemands();
+        }
+    }, [tenant.id]);
+
+    const fetchDemands = async () => {
+        setIsLoading(true);
+        // RLS will automatically filter by tenant, but good practice to rely on it.
+        const { data, error } = await supabase
+            .from('demands')
+            .select(`
+                *,
+                visits:demand_visits(*)
+            `)
+            .order('created_at', { ascending: false });
+
+        if (error) {
+            console.error('Error fetching demands:', error);
+            alert('Erro ao carregar demandas');
+        } else {
+            const sortedData = data?.map((d: any) => ({
+                ...d,
+                visits: d.visits?.sort((a: any, b: any) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()) || []
+            })) || [];
+            setDemands(sortedData);
+        }
+        setIsLoading(false);
+    };
+
+    const openDemandDetails = (demand: Demand) => {
         setSelectedDemand(demand);
         setIsDrawerOpen(true);
     };
 
-    const handleUpdateStatus = () => {
-        const newStatus = selectedDemand?.status === 'resolved' ? 'in-progress' : 'resolved';
+    const handleUpdateStatus = async () => {
+        if (!selectedDemand) return;
 
-        // Update local state for immediate feedback
-        const updatedDemands = demands.map(d =>
-            d.id === selectedDemand.id ? { ...d, status: newStatus } : d
-        );
-        setDemands(updatedDemands);
-        setSelectedDemand({ ...selectedDemand, status: newStatus });
+        const newStatus = selectedDemand.status === 'resolved' ? 'in-progress' : 'resolved';
 
-        alert(`Status atualizado para: ${newStatus === 'resolved' ? 'Resolvido' : 'Em Andamento'}`);
+        const updatedDemand = { ...selectedDemand, status: newStatus as any };
+        setDemands(demands.map(d => d.id === selectedDemand.id ? updatedDemand : d));
+        setSelectedDemand(updatedDemand);
+
+        const { error } = await supabase
+            .from('demands')
+            .update({ status: newStatus })
+            .eq('id', selectedDemand.id);
+
+        if (error) {
+            console.error('Error updating status:', error);
+            alert('Erro ao atualizar status');
+            fetchDemands();
+        } else {
+            alert(`Status atualizado para: ${newStatus === 'resolved' ? 'Resolvido' : 'Em Andamento'}`);
+        }
     };
 
     const handleCreateIndication = () => {
         alert("Criando Minuta de Indicação...\n\nO sistema irá gerar um documento oficial baseado nos dados desta demanda.");
     };
 
-    const handleRegisterVisit = (visit: any) => {
-        const updatedDemands = demands.map(d => {
-            if (d.id === selectedDemand.id) {
-                return { ...d, visits: [visit, ...d.visits] };
-            }
-            return d;
-        });
-        setDemands(updatedDemands);
-        // Update selectedDemand as well to show in drawer
-        const updatedSelected = { ...selectedDemand, visits: [visit, ...(selectedDemand.visits || [])] };
-        setSelectedDemand(updatedSelected);
-        setIsVisitModalOpen(false);
+    const handleRegisterVisit = async (visitData: any) => {
+        if (!selectedDemand || !tenant.id) return;
+
+        const newVisitPayload = {
+            demand_id: selectedDemand.id,
+            responsible: visitData.responsible,
+            notes: visitData.notes,
+            photo_url: visitData.photo,
+            date: new Date().toISOString().split('T')[0],
+            tenant_id: tenant.id
+        };
+
+        const { data, error } = await supabase
+            .from('demand_visits')
+            .insert([newVisitPayload])
+            .select();
+
+        if (error) {
+            console.error('Error creating visit:', error);
+            alert('Erro ao registrar visita');
+        } else if (data) {
+            const newVisit = data[0];
+            const updatedVisits = [newVisit, ...selectedDemand.visits];
+            const updatedDemand = { ...selectedDemand, visits: updatedVisits };
+
+            setSelectedDemand(updatedDemand);
+            setDemands(demands.map(d => d.id === selectedDemand.id ? updatedDemand : d));
+
+            setIsVisitModalOpen(false);
+        }
     };
+
+    const [isNewDemandModalOpen, setIsNewDemandModalOpen] = useState(false);
+    const [newDemandTitle, setNewDemandTitle] = useState('');
+    const [newDemandLocal, setNewDemandLocal] = useState('');
+    const [newDemandCategory, setNewDemandCategory] = useState('Infraestrutura');
+
+    const handleCreateDemand = async (e: React.FormEvent) => {
+        e.preventDefault();
+
+        if (!tenant.id) {
+            alert('Erro: ID do Gabinete não encontrado.');
+            return;
+        }
+
+        const newDemand = {
+            title: newDemandTitle,
+            local: newDemandLocal,
+            category: newDemandCategory,
+            status: 'pending',
+            priority: 'medium',
+            description: '',
+            tenant_id: tenant.id
+        };
+
+        const { data, error } = await supabase.from('demands').insert([newDemand]).select();
+        if (error) {
+            console.error('Error creating demand:', error);
+            alert('Erro ao criar demanda');
+        } else if (data) {
+            setDemands([{ ...data[0], visits: [] }, ...demands]);
+            setIsNewDemandModalOpen(false);
+            setNewDemandTitle('');
+            setNewDemandLocal('');
+        }
+    }
+
 
     const filteredDemands = demands.filter(d => {
         const matchesSearch = d.title.toLowerCase().includes(searchTerm.toLowerCase()) || d.local.toLowerCase().includes(searchTerm.toLowerCase());
         const matchesResponsible = filterResponsible === 'Todos' || d.visits.some((v: any) => v.responsible === filterResponsible);
         return matchesSearch && matchesResponsible;
     });
+
+    const formatTimeAgo = (dateString: string) => {
+        const date = new Date(dateString);
+        const now = new Date();
+        const diffInHours = Math.abs(now.getTime() - date.getTime()) / 36e5;
+
+        if (diffInHours < 24) return `há ${Math.floor(diffInHours)}h`;
+        return `${Math.floor(diffInHours / 24)} dias atrás`;
+    };
 
     return (
         <motion.div
@@ -80,45 +198,51 @@ const DemandsPage = () => {
                     <h1>Mapa de Demandas</h1>
                     <p style={{ color: 'var(--text-light)' }}>Gestão geolocalizada e acompanhamento de visitas em campo.</p>
                 </div>
-                <div style={{ display: 'flex', background: 'var(--bg-color)', padding: '4px', borderRadius: '0.75rem', border: '1px solid var(--border)' }}>
-                    <button
-                        onClick={() => setView('list')}
-                        style={{
-                            padding: '0.5rem 1rem',
-                            borderRadius: '0.5rem',
-                            border: 'none',
-                            background: view === 'list' ? 'var(--surface)' : 'transparent',
-                            boxShadow: view === 'list' ? '0 2px 4px rgba(0,0,0,0.1)' : 'none',
-                            cursor: 'pointer',
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: '8px',
-                            fontWeight: 600,
-                            color: view === 'list' ? 'var(--primary)' : 'var(--text-light)',
-                            transition: 'all 0.2s'
-                        }}
-                    >
-                        <List size={18} /> Lista
+                <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
+                    <button className="btn-gold" onClick={() => setIsNewDemandModalOpen(true)} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                        <Plus size={18} /> Nova Demanda
                     </button>
-                    <button
-                        onClick={() => setView('map')}
-                        style={{
-                            padding: '0.5rem 1rem',
-                            borderRadius: '0.5rem',
-                            border: 'none',
-                            background: view === 'map' ? 'var(--surface)' : 'transparent',
-                            boxShadow: view === 'map' ? '0 2px 4px rgba(0,0,0,0.1)' : 'none',
-                            cursor: 'pointer',
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: '8px',
-                            fontWeight: 600,
-                            color: view === 'map' ? 'var(--primary)' : 'var(--text-light)',
-                            transition: 'all 0.2s'
-                        }}
-                    >
-                        <MapIcon size={18} /> Mapa
-                    </button>
+
+                    <div style={{ display: 'flex', background: 'var(--bg-color)', padding: '4px', borderRadius: '0.75rem', border: '1px solid var(--border)' }}>
+                        <button
+                            onClick={() => setView('list')}
+                            style={{
+                                padding: '0.5rem 1rem',
+                                borderRadius: '0.5rem',
+                                border: 'none',
+                                background: view === 'list' ? 'var(--surface)' : 'transparent',
+                                boxShadow: view === 'list' ? '0 2px 4px rgba(0,0,0,0.1)' : 'none',
+                                cursor: 'pointer',
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '8px',
+                                fontWeight: 600,
+                                color: view === 'list' ? 'var(--primary)' : 'var(--text-light)',
+                                transition: 'all 0.2s'
+                            }}
+                        >
+                            <List size={18} /> Lista
+                        </button>
+                        <button
+                            onClick={() => setView('map')}
+                            style={{
+                                padding: '0.5rem 1rem',
+                                borderRadius: '0.5rem',
+                                border: 'none',
+                                background: view === 'map' ? 'var(--surface)' : 'transparent',
+                                boxShadow: view === 'map' ? '0 2px 4px rgba(0,0,0,0.1)' : 'none',
+                                cursor: 'pointer',
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '8px',
+                                fontWeight: 600,
+                                color: view === 'map' ? 'var(--primary)' : 'var(--text-light)',
+                                transition: 'all 0.2s'
+                            }}
+                        >
+                            <MapIcon size={18} /> Mapa
+                        </button>
+                    </div>
                 </div>
             </header>
 
@@ -151,7 +275,12 @@ const DemandsPage = () => {
             </div>
 
             <AnimatePresence mode="wait">
-                {view === 'list' ? (
+                {isLoading ? (
+                    <motion.div key="loading" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} style={{ padding: '3rem', textAlign: 'center', color: 'var(--text-light)' }}>
+                        <Loader2 className="animate-spin" size={32} style={{ margin: '0 auto 1rem auto' }} />
+                        <p>Carregando demandas do território...</p>
+                    </motion.div>
+                ) : view === 'list' ? (
                     <motion.div
                         key="list"
                         initial={{ opacity: 0, x: -20 }}
@@ -159,54 +288,63 @@ const DemandsPage = () => {
                         exit={{ opacity: 0, x: -20 }}
                         style={{ display: 'grid', gap: '1rem' }}
                     >
-                        {filteredDemands.map((demand) => (
-                            <div
-                                key={demand.id}
-                                className="glass-card flex-col-mobile"
-                                onClick={() => openDemandDetails(demand)}
-                                style={{
-                                    display: 'flex',
-                                    justifyContent: 'space-between',
-                                    alignItems: 'center',
-                                    background: 'var(--surface)',
-                                    cursor: 'pointer',
-                                    gap: '1rem',
-                                    borderLeft: `4px solid ${demand.status === 'resolved' ? '#38a169' : demand.priority === 'high' ? '#e53e3e' : '#ed8936'}`
-                                }}
-                            >
-                                <div style={{ display: 'flex', gap: '1.5rem', alignItems: 'center' }}>
-                                    <div style={{
-                                        padding: '0.75rem',
-                                        background: demand.status === 'resolved' ? 'rgba(56, 161, 105, 0.1)' : demand.priority === 'high' ? 'rgba(229, 62, 62, 0.1)' : 'rgba(237, 137, 54, 0.1)',
-                                        borderRadius: '0.5rem',
-                                        color: demand.status === 'resolved' ? '#38a169' : demand.priority === 'high' ? '#e53e3e' : '#ed8936'
-                                    }}>
-                                        {demand.status === 'resolved' ? <CheckCircle size={24} /> : <AlertTriangle size={24} />}
-                                    </div>
-                                    <div>
-                                        <h3 style={{ margin: 0, fontSize: '1.1rem', color: 'var(--text)' }}>{demand.title}</h3>
-                                        <div style={{ display: 'flex', gap: '1rem', fontSize: '0.85rem', color: 'var(--text-light)', marginTop: '0.25rem' }}>
-                                            <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}><MapPin size={14} /> {demand.local}</span>
-                                            <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}><Clock size={14} /> {demand.visits.length > 0 ? `${demand.visits.length} visitas` : 'Sem visitas'}</span>
+                        {filteredDemands.length === 0 ? (
+                            <div style={{ padding: '2rem', textAlign: 'center', color: 'var(--text-light)', background: 'var(--surface)', borderRadius: '1rem' }}>
+                                Nenhuma demanda encontrada para os filtros atuais.
+                            </div>
+                        ) : (
+                            filteredDemands.map((demand) => (
+                                <div
+                                    key={demand.id}
+                                    className="glass-card flex-col-mobile"
+                                    onClick={() => openDemandDetails(demand)}
+                                    style={{
+                                        display: 'flex',
+                                        justifyContent: 'space-between',
+                                        alignItems: 'center',
+                                        background: 'var(--surface)',
+                                        cursor: 'pointer',
+                                        gap: '1rem',
+                                        borderLeft: `4px solid ${demand.status === 'resolved' ? '#38a169' : demand.priority === 'high' ? '#e53e3e' : '#ed8936'}`
+                                    }}
+                                >
+                                    <div style={{ display: 'flex', gap: '1.5rem', alignItems: 'center' }}>
+                                        <div style={{
+                                            padding: '0.75rem',
+                                            background: demand.status === 'resolved' ? 'rgba(56, 161, 105, 0.1)' : demand.priority === 'high' ? 'rgba(229, 62, 62, 0.1)' : 'rgba(237, 137, 54, 0.1)',
+                                            borderRadius: '0.5rem',
+                                            color: demand.status === 'resolved' ? '#38a169' : demand.priority === 'high' ? '#e53e3e' : '#ed8936'
+                                        }}>
+                                            {demand.status === 'resolved' ? <CheckCircle size={24} /> : <AlertTriangle size={24} />}
+                                        </div>
+                                        <div>
+                                            <h3 style={{ margin: 0, fontSize: '1.1rem', color: 'var(--text)' }}>{demand.title}</h3>
+                                            <div style={{ display: 'flex', gap: '1rem', fontSize: '0.85rem', color: 'var(--text-light)', marginTop: '0.25rem' }}>
+                                                <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}><MapPin size={14} /> {demand.local}</span>
+                                                <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}><Clock size={14} /> {formatTimeAgo(demand.created_at)}</span>
+                                                <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                                                    <User size={14} /> {demand.visits.length > 0 ? `${demand.visits.length} visitas` : 'Sem visitas'}
+                                                </span>
+                                            </div>
                                         </div>
                                     </div>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', width: '100%', justifyContent: 'space-between' }}>
+                                        <span style={{
+                                            padding: '0.25rem 0.75rem',
+                                            borderRadius: '1rem',
+                                            fontSize: '0.75rem',
+                                            fontWeight: 700,
+                                            background: demand.status === 'resolved' ? 'rgba(56, 161, 105, 0.1)' : demand.status === 'in-progress' ? 'rgba(49, 130, 206, 0.1)' : 'rgba(237, 137, 54, 0.1)',
+                                            color: demand.status === 'resolved' ? '#38a169' : demand.status === 'in-progress' ? '#3182ce' : '#ed8936',
+                                            border: '1px solid transparent'
+                                        }}>
+                                            {demand.status === 'resolved' ? 'Resolvido' : demand.status === 'in-progress' ? 'Em Andamento' : 'Pendente'}
+                                        </span>
+                                        <ChevronRight size={20} color="var(--text-light)" />
+                                    </div>
                                 </div>
-                                <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', width: '100%', justifyContent: 'space-between' }}>
-                                    <span style={{
-                                        padding: '0.25rem 0.75rem',
-                                        borderRadius: '1rem',
-                                        fontSize: '0.75rem',
-                                        fontWeight: 700,
-                                        background: demand.status === 'resolved' ? 'rgba(56, 161, 105, 0.1)' : demand.status === 'in-progress' ? 'rgba(49, 130, 206, 0.1)' : 'rgba(237, 137, 54, 0.1)',
-                                        color: demand.status === 'resolved' ? '#38a169' : demand.status === 'in-progress' ? '#3182ce' : '#ed8936',
-                                        border: '1px solid transparent'
-                                    }}>
-                                        {demand.status === 'resolved' ? 'Resolvido' : demand.status === 'in-progress' ? 'Em Andamento' : 'Pendente'}
-                                    </span>
-                                    <ChevronRight size={20} color="var(--text-light)" />
-                                </div>
-                            </div>
-                        ))}
+                            ))
+                        )}
                     </motion.div>
                 ) : (
                     <motion.div
@@ -230,7 +368,11 @@ const DemandsPage = () => {
                             height: '100%',
                             background: 'radial-gradient(circle at center, #cbd5e1 0%, #f1f5f9 100%)',
                             opacity: 0.5
-                        }}></div>
+                        }}>
+                            <p style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', color: '#64748b' }}>
+                                Integração com Google Maps API (Pendente de Chave)
+                            </p>
+                        </div>
 
                         {filteredDemands.map((d, i) => (
                             <motion.div
@@ -241,7 +383,7 @@ const DemandsPage = () => {
                                 onClick={() => openDemandDetails(d)}
                                 style={{
                                     position: 'absolute',
-                                    top: `${20 + (i * 15)}%`,
+                                    top: `${20 + (i * 15)}%`, // Mock positioning for now
                                     left: `${30 + (i * 10)}%`,
                                     cursor: 'pointer',
                                     zIndex: 10
@@ -268,6 +410,55 @@ const DemandsPage = () => {
                 )}
             </AnimatePresence>
 
+            {/* Quick Create Demand Modal */}
+            <Modal isOpen={isNewDemandModalOpen} onClose={() => setIsNewDemandModalOpen(false)} title="Nova Demanda">
+                <form onSubmit={handleCreateDemand} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                    <div>
+                        <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.9rem' }}>Título</label>
+                        <input
+                            type="text"
+                            required
+                            className="form-input"
+                            placeholder="Ex: Buraco na Rua X"
+                            style={{ width: '100%' }}
+                            value={newDemandTitle}
+                            onChange={(e) => setNewDemandTitle(e.target.value)}
+                        />
+                    </div>
+                    <div>
+                        <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.9rem' }}>Local</label>
+                        <input
+                            type="text"
+                            required
+                            className="form-input"
+                            placeholder="Endereço ou Ponto de referência"
+                            style={{ width: '100%' }}
+                            value={newDemandLocal}
+                            onChange={(e) => setNewDemandLocal(e.target.value)}
+                        />
+                    </div>
+                    <div>
+                        <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.9rem' }}>Categoria</label>
+                        <select
+                            className="form-input"
+                            style={{ width: '100%' }}
+                            value={newDemandCategory}
+                            onChange={(e) => setNewDemandCategory(e.target.value)}
+                        >
+                            <option>Infraestrutura</option>
+                            <option>Saúde</option>
+                            <option>Educação</option>
+                            <option>Segurança</option>
+                            <option>Saneamento</option>
+                            <option>Outros</option>
+                        </select>
+                    </div>
+                    <button type="submit" className="btn-gold" style={{ marginTop: '1rem' }}>
+                        Criar Demanda
+                    </button>
+                </form>
+            </Modal>
+
             <Drawer
                 isOpen={isDrawerOpen}
                 onClose={() => setIsDrawerOpen(false)}
@@ -287,7 +478,7 @@ const DemandsPage = () => {
                             }}>
                                 {selectedDemand.category}
                             </span>
-                            <span style={{ fontSize: '0.8rem', color: 'var(--text-light)' }}>ID: #{selectedDemand.id}2026</span>
+                            <span style={{ fontSize: '0.8rem', color: 'var(--text-light)' }}>ID: #{selectedDemand.id}</span>
                         </div>
 
                         <h2 style={{ fontSize: '1.5rem', margin: 0 }}>{selectedDemand.title}</h2>
@@ -299,7 +490,7 @@ const DemandsPage = () => {
                             </div>
                             <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                                 <Clock size={18} style={{ color: 'var(--primary)' }} />
-                                <span>Registrado em: {selectedDemand.time}</span>
+                                <span>Registrado em: {new Date(selectedDemand.created_at).toLocaleDateString()}</span>
                             </div>
                         </div>
 
@@ -318,7 +509,7 @@ const DemandsPage = () => {
                                 {selectedDemand.visits.length === 0 ? (
                                     <p style={{ fontSize: '0.85rem', color: 'var(--text-light)', fontStyle: 'italic' }}>Nenhuma visita registrada para esta demanda.</p>
                                 ) : (
-                                    selectedDemand.visits.map((visit: any) => (
+                                    selectedDemand.visits.map((visit) => (
                                         <div key={visit.id} style={{ background: '#f8fafc', padding: '1rem', borderRadius: '0.75rem', border: '1px solid #e2e8f0' }}>
                                             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '0.5rem' }}>
                                                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
@@ -327,12 +518,12 @@ const DemandsPage = () => {
                                                     </div>
                                                     <div>
                                                         <p style={{ margin: 0, fontSize: '0.85rem', fontWeight: 700 }}>{visit.responsible}</p>
-                                                        <p style={{ margin: 0, fontSize: '0.75rem', color: 'var(--text-light)' }}>{visit.date}</p>
+                                                        <p style={{ margin: 0, fontSize: '0.75rem', color: 'var(--text-light)' }}>{new Date(visit.date).toLocaleDateString()}</p>
                                                     </div>
                                                 </div>
-                                                {visit.photo && (
+                                                {visit.photo_url && (
                                                     <div style={{ width: '40px', height: '40px', borderRadius: '4px', overflow: 'hidden', border: '1px solid #cbd5e0' }}>
-                                                        <img src={visit.photo} alt="Visit" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                                                        <img src={visit.photo_url} alt="Visit" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                                                     </div>
                                                 )}
                                             </div>
@@ -380,7 +571,7 @@ const VisitForm = ({ onSubmit, onCancel }: any) => {
         <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
             <div>
                 <label>Responsável pela Visita</label>
-                <select value={responsible} onChange={(e) => setResponsible(e.target.value)}>
+                <select value={responsible} onChange={(e) => setResponsible(e.target.value)} className="form-input" style={{ width: '100%' }}>
                     <option>Vereador João</option>
                     <option>Assessor Marcos</option>
                     <option>Assessora Sandra</option>
@@ -417,12 +608,14 @@ const VisitForm = ({ onSubmit, onCancel }: any) => {
                     value={notes}
                     onChange={(e) => setNotes(e.target.value)}
                     rows={4}
+                    className="form-input"
+                    style={{ width: '100%' }}
                 />
             </div>
 
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginTop: '1rem' }}>
                 <button className="btn-primary" style={{ background: '#edf2f7', color: 'var(--text)' }} onClick={onCancel}>Cancelar</button>
-                <button className="btn-primary" onClick={() => onSubmit({ id: Date.now(), responsible, notes, date: 'Hoje', photo })}>Salvar Visita</button>
+                <button className="btn-primary" onClick={() => onSubmit({ responsible, notes, photo })}>Salvar Visita</button>
             </div>
         </div>
     );

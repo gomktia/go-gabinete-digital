@@ -1,17 +1,91 @@
-import { Users, TrendingUp, Calendar, ArrowUpRight, ArrowDownRight, DollarSign, Share2 } from 'lucide-react';
+import { Users, TrendingUp, Calendar, ArrowUpRight, ArrowDownRight, DollarSign, Share2, Loader2 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useTenant } from '../context/TenantContext';
 import { useNavigate } from 'react-router-dom';
-
-const stats = [
-    { label: 'Eleitores na Base', value: '1,240', icon: Users, color: '#d4af37', trend: '+55 hoje', trendUp: true, path: '/voters' },
-    { label: 'Gastos Campanha', value: '28%', icon: DollarSign, color: '#38a169', trend: 'Controlado', trendUp: true, path: '/finance' },
-    { label: 'Engajamento', value: '4.2k', icon: Share2, color: '#E1306C', trend: '+12%', trendUp: true, path: '/social-media' },
-];
+import { useEffect, useState } from 'react';
+import { supabase } from '../lib/supabase';
 
 const Dashboard = () => {
     const { tenant } = useTenant();
     const navigate = useNavigate();
+
+    const [stats, setStats] = useState({
+        voters: 0,
+        visits: 0,
+        campaignSpend: 0, // Placeholder
+        engagement: 0, // Placeholder
+    });
+
+    const [visitDistribution, setVisitDistribution] = useState<{ name: string, visits: number, color: string }[]>([]);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        if (tenant.id) {
+            fetchDashboardData();
+        }
+    }, [tenant.id]);
+
+    const fetchDashboardData = async () => {
+        setLoading(true);
+        try {
+            // 1. Get Voters Count
+            const { count: votersCount, error: votersError } = await supabase
+                .from('voters')
+                .select('*', { count: 'exact', head: true });
+
+            // 2. Get Visits for Distribution
+            const { data: visitsData, error: visitsError } = await supabase
+                .from('demand_visits')
+                .select('responsible');
+
+            if (votersError) throw votersError;
+            if (visitsError) throw visitsError;
+
+            // Process Visits Distribution
+            const distribution = (visitsData || []).reduce((acc: any, curr: any) => {
+                const responsible = curr.responsible || 'Desconhecido';
+                acc[responsible] = (acc[responsible] || 0) + 1;
+                return acc;
+            }, {});
+
+            const sortedDistribution = Object.entries(distribution)
+                .map(([name, count]) => ({
+                    name,
+                    visits: count as number,
+                    color: getColorForName(name)
+                }))
+                .sort((a, b) => b.visits - a.visits) // Sort by highest
+                .slice(0, 5); // Take top 5
+
+            setVisitDistribution(sortedDistribution);
+            setStats(prev => ({
+                ...prev,
+                voters: votersCount || 0,
+                visits: visitsData?.length || 0
+            }));
+
+        } catch (error) {
+            console.error('Error loading dashboard:', error);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const getColorForName = (name: string) => {
+        // Simple consistent color hash or mapping
+        const colors = ['#3182ce', '#38a169', '#d4af37', '#e53e3e', '#805ad5', '#dd6b20'];
+        let hash = 0;
+        for (let i = 0; i < name.length; i++) {
+            hash = name.charCodeAt(i) + ((hash << 5) - hash);
+        }
+        return colors[Math.abs(hash) % colors.length];
+    };
+
+    const dashboardStats = [
+        { label: 'Eleitores na Base', value: stats.voters.toLocaleString(), icon: Users, color: '#d4af37', trend: 'CRM Ativo', trendUp: true, path: '/voters' },
+        { label: 'Gastos Campanha', value: 'R$ 0,00', icon: DollarSign, color: '#38a169', trend: 'Simulado', trendUp: true, path: '/finance' }, // Keep as placeholder for now
+        { label: 'Visitas em Campo', value: stats.visits.toLocaleString(), icon: Share2, color: '#E1306C', trend: 'Real-time', trendUp: true, path: '/demands' },
+    ];
 
     return (
         <motion.div
@@ -22,9 +96,9 @@ const Dashboard = () => {
         >
             <header className="responsive-header">
                 <div>
-                    <h1 style={{ marginBottom: '0.25rem' }}>Olá, Vereador</h1>
+                    <h1 style={{ marginBottom: '0.25rem' }}>Olá, {tenant.name}</h1>
                     <p style={{ color: 'var(--text-light)', fontSize: '1.1rem' }}>
-                        {tenant.name} | Gestão do Mandato em Tempo Real
+                        Gestão do Mandato em Tempo Real
                     </p>
                 </div>
                 <div
@@ -32,12 +106,14 @@ const Dashboard = () => {
                     style={{ padding: '0.75rem 1.25rem', background: 'var(--surface)', borderRadius: '1rem', boxShadow: 'var(--shadow)', display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer', border: '1px solid var(--border)' }}
                 >
                     <Calendar size={20} style={{ color: 'var(--primary)' }} />
-                    <span style={{ fontWeight: 600, fontSize: '0.9rem', color: 'var(--text)' }}>Quarta, 14 de Janeiro</span>
+                    <span style={{ fontWeight: 600, fontSize: '0.9rem', color: 'var(--text)' }}>
+                        {new Date().toLocaleDateString('pt-BR', { weekday: 'long', day: 'numeric', month: 'long' })}
+                    </span>
                 </div>
             </header>
 
             <div className="responsive-grid" style={{ marginBottom: '2.5rem' }}>
-                {stats.map((stat, index) => {
+                {dashboardStats.map((stat, index) => {
                     const Icon = stat.icon;
                     return (
                         <motion.div
@@ -73,7 +149,9 @@ const Dashboard = () => {
                             </div>
                             <div>
                                 <p style={{ fontSize: '0.85rem', color: 'var(--text-light)', fontWeight: 600, marginBottom: '0.25rem' }}>{stat.label}</p>
-                                <h2 style={{ margin: 0, fontSize: '2rem' }}>{stat.value}</h2>
+                                <h2 style={{ margin: 0, fontSize: '2rem' }}>
+                                    {loading ? <Loader2 className="animate-spin" size={24} /> : stat.value}
+                                </h2>
                             </div>
                             <div style={{ height: '40px', marginTop: 'auto', display: 'flex', alignItems: 'flex-end', gap: '4px' }}>
                                 {[...Array(10)].map((_, i) => (
@@ -105,30 +183,30 @@ const Dashboard = () => {
                         </div>
                         <div style={{ padding: '1rem', background: 'linear-gradient(135deg, rgba(212, 175, 55, 0.1) 0%, rgba(212, 175, 55, 0.05) 100%)', borderRadius: '1rem' }}>
                             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem', color: 'var(--secondary)', fontWeight: 700 }}>
-                                <span>1.240 Votos</span>
+                                <span>{stats.voters} Votos</span>
                                 <span>Meta: 3.500</span>
                             </div>
                             <div style={{ width: '100%', height: '12px', background: 'rgba(0,0,0,0.1)', borderRadius: '6px', overflow: 'hidden' }}>
                                 <motion.div
                                     initial={{ width: 0 }}
-                                    animate={{ width: '35%' }}
+                                    animate={{ width: `${Math.min((stats.voters / 3500) * 100, 100)}%` }}
                                     transition={{ duration: 1 }}
-                                    style={{ width: '35%', height: '100%', background: 'var(--secondary)' }}
+                                    style={{ width: `${Math.min((stats.voters / 3500) * 100, 100)}%`, height: '100%', background: 'var(--secondary)' }}
                                 />
                             </div>
                             <p style={{ fontSize: '0.8rem', marginTop: '0.5rem', color: 'var(--text-light)' }}>
-                                Focando em indecisos, podemos atingir 50% da meta até semana que vem.
+                                {stats.voters === 0 ? 'Cadastre eleitores para iniciar o funil.' : 'Continue cadastrando para atingir a meta.'}
                             </p>
                         </div>
 
                         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
                             <div style={{ padding: '1rem', background: 'var(--bg-color)', borderRadius: '0.5rem', textAlign: 'center' }}>
                                 <p style={{ margin: 0, fontSize: '0.8rem', color: 'var(--text-light)' }}>Gastos (Semana)</p>
-                                <p style={{ margin: 0, fontWeight: 700, color: '#e53e3e' }}>R$ 12.500</p>
+                                <p style={{ margin: 0, fontWeight: 700, color: '#e53e3e' }}>R$ 0,00</p>
                             </div>
                             <div style={{ padding: '1rem', background: 'var(--bg-color)', borderRadius: '0.5rem', textAlign: 'center' }}>
                                 <p style={{ margin: 0, fontSize: '0.8rem', color: 'var(--text-light)' }}>Novos Apoios</p>
-                                <p style={{ margin: 0, fontWeight: 700, color: '#38a169' }}>+45</p>
+                                <p style={{ margin: 0, fontWeight: 700, color: '#38a169' }}>+{stats.voters}</p>
                             </div>
                         </div>
                     </div>
@@ -136,30 +214,31 @@ const Dashboard = () => {
                     <div className="glass-card">
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
                             <h3 style={{ margin: 0 }}>Produtividade: Visitas em Campo</h3>
-                            <span style={{ fontSize: '0.75rem', color: 'var(--text-light)' }}>Total: 124 visitas</span>
+                            <span style={{ fontSize: '0.75rem', color: 'var(--text-light)' }}>Total: {loading ? '...' : stats.visits} visitas</span>
                         </div>
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                            {[
-                                { name: 'Assessor Marcos', visits: 45, color: '#3182ce' },
-                                { name: 'Assessora Sandra', visits: 38, color: '#38a169' },
-                                { name: 'Vereador João', visits: 22, color: '#d4af37' },
-                                { name: 'Assessor Paulo', visits: 19, color: '#e53e3e' }
-                            ].map((item, idx) => (
-                                <div key={idx}>
-                                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px', fontSize: '0.85rem' }}>
-                                        <span style={{ fontWeight: 600 }}>{item.name}</span>
-                                        <span style={{ fontWeight: 700 }}>{item.visits} visitas</span>
+                            {loading ? (
+                                <div style={{ textAlign: 'center', padding: '1rem' }}><Loader2 className="animate-spin" /></div>
+                            ) : visitDistribution.length === 0 ? (
+                                <p style={{ fontSize: '0.9rem', color: 'var(--text-light)', fontStyle: 'italic' }}>Nenhuma visita registrada ainda.</p>
+                            ) : (
+                                visitDistribution.map((item, idx) => (
+                                    <div key={idx}>
+                                        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px', fontSize: '0.85rem' }}>
+                                            <span style={{ fontWeight: 600 }}>{item.name}</span>
+                                            <span style={{ fontWeight: 700 }}>{item.visits} visitas</span>
+                                        </div>
+                                        <div style={{ height: '8px', background: 'var(--bg-color)', borderRadius: '4px', overflow: 'hidden' }}>
+                                            <motion.div
+                                                initial={{ width: 0 }}
+                                                animate={{ width: `${(item.visits / Math.max(stats.visits, 1)) * 100}%` }}
+                                                transition={{ duration: 0.8, delay: idx * 0.1 }}
+                                                style={{ height: '100%', background: item.color }}
+                                            />
+                                        </div>
                                     </div>
-                                    <div style={{ height: '8px', background: 'var(--bg-color)', borderRadius: '4px', overflow: 'hidden' }}>
-                                        <motion.div
-                                            initial={{ width: 0 }}
-                                            animate={{ width: `${(item.visits / 45) * 100}%` }}
-                                            transition={{ duration: 0.8, delay: idx * 0.1 }}
-                                            style={{ height: '100%', background: item.color }}
-                                        />
-                                    </div>
-                                </div>
-                            ))}
+                                ))
+                            )}
                         </div>
                     </div>
                 </div>
@@ -175,40 +254,25 @@ const Dashboard = () => {
                             <h3 style={{ margin: 0, color: 'white' }}>Meta Semanal</h3>
                         </div>
                         <p style={{ fontSize: '0.9rem', opacity: 0.9, marginBottom: '1.5rem', color: 'white' }}>
-                            Você está a <b>85%</b> de completar seu objetivo de visitas legislativas desta semana.
+                            Você está a <b>{(stats.visits / 10 * 100).toFixed(0)}%</b> de completar seu objetivo de visitas legislativas desta semana (Meta: 10).
                         </p>
                         <div style={{ height: '12px', background: 'rgba(255,255,255,0.1)', borderRadius: '6px', overflow: 'hidden', marginBottom: '0.5rem' }}>
                             <motion.div
                                 initial={{ width: 0 }}
-                                animate={{ width: '85%' }}
+                                animate={{ width: `${Math.min((stats.visits / 10) * 100, 100)}%` }}
                                 transition={{ duration: 1, delay: 0.5 }}
                                 style={{ height: '100%', background: 'var(--secondary)' }}
                             />
                         </div>
-                        <p style={{ fontSize: '0.75rem', textAlign: 'right', opacity: 0.8, color: 'white' }}>falta 1 visita (Bairro Rural)</p>
+                        <p style={{ fontSize: '0.75rem', textAlign: 'right', opacity: 0.8, color: 'white' }}>
+                            {stats.visits >= 10 ? 'Meta atingida!' : `falta ${10 - stats.visits} visita(s)`}
+                        </p>
                     </div>
 
                     <div className="glass-card">
                         <h3>Agenda de Hoje</h3>
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                            <div onClick={() => navigate('/calendar')} style={{ display: 'flex', gap: '1rem', alignItems: 'flex-start', cursor: 'pointer' }}>
-                                <div style={{ background: 'var(--bg-color)', padding: '0.5rem', borderRadius: '0.5rem', textAlign: 'center', minWidth: '50px' }}>
-                                    <p style={{ margin: 0, fontWeight: 700, color: 'var(--primary)' }}>14:00</p>
-                                </div>
-                                <div>
-                                    <p style={{ margin: 0, fontWeight: 600 }}>Sessão Ordinária</p>
-                                    <p style={{ margin: 0, fontSize: '0.75rem', color: 'var(--text-light)' }}>Câmara Municipal</p>
-                                </div>
-                            </div>
-                            <div onClick={() => navigate('/calendar')} style={{ display: 'flex', gap: '1rem', alignItems: 'flex-start', cursor: 'pointer' }}>
-                                <div style={{ background: 'var(--bg-color)', padding: '0.5rem', borderRadius: '0.5rem', textAlign: 'center', minWidth: '50px' }}>
-                                    <p style={{ margin: 0, fontWeight: 700, color: 'var(--primary)' }}>18:30</p>
-                                </div>
-                                <div>
-                                    <p style={{ margin: 0, fontWeight: 600 }}>Entrevista Rádio FM</p>
-                                    <p style={{ margin: 0, fontSize: '0.75rem', color: 'var(--text-light)' }}>Centro</p>
-                                </div>
-                            </div>
+                            <p style={{ fontSize: '0.9rem', color: 'var(--text-light)', fontStyle: 'italic' }}>Nenhum evento agendado para hoje.</p>
                         </div>
                         <button
                             onClick={() => navigate('/calendar')}
