@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Bot, X, Send, Sparkles, MessageSquare } from 'lucide-react';
+import { Bot, X, Send, Sparkles } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 const AIAssistant = () => {

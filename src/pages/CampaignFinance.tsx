@@ -30,20 +30,17 @@ const CampaignFinance = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isImportModalOpen, setIsImportModalOpen] = useState(false);
     const [transactions, setTransactions] = useState(initialTransactions);
-    const [isProcessing, setIsProcessing] = useState(false);
     const [uploadStep, setUploadStep] = useState(0); // 0: Upload, 1: Processing, 2: Review
 
     // Calculate Percentages
     const totalProgress = (initialBudget.spent / initialBudget.totalLimit) * 100;
 
     const handleFileUpload = () => {
-        setIsProcessing(true);
         setUploadStep(1);
 
         // Simulate processing time
         setTimeout(() => {
             setUploadStep(2);
-            setIsProcessing(false);
         }, 2000);
     };
 

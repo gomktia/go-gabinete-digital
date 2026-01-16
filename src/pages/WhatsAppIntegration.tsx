@@ -1,4 +1,4 @@
-import { MessageSquare, MapPin, CheckCircle, Clock, Sparkles, AlertCircle, FileText, X } from 'lucide-react';
+import { MessageSquare, MapPin, CheckCircle, Clock, Sparkles, AlertCircle, FileText } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useState } from 'react';
 import { Drawer } from '../components/UIComponents';
