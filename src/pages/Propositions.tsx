@@ -1,216 +1,318 @@
-import { useState } from 'react';
-import { Search, Filter, Plus, BookOpen } from 'lucide-react';
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
+import {
+    Search, Filter, Plus, BookOpen, Clock,
+    CheckCircle, FileText, ChevronRight, RefreshCw, Save
+} from 'lucide-react';
 import { Drawer, Modal } from '../components/UIComponents';
+import { supabase } from '../lib/supabase';
+import { useTenant } from '../context/TenantContext';
 
-const projects = [
-    { id: 1, title: 'Programa Escola Conectada', category: 'Educação', author: 'Vereador Silva', status: 'Em Tramitação' },
-    { id: 2, title: 'Rede de Apoio à Saúde Mental', category: 'Saúde', author: 'Vereadora Maria', status: 'Aprovado' },
-    { id: 3, title: 'Incentivo ao Comércio Local', category: 'Economia', author: 'Vereador João', status: 'Análise de Comissão' },
-    { id: 4, title: 'Revitalização do Parque Central', category: 'Urbanismo', author: 'Gabinete Digital (Sugestão IA)', status: 'Rascunho' },
-];
+interface Proposition {
+    id: string;
+    title: string;
+    category: string;
+    author: string;
+    status: string;
+    description: string;
+    type: string;
+    created_at: string;
+}
 
 const Propositions = () => {
+    const { tenant } = useTenant();
+    const [propositions, setPropositions] = useState<Proposition[]>([]);
+    const [isLoading, setIsLoading] = useState(true);
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const [selectedProject, setSelectedProject] = useState<any>(null);
+    const [selectedProp, setSelectedProp] = useState<Proposition | null>(null);
     const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+    const [searchTerm, setSearchTerm] = useState('');
 
-    const openProjectDetails = (project: any) => {
-        setSelectedProject(project);
-        setIsDrawerOpen(true);
+    // Form states
+    const [title, setTitle] = useState('');
+    const [type, setType] = useState('Projeto de Lei');
+    const [category, setCategory] = useState('Saúde');
+    const [description, setDescription] = useState('');
+
+    useEffect(() => {
+        if (tenant.id) {
+            fetchPropositions();
+        }
+    }, [tenant.id]);
+
+    const fetchPropositions = async () => {
+        setIsLoading(true);
+        const { data, error } = await supabase
+            .from('propositions')
+            .select('*')
+            .eq('tenant_id', tenant.id)
+            .order('created_at', { ascending: false });
+
+        if (error) {
+            console.error('Error fetching propositions:', error);
+        } else {
+            setPropositions(data || []);
+        }
+        setIsLoading(false);
     };
+
+    const handleAddProposition = async (e: React.FormEvent) => {
+        e.preventDefault();
+        if (!tenant.id) return;
+
+        const newProp = {
+            tenant_id: tenant.id,
+            title,
+            type,
+            category,
+            description,
+            author: tenant.name || 'Gabinete Digital',
+            status: 'Rascunho'
+        };
+
+        const { data, error } = await supabase
+            .from('propositions')
+            .insert([newProp])
+            .select();
+
+        if (error) {
+            console.error('Error adding prop:', error);
+            alert('Erro ao salvar proposição');
+        } else if (data) {
+            setPropositions([data[0], ...propositions]);
+            setIsModalOpen(false);
+            // Clear form
+            setTitle('');
+            setDescription('');
+        }
+    };
+
+    const filteredProps = propositions.filter(p =>
+        p.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        p.category.toLowerCase().includes(searchTerm.toLowerCase())
+    );
 
     return (
         <motion.div
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.5 }}
+            initial={{ opacity: 0, scale: 0.98 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.4 }}
         >
-            <header style={{ marginBottom: '2rem', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
+            <header className="responsive-header">
                 <div>
-                    <h1>Biblioteca de Proposições</h1>
-                    <p style={{ color: 'var(--text-light)' }}>Pesquise, crie e acompanhe projetos de lei e indicações.</p>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '0.5rem' }}>
+                        <div style={{
+                            padding: '12px',
+                            background: 'var(--primary)',
+                            borderRadius: '16px',
+                            color: 'var(--secondary)',
+                            boxShadow: '0 8px 16px rgba(15,23,42,0.1)'
+                        }}>
+                            <BookOpen size={32} />
+                        </div>
+                        <h1 style={{ fontSize: '2.5rem', fontWeight: 800 }}>Biblioteca de Proposições</h1>
+                    </div>
+                    <p style={{ color: 'var(--text-light)', fontSize: '1.1rem', fontWeight: 500 }}>
+                        Pesquise, crie e acompanhe projetos de lei e indicações legislativas.
+                    </p>
                 </div>
-                <button className="btn-gold flex-center gap-1" onClick={() => setIsModalOpen(true)}>
-                    <Plus size={18} /> Nova Proposição
+                <button
+                    className="btn-gold"
+                    onClick={() => setIsModalOpen(true)}
+                    style={{ borderRadius: '14px', padding: '12px 24px' }}
+                >
+                    <Plus size={20} /> Nova Proposição
                 </button>
             </header>
 
-            <div className="glass-card" style={{ marginBottom: '2rem', display: 'flex', gap: '1rem', alignItems: 'center', flexWrap: 'wrap' }}>
-                <div style={{ flex: 1, position: 'relative', minWidth: '250px' }}>
-                    <Search size={18} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-light)' }} />
+            <div className="glass-card" style={{ marginBottom: '2.5rem', display: 'flex', gap: '1rem', alignItems: 'center' }}>
+                <div style={{ flex: 1, position: 'relative' }}>
+                    <Search size={18} style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-light)', opacity: 0.6 }} />
                     <input
                         type="text"
                         placeholder="Buscar por título, categoria ou palavra-chave..."
-                        style={{ width: '100%', padding: '0.75rem 0.75rem 0.75rem 2.5rem', borderRadius: '0.5rem', border: '1px solid var(--border)', background: 'var(--bg-color)', color: 'var(--text)', outline: 'none', marginTop: 0 }}
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                        style={{ width: '100%', paddingLeft: '3rem', borderRadius: '14px' }}
                     />
                 </div>
-                <button className="btn-primary flex-center gap-1" style={{ background: 'var(--bg-color)', color: 'var(--primary)', border: '1px solid var(--border)' }}>
-                    <Filter size={18} /> Filtros
+                <button className="btn-gold outline" style={{ borderRadius: '14px' }}>
+                    <Filter size={18} /> Filtrar
                 </button>
             </div>
 
-            <div style={{ display: 'grid', gap: '1rem' }}>
-                {projects.map((project) => (
-                    <div key={project.id} className="glass-card" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem', background: 'var(--surface)' }}>
-                        <div style={{ display: 'flex', gap: '1.5rem', alignItems: 'center' }}>
-                            <div style={{ padding: '0.75rem', background: 'rgba(212, 175, 55, 0.1)', borderRadius: '0.5rem', color: 'var(--secondary)' }}>
-                                <BookOpen size={24} />
-                            </div>
-                            <div>
-                                <h3 style={{ margin: 0, fontSize: '1.1rem', color: 'var(--text)' }}>{project.title}</h3>
-                                <div style={{ display: 'flex', gap: '1rem', fontSize: '0.85rem', color: 'var(--text-light)', marginTop: '0.25rem', flexWrap: 'wrap' }}>
-                                    <span><b>Categoria:</b> {project.category}</span>
-                                    <span><b>Autor:</b> {project.author}</span>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+                {isLoading ? (
+                    <div style={{ textAlign: 'center', padding: '3rem' }}><RefreshCw className="spin" /></div>
+                ) : filteredProps.length === 0 ? (
+                    <div className="glass-card" style={{ textAlign: 'center', padding: '4rem', opacity: 0.5 }}>
+                        Nenhuma proposição encontrada para o termo pesquisado.
+                    </div>
+                ) : (
+                    filteredProps.map((prop) => (
+                        <motion.div
+                            key={prop.id}
+                            whileHover={{ scale: 1.01 }}
+                            onClick={() => { setSelectedProp(prop); setIsDrawerOpen(true); }}
+                            className="glass-card"
+                            style={{
+                                display: 'flex',
+                                justifyContent: 'space-between',
+                                alignItems: 'center',
+                                cursor: 'pointer',
+                                borderLeft: '4px solid var(--secondary)'
+                            }}
+                        >
+                            <div style={{ display: 'flex', gap: '1.5rem', alignItems: 'center' }}>
+                                <div style={{
+                                    padding: '12px',
+                                    background: 'rgba(212, 175, 55, 0.1)',
+                                    borderRadius: '12px',
+                                    color: 'var(--secondary)'
+                                }}>
+                                    <FileText size={24} />
+                                </div>
+                                <div>
+                                    <h3 style={{ margin: 0, fontSize: '1.15rem', color: 'var(--text)' }}>{prop.title}</h3>
+                                    <div style={{ display: 'flex', gap: '1.5rem', marginTop: '8px' }}>
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.8rem', color: 'var(--text-light)', fontWeight: 700, textTransform: 'uppercase' }}>
+                                            <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: 'var(--secondary)' }}></span>
+                                            {prop.type}
+                                        </div>
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.8rem', color: 'var(--text-light)', fontWeight: 700, textTransform: 'uppercase' }}>
+                                            <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: 'var(--text-light)' }}></span>
+                                            {prop.category}
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                        <div style={{ textAlign: 'right', minWidth: '120px' }}>
-                            <span style={{
-                                padding: '0.25rem 0.75rem',
-                                borderRadius: '1rem',
-                                fontSize: '0.75rem',
-                                fontWeight: 600,
-                                background: project.status === 'Aprovado' ? 'rgba(56, 161, 105, 0.1)' : project.status === 'Rascunho' ? 'var(--bg-color)' : 'rgba(237, 137, 54, 0.1)',
-                                color: project.status === 'Aprovado' ? '#38a169' : project.status === 'Rascunho' ? 'var(--text-light)' : '#ed8936',
-                                border: '1px solid transparent',
-                                borderColor: project.status === 'Aprovado' ? '#38a169' : 'transparent',
-                                display: 'inline-block'
-                            }}>
-                                {project.status}
-                            </span>
-                            <div style={{ marginTop: '0.5rem' }}>
-                                <button
-                                    onClick={() => openProjectDetails(project)}
-                                    style={{ fontSize: '0.85rem', color: 'var(--primary)', fontWeight: 600, textDecoration: 'none', background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}
-                                >
-                                    Ver Detalhes →
-                                </button>
+                            <div style={{ textAlign: 'right' }}>
+                                <span style={{
+                                    padding: '6px 14px',
+                                    borderRadius: '20px',
+                                    fontSize: '0.75rem',
+                                    fontWeight: 800,
+                                    background: prop.status === 'Aprovado' ? 'rgba(56, 161, 105, 0.1)' : 'var(--bg-color)',
+                                    color: prop.status === 'Aprovado' ? '#38a169' : 'var(--text-light)',
+                                    textTransform: 'uppercase',
+                                    border: '1px solid',
+                                    borderColor: prop.status === 'Aprovado' ? '#38a169' : 'var(--border)'
+                                }}>
+                                    {prop.status}
+                                </span>
+                                <div style={{ marginTop: '10px', display: 'flex', justifyContent: 'flex-end', alignItems: 'center', gap: '4px', fontSize: '0.85rem', color: 'var(--secondary)', fontWeight: 800 }}>
+                                    DETALHES <ChevronRight size={16} />
+                                </div>
                             </div>
-                        </div>
-                    </div>
-                ))}
+                        </motion.div>
+                    ))
+                )}
             </div>
 
-            <Modal
-                isOpen={isModalOpen}
-                onClose={() => setIsModalOpen(false)}
-                title="Nova Proposição Legislativa"
-            >
-                <form style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+            <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title="Nova Proposição Legislativa">
+                <form onSubmit={handleAddProposition} style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', padding: '1rem 0.5rem' }}>
                     <div>
-                        <label>Título da Proposição</label>
-                        <input type="text" placeholder="Ex: Projeto de Lei sobre..." />
+                        <label style={{ display: 'block', marginBottom: '8px', fontSize: '0.85rem', fontWeight: 700, color: 'var(--text-light)', textTransform: 'uppercase' }}>Título da Proposição</label>
+                        <input
+                            type="text"
+                            required
+                            placeholder="Ex: Projeto de Lei sobre o Uso de Drones no Monitoramento Rural"
+                            className="form-input"
+                            value={title}
+                            onChange={(e) => setTitle(e.target.value)}
+                            style={{ width: '100%' }}
+                        />
+                    </div>
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                        <div>
+                            <label style={{ display: 'block', marginBottom: '8px', fontSize: '0.85rem', fontWeight: 700, color: 'var(--text-light)', textTransform: 'uppercase' }}>Tipo</label>
+                            <select
+                                className="form-input"
+                                value={type}
+                                onChange={(e) => setType(e.target.value)}
+                                style={{ width: '100%' }}
+                            >
+                                <option>Projeto de Lei</option>
+                                <option>Indicação</option>
+                                <option>Requerimento</option>
+                                <option>Moção</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label style={{ display: 'block', marginBottom: '8px', fontSize: '0.85rem', fontWeight: 700, color: 'var(--text-light)', textTransform: 'uppercase' }}>Categoria</label>
+                            <select
+                                className="form-input"
+                                value={category}
+                                onChange={(e) => setCategory(e.target.value)}
+                                style={{ width: '100%' }}
+                            >
+                                <option>Saúde</option>
+                                <option>Educação</option>
+                                <option>Segurança</option>
+                                <option>Infraestrutura</option>
+                                <option>Zeladoria</option>
+                            </select>
+                        </div>
                     </div>
                     <div>
-                        <label>Tipo</label>
-                        <select>
-                            <option>Projeto de Lei</option>
-                            <option>Indicação</option>
-                            <option>Requerimento</option>
-                            <option>Moção</option>
-                        </select>
+                        <label style={{ display: 'block', marginBottom: '8px', fontSize: '0.85rem', fontWeight: 700, color: 'var(--text-light)', textTransform: 'uppercase' }}>Resumo / Justificativa</label>
+                        <textarea
+                            rows={4}
+                            placeholder="Descreva o impacto esperado desta medida para a comunidade..."
+                            className="form-input"
+                            value={description}
+                            onChange={(e) => setDescription(e.target.value)}
+                            style={{ width: '100%' }}
+                        ></textarea>
                     </div>
-                    <div>
-                        <label>Categoria</label>
-                        <select>
-                            <option>Saúde</option>
-                            <option>Educação</option>
-                            <option>Infraestrutura</option>
-                            <option>Segurança</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label>Resumo/Justificativa</label>
-                        <textarea rows={4} placeholder="Descreva brevemente o objetivo da proposição..."></textarea>
-                    </div>
-                    <div style={{ display: 'flex', gap: '1rem', marginTop: '1.5rem' }}>
-                        <button type="button" className="btn-gold" style={{ flex: 1 }}>Criar Rascunho</button>
-                        <button type="button" className="btn-primary" style={{ background: '#f1f5f9', color: 'var(--text)' }} onClick={() => setIsModalOpen(false)}>Cancelar</button>
-                    </div>
+                    <button type="submit" className="btn-gold" style={{ padding: '16px', borderRadius: '14px', fontSize: '1rem', fontWeight: 800 }}>
+                        <Save size={20} /> Salvar Rascunho Legislativo
+                    </button>
                 </form>
             </Modal>
 
             <Drawer
                 isOpen={isDrawerOpen}
                 onClose={() => setIsDrawerOpen(false)}
-                title="Detalhes da Proposição"
+                title="Detalhamento Técnico"
             >
-                {selectedProject && (
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                {selectedProp && (
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
+                        <div>
                             <span style={{
                                 padding: '4px 12px',
-                                borderRadius: '20px',
-                                fontSize: '0.75rem',
-                                fontWeight: 700,
+                                borderRadius: '8px',
                                 background: 'rgba(212, 175, 55, 0.1)',
                                 color: 'var(--secondary)',
-                                border: '1px solid var(--secondary)'
-                            }}>
-                                {selectedProject.category}
-                            </span>
-                            <span style={{ fontSize: '0.8rem', color: 'var(--text-light)' }}>PL #{selectedProject.id}/2024</span>
+                                fontWeight: 800,
+                                fontSize: '0.75rem',
+                                textTransform: 'uppercase'
+                            }}>{selectedProp.type}</span>
+                            <h2 style={{ fontSize: '1.75rem', marginTop: '12px', marginBottom: '4px' }}>{selectedProp.title}</h2>
+                            <p style={{ color: 'var(--text-light)', fontSize: '0.9rem' }}>Protocolo Web: #{selectedProp.id.substring(0, 8).toUpperCase()}</p>
                         </div>
 
-                        <h2 style={{ fontSize: '1.5rem', margin: 0 }}>{selectedProject.title}</h2>
-
-                        <div style={{ background: 'var(--bg-color)', padding: '1rem', borderRadius: '0.5rem', border: '1px solid var(--border)' }}>
-                            <h4 style={{ margin: '0 0 0.5rem 0', fontSize: '0.9rem', color: 'var(--text-light)' }}>Autor:</h4>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                                <div style={{ width: '24px', height: '24px', borderRadius: '50%', background: 'var(--primary)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontSize: '0.7rem' }}>
-                                    {selectedProject.author.charAt(0)}
-                                </div>
-                                <span style={{ fontWeight: 600 }}>{selectedProject.author}</span>
+                        <div className="glass-card" style={{ background: 'rgba(255,255,255,0.02)', padding: '1.25rem' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '12px' }}>
+                                <Clock size={16} className="text-gold" />
+                                <span style={{ fontWeight: 800, fontSize: '0.85rem', textTransform: 'uppercase' }}>Tramitação Atual</span>
+                            </div>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                <p style={{ margin: 0, fontWeight: 700 }}>{selectedProp.status}</p>
+                                <span style={{ fontSize: '0.8rem', opacity: 0.6 }}>Atualizado em 16/01</span>
                             </div>
                         </div>
 
                         <div>
-                            <h3 style={{ fontSize: '1.1rem', marginBottom: '0.5rem' }}>Resumo & Tramitação</h3>
-                            <p style={{ color: 'var(--text)', lineHeight: '1.6', fontSize: '0.95rem' }}>
-                                Esta proposição visa instituir normas e diretrizes para melhoria do setor de {selectedProject.category.toLowerCase()} no município.
-                                O projeto encontra-se atualmente <strong>{selectedProject.status}</strong> e aguarda pauta para próxima sessão.
+                            <h4 style={{ fontSize: '1rem', fontWeight: 800, textTransform: 'uppercase', marginBottom: '1rem' }}>Resumo & Justificativa</h4>
+                            <p style={{ lineHeight: 1.6, color: 'var(--text)', fontSize: '1rem' }}>
+                                {selectedProp.description || "Nenhuma descrição fornecida para este projeto."}
                             </p>
                         </div>
 
-                        <div style={{ borderTop: '1px solid var(--border)', paddingTop: '1.5rem' }}>
-                            <h4 style={{ marginBottom: '1rem' }}>Linha do Tempo</h4>
-                            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                                <div style={{ display: 'flex', gap: '1rem' }}>
-                                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                                        <div style={{ width: '10px', height: '10px', borderRadius: '50%', background: 'var(--secondary)' }}></div>
-                                        <div style={{ width: '2px', flex: 1, background: 'var(--border)', minHeight: '30px' }}></div>
-                                    </div>
-                                    <div>
-                                        <p style={{ margin: 0, fontWeight: 600, fontSize: '0.9rem' }}>Protocolado na Mesa Diretora</p>
-                                        <span style={{ fontSize: '0.8rem', color: 'var(--text-light)' }}>15 Out 2024 - 14:30</span>
-                                    </div>
-                                </div>
-                                <div style={{ display: 'flex', gap: '1rem' }}>
-                                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                                        <div style={{ width: '10px', height: '10px', borderRadius: '50%', background: '#3182ce' }}></div>
-                                        <div style={{ width: '2px', flex: 1, background: 'var(--border)', minHeight: '30px' }}></div>
-                                    </div>
-                                    <div>
-                                        <p style={{ margin: 0, fontWeight: 600, fontSize: '0.9rem' }}>Encaminhado para CCJ</p>
-                                        <span style={{ fontSize: '0.8rem', color: 'var(--text-light)' }}>18 Out 2024 - 10:00</span>
-                                    </div>
-                                </div>
-                                <div style={{ display: 'flex', gap: '1rem' }}>
-                                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                                        <div style={{ width: '10px', height: '10px', borderRadius: '50%', background: 'var(--border)' }}></div>
-                                    </div>
-                                    <div>
-                                        <p style={{ margin: 0, fontWeight: 600, fontSize: '0.9rem', opacity: 0.6 }}>Aguardando Parecer</p>
-                                        <span style={{ fontSize: '0.8rem', color: 'var(--text-light)' }}>Previsão: 25 Out 2024</span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div style={{ marginTop: 'auto', display: 'grid', gap: '0.5rem' }}>
-                            <button className="btn-primary">Ver Texto Completo (PDF)</button>
-                            <button className="btn-gold outline">Criar Emenda</button>
+                        <div style={{ marginTop: 'auto', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                            <button className="btn-gold outline" style={{ borderRadius: '12px', fontSize: '0.9rem' }}>Gerar PDF</button>
+                            <button className="btn-gold" style={{ borderRadius: '12px', fontSize: '0.9rem' }}>Editar Texto</button>
                         </div>
                     </div>
                 )}

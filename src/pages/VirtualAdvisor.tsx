@@ -1,115 +1,153 @@
-import { useState } from 'react';
-import { Bot, Sparkles, TrendingUp, Map as MapIcon, Users, MessageSquare } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Bot, Sparkles, TrendingUp, Map as MapIcon, Users, MessageSquare, RefreshCw, ChevronRight } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { Modal } from '../components/UIComponents';
-
-const recommendations = [
-    {
-        category: 'Saúde',
-        title: 'Ampliação do Horário da UBS Central',
-        reason: 'Cruzamento de dados mostra que 40% das reclamações de "espera longa" ocorrem após as 17h.',
-        impact: 'Alto impacto na satisfação dos moradores do centro.',
-        complexity: 'Média'
-    },
-    {
-        category: 'Infraestrutura',
-        title: 'Operação Tapa-Buracos Setor Norte',
-        reason: 'Acúmulo de 15 demandas de localização única na Av. Principal.',
-        impact: 'Melhoria imediata do fluxo de trânsito.',
-        complexity: 'Baixa'
-    }
-];
+import { supabase } from '../lib/supabase';
+import { useTenant } from '../context/TenantContext';
 
 const VirtualAdvisor = () => {
+    const { tenant } = useTenant();
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedRec, setSelectedRec] = useState<any>(null);
+    const [stats, setStats] = useState({ demands: 0, voters: 0, sentiment: 74 });
+    const [isLoading, setIsLoading] = useState(true);
 
-    const openFeasibility = (rec: any) => {
-        setSelectedRec(rec);
-        setIsModalOpen(true);
+    useEffect(() => {
+        if (tenant.id) {
+            fetchStats();
+        }
+    }, [tenant.id]);
+
+    const fetchStats = async () => {
+        setIsLoading(true);
+        const [demandsRes, votersRes] = await Promise.all([
+            supabase.from('demands').select('id', { count: 'exact' }).eq('tenant_id', tenant.id),
+            supabase.from('voters').select('id', { count: 'exact' }).eq('tenant_id', tenant.id)
+        ]);
+
+        setStats({
+            demands: demandsRes.count || 0,
+            voters: votersRes.count || 0,
+            sentiment: 70 + Math.floor(Math.random() * 15) // Simulation of AI sentiment
+        });
+        setIsLoading(false);
     };
+
+    const recommendations = [
+        {
+            category: 'Saúde',
+            title: 'Mutirão de Oftalmologia no Bairro Central',
+            reason: `Detectamos ${Math.floor(stats.demands * 0.3)} demandas de saúde pendentes na região central, a maioria relacionada a exames especializados.`,
+            impact: 'Aumento de 12% na aprovação do bairro',
+            complexity: 'Média'
+        },
+        {
+            category: 'Infraestrutura',
+            title: 'Iluminação LED na Avenida Principal',
+            reason: ' cruzamento de dados de segurança e reclamações de moradores aponta falta de luz como fator crítico.',
+            impact: 'Redução de 15% nas reclamações de segurança',
+            complexity: 'Baixa'
+        }
+    ];
 
     return (
         <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
+            initial={{ opacity: 0, scale: 0.98 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.5 }}
         >
-            <header style={{ marginBottom: '2.5rem' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '0.5rem' }}>
-                    <div style={{ padding: '0.5rem', background: 'var(--primary)', borderRadius: '0.5rem', color: 'var(--secondary)' }}>
-                        <Bot size={32} />
+            <header className="responsive-header">
+                <div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '0.5rem' }}>
+                        <div style={{
+                            padding: '12px',
+                            background: 'var(--primary)',
+                            borderRadius: '16px',
+                            color: 'var(--secondary)',
+                            boxShadow: '0 8px 16px rgba(15,23,42,0.1)'
+                        }}>
+                            <Bot size={32} />
+                        </div>
+                        <h1 style={{ fontSize: '2.5rem', fontWeight: 800 }}>Cérebro da Equipe (IA)</h1>
                     </div>
-                    <h1>Assessor de Estratégia IA</h1>
+                    <p style={{ color: 'var(--text-light)', fontSize: '1.1rem', fontWeight: 500 }}>
+                        Inteligência Artificial analisando tendências e sugerindo as melhores jogadas políticas.
+                    </p>
                 </div>
-                <p style={{ color: 'var(--text-light)', fontSize: '1.1rem' }}>
-                    Análise de sentimento e mapa de calor eleitoral baseado em interações reais.
-                </p>
             </header>
 
-            <div style={{ display: 'grid', gridTemplateColumns: '1.5fr 1fr', gap: '2rem', marginBottom: '3rem' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: '1.5fr 1fr', gap: '2.5rem', marginBottom: '3rem' }} className="flex-col-mobile">
+                {/* Heatmap Simulation */}
                 <div className="glass-card">
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                            <MapIcon size={20} style={{ color: 'var(--primary)' }} />
-                            <h3>Mapa de Calor: Clima nos Bairros</h3>
-                        </div>
-                        <div style={{ fontSize: '0.75rem', display: 'flex', gap: '1rem' }}>
-                            <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}><div style={{ width: '10px', height: '10px', background: '#38a169', borderRadius: '50%' }}></div> Apoio</span>
-                            <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}><div style={{ width: '10px', height: '10px', background: '#ed8936', borderRadius: '50%' }}></div> Neutro</span>
-                            <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}><div style={{ width: '10px', height: '10px', background: '#e53e3e', borderRadius: '50%' }}></div> Crítico</span>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
+                        <h3 style={{ margin: 0, display: 'flex', alignItems: 'center', gap: '10px' }}>
+                            <MapIcon size={20} className="text-gold" /> Mapa de Calor da Satisfação
+                        </h3>
+                        <div style={{ display: 'flex', gap: '1rem' }}>
+                            <span style={{ fontSize: '0.7rem', display: 'flex', alignItems: 'center', gap: '4px' }}><div style={{ width: '8px', height: '8px', background: '#38a169', borderRadius: '50%' }}></div> FAVORÁVEL</span>
+                            <span style={{ fontSize: '0.7rem', display: 'flex', alignItems: 'center', gap: '4px' }}><div style={{ width: '8px', height: '8px', background: '#e53e3e', borderRadius: '50%' }}></div> CRÍTICO</span>
                         </div>
                     </div>
-                    <div style={{ position: 'relative', height: '350px', background: '#f1f5f9', borderRadius: '1rem', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                        <div style={{ width: '100%', height: '100%', opacity: 0.1, background: 'repeating-linear-gradient(45deg, #cbd5e1, #cbd5e1 10px, #f1f5f9 10px, #f1f5f9 20px)' }}></div>
 
-                        <div style={{ position: 'absolute', top: '20%', left: '30%', padding: '10px', background: 'rgba(56, 161, 105, 0.2)', borderRadius: '50%', border: '2px solid #38a169', cursor: 'pointer' }} onClick={() => openFeasibility({ title: 'Vila Nova', impact: 'Apoio Consolidado', reason: 'Forte recepção dos projetos de robótica nas escolas.' })}>
-                            <div style={{ background: '#38a169', color: 'white', fontSize: '0.6rem', padding: '2px 6px', borderRadius: '10px' }}>Vila Nova (Bom)</div>
+                    <div style={{ height: '350px', background: '#f1f5f9', borderRadius: '24px', position: 'relative', overflow: 'hidden' }}>
+                        <div style={{ position: 'absolute', inset: 0, opacity: 0.1, background: 'url(https://www.transparenttextures.com/patterns/cubes.png)' }}></div>
+
+                        {/* Simulated Heat Zones */}
+                        <div style={{ position: 'absolute', top: '20%', left: '30%', width: '100px', height: '100px', background: 'rgba(56, 161, 105, 0.4)', filter: 'blur(30px)', borderRadius: '50%' }}></div>
+                        <div style={{ position: 'absolute', top: '50%', left: '60%', width: '120px', height: '120px', background: 'rgba(229, 62, 62, 0.4)', filter: 'blur(40px)', borderRadius: '50%' }}></div>
+
+                        <div style={{ position: 'absolute', top: '25%', left: '35%', background: 'white', padding: '8px 16px', borderRadius: '50px', boxShadow: '0 4px 12px rgba(0,0,0,0.1)', cursor: 'pointer' }}>
+                            <span style={{ fontWeight: 800, fontSize: '0.75rem' }}>Vila Verde (Forte)</span>
                         </div>
-
-                        <div style={{ position: 'absolute', top: '50%', left: '60%', padding: '15px', background: 'rgba(229, 62, 62, 0.2)', borderRadius: '50%', border: '2px solid #e53e3e', cursor: 'pointer' }} onClick={() => openFeasibility({ title: 'Centro', impact: 'Zona Crítica', reason: 'Alto volume de reclamações sobre buracos e iluminação.' })}>
-                            <div style={{ background: '#e53e3e', color: 'white', fontSize: '0.6rem', padding: '2px 6px', borderRadius: '10px' }}>Centro (Crítico)</div>
-                        </div>
-
-                        <div style={{ position: 'absolute', bottom: '20%', right: '20%', padding: '12px', background: 'rgba(237, 137, 54, 0.2)', borderRadius: '50%', border: '2px solid #ed8936', cursor: 'pointer' }} onClick={() => openFeasibility({ title: 'Rural', impact: 'Oportunidade', reason: 'Demandas por transporte escolar ainda não atendidas.' })}>
-                            <div style={{ background: '#ed8936', color: 'white', fontSize: '0.6rem', padding: '2px 6px', borderRadius: '10px' }}>Rural (Neutro)</div>
+                        <div style={{ position: 'absolute', bottom: '30%', left: '50%', background: 'white', padding: '8px 16px', borderRadius: '50px', boxShadow: '0 4px 12px rgba(0,0,0,0.1)', cursor: 'pointer' }}>
+                            <span style={{ fontWeight: 800, fontSize: '0.75rem', color: '#e53e3e' }}>Centro (Crítico)</span>
                         </div>
                     </div>
-                    <p style={{ fontSize: '0.85rem', color: 'var(--text-light)', marginTop: '1rem', fontStyle: 'italic' }}>
-                        * Dados baseados em sentimentos extraídos das últimas 250 mensagens de WhatsApp.
+                    <p style={{ marginTop: '1.5rem', fontSize: '0.85rem', color: 'var(--text-light)', fontStyle: 'italic', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                        <Sparkles size={14} className="text-gold" /> Análise baseada em {stats.demands} demandas e interações do WhatsApp.
                     </p>
                 </div>
 
+                {/* Scorecards */}
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-                    <div className="glass-card" style={{ background: 'var(--primary)', color: 'white' }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1.5rem' }}>
-                            <Sparkles size={20} style={{ color: 'var(--secondary)' }} />
-                            <h3 style={{ color: 'white', margin: 0 }}>Índice de Popularidade</h3>
+                    <div className="glass-card" style={{ background: 'var(--primary)', color: 'white', padding: '2.5rem' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1.5rem' }}>
+                            <span style={{ fontWeight: 800, fontSize: '0.8rem', opacity: 0.8, textTransform: 'uppercase' }}>Popularidade Estimada</span>
+                            <TrendingUp size={24} className="text-gold" />
                         </div>
-                        <div style={{ textAlign: 'center' }}>
-                            <h2 style={{ color: 'var(--secondary)', fontSize: '3rem', margin: '0' }}>74%</h2>
-                            <p style={{ opacity: 0.8, fontSize: '0.9rem' }}>Aprovação Geral</p>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '5px', justifyContent: 'center', color: '#68d391', fontSize: '0.85rem' }}>
-                                <TrendingUp size={14} /> +5% este mês
-                            </div>
-                        </div>
+                        <h2 style={{ fontSize: '4rem', margin: '0', fontWeight: 900, color: 'var(--secondary)' }}>{stats.sentiment}%</h2>
+                        <p style={{ margin: '10px 0 0 0', opacity: 0.7, fontWeight: 600 }}>Crescimento de 4.2% esta semana</p>
                     </div>
 
-                    <div className="glass-card">
-                        <h3>Alcance Eleitoral Estimado</h3>
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-                                <Users size={20} style={{ color: 'var(--primary)' }} />
-                                <div>
-                                    <p style={{ margin: 0, fontWeight: 700 }}>3.400 Cidadãos</p>
-                                    <p style={{ margin: 0, fontSize: '0.75rem', color: 'var(--text-light)' }}>Impactados diretamente</p>
+                    <div className="glass-card" style={{ padding: '2rem' }}>
+                        <h3 style={{ marginBottom: '1.5rem', fontSize: '1.1rem' }}>Impacto de Mandato</h3>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
+                                <div style={{ padding: '10px', background: 'rgba(56, 161, 105, 0.1)', borderRadius: '12px', color: '#38a169' }}>
+                                    <Users size={20} />
+                                </div>
+                                <div style={{ flex: 1 }}>
+                                    <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                                        <span style={{ fontWeight: 800, fontSize: '0.9rem' }}>{stats.voters} Eleitores</span>
+                                        <span style={{ fontSize: '0.8rem', opacity: 0.6 }}>72% Engajados</span>
+                                    </div>
+                                    <div style={{ width: '100%', height: '6px', background: '#f1f5f9', borderRadius: '10px', marginTop: '8px' }}>
+                                        <div style={{ width: '72%', height: '100%', background: '#38a169', borderRadius: '10px' }}></div>
+                                    </div>
                                 </div>
                             </div>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-                                <MessageSquare size={20} style={{ color: 'var(--primary)' }} />
-                                <div>
-                                    <p style={{ margin: 0, fontWeight: 700 }}>85% Taxa de Resposta</p>
-                                    <p style={{ margin: 0, fontSize: '0.75rem', color: 'var(--text-light)' }}>Engajamento do gabinete</p>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
+                                <div style={{ padding: '10px', background: 'rgba(212, 175, 55, 0.1)', borderRadius: '12px', color: 'var(--secondary)' }}>
+                                    <MessageSquare size={20} />
+                                </div>
+                                <div style={{ flex: 1 }}>
+                                    <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                                        <span style={{ fontWeight: 800, fontSize: '0.9rem' }}>Atendimento</span>
+                                        <span style={{ fontSize: '0.8rem', opacity: 0.6 }}>98% Eficiência</span>
+                                    </div>
+                                    <div style={{ width: '100%', height: '6px', background: '#f1f5f9', borderRadius: '10px', marginTop: '8px' }}>
+                                        <div style={{ width: '98%', height: '100%', background: 'var(--secondary)', borderRadius: '10px' }}></div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -117,58 +155,56 @@ const VirtualAdvisor = () => {
                 </div>
             </div>
 
-            <h2>Projeto Sugeridos pela IA</h2>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '1.5rem' }}>
-                {recommendations.map((rec, i) => (
-                    <div key={i} className="glass-card" style={{ borderTop: `4px solid ${i === 0 ? '#e53e3e' : '#3182ce'}` }}>
-                        <span style={{ fontSize: '0.75rem', fontWeight: 700, textTransform: 'uppercase', color: 'var(--text-light)' }}>
-                            {rec.category}
-                        </span>
-                        <h3 style={{ fontSize: '1.2rem', marginTop: '0.5rem', marginBottom: '1rem' }}>{rec.title}</h3>
-                        <p style={{ fontSize: '0.9rem', color: 'var(--text-light)', marginBottom: '1rem' }}>
-                            <b>Estratégia:</b> {rec.reason}
-                        </p>
-                        <div style={{ fontSize: '0.8rem', paddingTop: '1rem', borderTop: '1px solid #edf2f7', display: 'flex', justifyContent: 'space-between' }}>
-                            <span><b>Impacto:</b> {rec.impact}</span>
-                            <button
-                                onClick={() => openFeasibility(rec)}
-                                style={{ background: 'none', border: 'none', color: 'var(--primary)', fontWeight: 700, cursor: 'pointer' }}
-                            >
-                                Ver Viabilidade →
-                            </button>
+            <div style={{ marginBottom: '2rem' }}>
+                <h2 style={{ fontSize: '1.75rem', fontWeight: 800, display: 'flex', alignItems: 'center', gap: '12px' }}>
+                    <Sparkles className="text-gold" /> Próximas Jogadas Sugeridas
+                </h2>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(400px, 1fr))', gap: '2rem', marginTop: '1.5rem' }} className="flex-col-mobile">
+                    {recommendations.map((rec, i) => (
+                        <div key={i} className="glass-card" style={{ borderTop: `4px solid ${i === 0 ? 'var(--secondary)' : '#3182ce'}` }}>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1.5rem' }}>
+                                <span style={{ padding: '4px 12px', borderRadius: '6px', background: 'var(--bg-color)', fontSize: '0.7rem', fontWeight: 800, color: 'var(--text-light)', border: '1px solid var(--border)' }}>{rec.category}</span>
+                                <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#3182ce' }}>PRIORIDADE ALTA</span>
+                            </div>
+                            <h3 style={{ fontSize: '1.25rem', marginBottom: '1rem' }}>{rec.title}</h3>
+                            <p style={{ color: 'var(--text-light)', fontSize: '0.95rem', lineHeight: 1.6, marginBottom: '2rem' }}>
+                                <strong>RACIONAL IA:</strong> {rec.reason}
+                            </p>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px solid var(--border)', paddingTop: '1.5rem' }}>
+                                <div>
+                                    <p style={{ margin: 0, fontSize: '0.75rem', fontWeight: 700, color: '#38a169' }}>IMPACTO ESTIMADO</p>
+                                    <p style={{ margin: 0, fontSize: '0.85rem', fontWeight: 600 }}>{rec.impact}</p>
+                                </div>
+                                <button className="btn-gold outline" style={{ borderRadius: '10px', fontSize: '0.85rem' }} onClick={() => { setSelectedRec(rec); setIsModalOpen(true); }}>
+                                    Analisar Viabilidade <ChevronRight size={14} />
+                                </button>
+                            </div>
                         </div>
-                    </div>
-                ))}
+                    ))}
+                </div>
             </div>
 
-            <Modal
-                isOpen={isModalOpen}
-                onClose={() => setIsModalOpen(false)}
-                title={`Análise de Viabilidade: ${selectedRec?.title}`}
-            >
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-                    <div style={{ padding: '1rem', background: '#f8fafc', borderRadius: '0.5rem' }}>
-                        <h4 style={{ marginBottom: '0.5rem' }}>Resumo do Insight</h4>
-                        <p style={{ fontSize: '0.9rem', color: 'var(--text-light)' }}>{selectedRec?.reason}</p>
+            <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title="Análise Profunda de Viabilidade">
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
+                    <div className="glass-card" style={{ background: 'rgba(15,23,42,0.02)', border: '1px dashed var(--border)' }}>
+                        <h4 style={{ marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '8px' }}><Bot size={18} className="text-gold" /> Conclusão do Agente IA</h4>
+                        <p style={{ fontSize: '0.95rem', lineHeight: 1.6 }}>"Este projeto tem alta probabilidade de conversão de apoio neutro em votos consolidados se anunciado via tráfego pago geolocalizado nos bairros afetados."</p>
                     </div>
 
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
-                        <div className="glass-card" style={{ textAlign: 'center' }}>
-                            <p style={{ fontSize: '0.75rem', color: 'var(--text-light)', marginBottom: '0.25rem' }}>Custo Estimado</p>
-                            <h4 style={{ color: '#38a169' }}>Baixo</h4>
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' }}>
+                        <div>
+                            <p style={{ margin: 0, fontSize: '0.75rem', fontWeight: 800, opacity: 0.6 }}>CUSTO POLÍTICO</p>
+                            <h4 style={{ margin: '5px 0 0 0', color: '#38a169' }}>Extremamente Baixo</h4>
                         </div>
-                        <div className="glass-card" style={{ textAlign: 'center' }}>
-                            <p style={{ fontSize: '0.75rem', color: 'var(--text-light)', marginBottom: '0.25rem' }}>Impacto Votos</p>
-                            <h4 style={{ color: 'var(--secondary)' }}>Alto</h4>
+                        <div>
+                            <p style={{ margin: 0, fontSize: '0.75rem', fontWeight: 800, opacity: 0.6 }}>TEMPO EXECUÇÃO</p>
+                            <h4 style={{ margin: '5px 0 0 0', color: 'var(--secondary)' }}>Imediata (Indicação)</h4>
                         </div>
                     </div>
 
-                    <div>
-                        <h4 style={{ marginBottom: '0.5rem' }}>Recomendação Legislativa</h4>
-                        <p style={{ fontSize: '0.9rem' }}>A IA sugere que este projeto seja apresentado em regime de urgência dada a proximidade do período eleitoral e o alto engajamento orgânico nas redes sociais.</p>
-                    </div>
-
-                    <button className="btn-gold" style={{ width: '100%' }}>Aprovar e Enviar para Rascunho</button>
+                    <button className="btn-gold" style={{ padding: '18px', borderRadius: '16px', fontWeight: 800 }}>
+                        Converter em Projeto / Indicação
+                    </button>
                 </div>
             </Modal>
         </motion.div>

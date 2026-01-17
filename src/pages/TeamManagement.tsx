@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import {
     Users, MapPin, CheckCircle, Plus,
-    Briefcase, AlertCircle
+    Briefcase, AlertCircle, RefreshCw, Mail, Phone, ExternalLink, Trash2, Edit
 } from 'lucide-react';
 import { Modal } from '../components/UIComponents';
 import { supabase } from '../lib/supabase';
@@ -30,179 +30,183 @@ const TeamManagement = () => {
     const [loading, setLoading] = useState(true);
     const [isAddModalOpen, setIsAddModalOpen] = useState(false);
 
-    // Initial Load
     useEffect(() => {
-        fetchTeam();
+        if (tenant.id) {
+            fetchTeam();
+        }
     }, [tenant.id]);
 
     const fetchTeam = async () => {
+        setLoading(true);
         try {
-            setLoading(true);
-
-            // 1. Fetch Profiles (Assessors)
-            const { data: profiles, error: profilesError } = await supabase
+            const { data: profiles, error } = await supabase
                 .from('profiles')
                 .select('*')
                 .eq('tenant_id', tenant.id);
 
-            if (profilesError) throw profilesError;
+            if (error) throw error;
 
-            // 2. Fetch Tasks (if table exists)
-            // We use a try-catch for the query in case the migration isn't applied yet
-            let tasksData: any[] = [];
-            try {
-                const { data: tasks, error: tasksError } = await supabase
-                    .from('team_tasks')
-                    .select('*')
-                    .eq('tenant_id', tenant.id);
+            // Fetch tasks for all profiles
+            const { data: tasks } = await supabase
+                .from('team_tasks')
+                .select('*')
+                .eq('tenant_id', tenant.id);
 
-                if (!tasksError && tasks) {
-                    tasksData = tasks;
-                }
-            } catch (e) {
-                console.warn('team_tasks table might not exist yet', e);
-            }
+            const merged = profiles.map(p => ({
+                ...p,
+                tasks: tasks?.filter(t => t.assigned_to === p.id) || []
+            }));
 
-            // Merge
-            const mergedTeam = profiles?.map(profile => ({
-                ...profile,
-                tasks: tasksData.filter((t: any) => t.assigned_to === profile.id)
-            })) || [];
-
-            setTeam(mergedTeam);
-
-        } catch (error) {
-            console.error('Error loading team:', error);
-        } finally {
-            setLoading(false);
+            setTeam(merged);
+        } catch (e) {
+            console.error(e);
         }
+        setLoading(false);
     };
 
-    // Stats
-    const totalActive = team.length; // Assuming all profiles are active for now
+    const stats = {
+        total: team.length,
+        tasksActive: team.reduce((acc, curr) => acc + (curr.tasks?.filter(t => t.status !== 'completed').length || 0), 0),
+        votersHelped: 1240 // Sumulation
+    };
 
     return (
         <motion.div
-            initial={{ opacity: 0, x: -20 }}
+            initial={{ opacity: 0, x: -10 }}
             animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.5 }}
+            transition={{ duration: 0.4 }}
         >
             <header className="responsive-header">
                 <div>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '0.5rem' }}>
-                        <div style={{ padding: '0.5rem', background: 'var(--primary)', borderRadius: '0.5rem', color: 'var(--secondary)' }}>
+                        <div style={{
+                            padding: '12px',
+                            background: 'var(--primary)',
+                            borderRadius: '16px',
+                            color: 'var(--secondary)',
+                            boxShadow: '0 8px 16px rgba(15,23,42,0.1)'
+                        }}>
                             <Briefcase size={32} />
                         </div>
-                        <h1>Gestão de Equipe</h1>
+                        <h1 style={{ fontSize: '2.5rem', fontWeight: 800 }}>Gestão de Gabinete</h1>
                     </div>
-                    <p style={{ color: 'var(--text-light)', fontSize: '1.1rem' }}>
-                        Acompanhe seus assessores e suas atividades.
+                    <p style={{ color: 'var(--text-light)', fontSize: '1.1rem', fontWeight: 500 }}>
+                        Gerencie sua equipe de assessores, delegue tarefas e acompanhe a produtividade.
                     </p>
                 </div>
-                <div style={{ display: 'flex', gap: '1rem' }} className="flex-col-mobile">
-                    <button className="btn-gold outline" style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
-                        <MapPin size={18} /> Ver no Mapa
+                <div style={{ display: 'flex', gap: '8px' }}>
+                    <button className="btn-gold outline" style={{ borderRadius: '14px' }}>
+                        <MapPin size={18} /> Equipe no Campo
                     </button>
-                    <button
-                        className="btn-gold"
-                        onClick={() => setIsAddModalOpen(true)}
-                        style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}
-                    >
-                        <Plus size={18} /> Convidar Assessor
+                    <button className="btn-gold" onClick={() => setIsAddModalOpen(true)} style={{ borderRadius: '14px' }}>
+                        <Plus size={18} /> Novo Assessor
                     </button>
                 </div>
             </header>
 
-            {/* Stats Cards */}
             <div className="responsive-grid" style={{ marginBottom: '2.5rem' }}>
-                <div className="glass-card">
-                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '1rem' }}>
-                        <span style={{ color: 'var(--text-light)', fontSize: '0.9rem' }}>Equipe Total</span>
-                        <Users size={18} color="var(--primary)" />
+                <div className="glass-card" style={{ display: 'flex', alignItems: 'center', gap: '1.5rem', borderLeft: '4px solid var(--secondary)' }}>
+                    <div style={{ padding: '15px', background: 'rgba(212, 175, 55, 0.1)', borderRadius: '16px', color: 'var(--secondary)' }}>
+                        <Users size={24} />
                     </div>
-                    <h2 style={{ fontSize: '1.8rem', margin: 0 }}>{totalActive}</h2>
-                    <p style={{ fontSize: '0.8rem', marginTop: '0.5rem', color: '#38a169', display: 'flex', alignItems: 'center', gap: '4px' }}>
-                        <CheckCircle size={12} /> Assessores cadastrados
-                    </p>
+                    <div>
+                        <p style={{ margin: 0, fontSize: '0.85rem', color: 'var(--text-light)', fontWeight: 700, textTransform: 'uppercase' }}>Equipe Atika</p>
+                        <h3 style={{ margin: 0, fontSize: '1.75rem', fontWeight: 900 }}>{stats.total} Assessores</h3>
+                    </div>
                 </div>
-
-                <div className="glass-card">
-                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '1rem' }}>
-                        <span style={{ color: 'var(--text-light)', fontSize: '0.9rem' }}>Tarefas em Andamento</span>
-                        <Briefcase size={18} color="var(--secondary)" />
+                <div className="glass-card" style={{ display: 'flex', alignItems: 'center', gap: '1.5rem', borderLeft: '4px solid #38a169' }}>
+                    <div style={{ padding: '15px', background: 'rgba(56, 161, 105, 0.1)', borderRadius: '16px', color: '#38a169' }}>
+                        <CheckCircle size={24} />
                     </div>
-                    <h2 style={{ fontSize: '1.8rem', margin: 0, color: 'var(--text)' }}>
-                        {team.reduce((acc, curr) => acc + (curr.tasks?.filter(t => t.status === 'in_progress').length || 0), 0)}
-                    </h2>
-                    <p style={{ fontSize: '0.8rem', marginTop: '0.5rem', color: 'var(--text-light)' }}>
-                        Atividades sendo executadas
-                    </p>
+                    <div>
+                        <p style={{ margin: 0, fontSize: '0.85rem', color: 'var(--text-light)', fontWeight: 700, textTransform: 'uppercase' }}>Tarefas Ativas</p>
+                        <h3 style={{ margin: 0, fontSize: '1.75rem', fontWeight: 900 }}>{stats.tasksActive} Pendentes</h3>
+                    </div>
+                </div>
+                <div className="glass-card" style={{ display: 'flex', alignItems: 'center', gap: '1.5rem', borderLeft: '4px solid #3182ce' }}>
+                    <div style={{ padding: '15px', background: 'rgba(49, 130, 206, 0.1)', borderRadius: '16px', color: '#3182ce' }}>
+                        <MapPin size={24} />
+                    </div>
+                    <div>
+                        <p style={{ margin: 0, fontSize: '0.85rem', color: 'var(--text-light)', fontWeight: 700, textTransform: 'uppercase' }}>Cidadãos Atendidos</p>
+                        <h3 style={{ margin: 0, fontSize: '1.75rem', fontWeight: 900 }}>+{stats.votersHelped}</h3>
+                    </div>
                 </div>
             </div>
 
-            {/* Team List */}
-            <div className="glass-card">
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem', flexWrap: 'wrap', gap: '1rem' }}>
-                    <h3 style={{ margin: 0, display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                        <Users size={20} /> Lista de Assessores
-                    </h3>
-                    <div style={{ display: 'flex', gap: '1rem' }}>
-                        <button className="btn-gold outline" style={{ fontSize: '0.8rem', padding: '0.4rem 0.8rem' }} onClick={fetchTeam}>
-                            Atualizar
-                        </button>
-                    </div>
+            <div className="glass-card" style={{ padding: 0, overflow: 'hidden' }}>
+                <div style={{ padding: '1.5rem 2rem', borderBottom: '1px solid var(--border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <h3 style={{ margin: 0, fontWeight: 800 }}>QUADRO DE COLABORADORES</h3>
+                    <button className="close-btn" style={{ transform: 'none' }} onClick={fetchTeam}><RefreshCw size={14} /></button>
                 </div>
 
                 <div style={{ overflowX: 'auto' }}>
-                    <table className="responsive-table" style={{ width: '100%', borderCollapse: 'collapse', color: 'var(--text)' }}>
+                    <table className="responsive-table">
                         <thead>
-                            <tr style={{ borderBottom: '1px solid var(--border)' }}>
-                                <th style={{ padding: '1rem', textAlign: 'left', opacity: 0.8, fontSize: '0.8rem' }}>Nome / Função</th>
-                                <th style={{ padding: '1rem', textAlign: 'left', opacity: 0.8, fontSize: '0.8rem' }}>Contato</th>
-                                <th style={{ padding: '1rem', textAlign: 'left', opacity: 0.8, fontSize: '0.8rem' }}>O que está fazendo?</th>
-                                <th style={{ padding: '1rem', textAlign: 'right', opacity: 0.8, fontSize: '0.8rem' }}>Ações</th>
+                            <tr>
+                                <th>ASSESSOR</th>
+                                <th>CONTATO</th>
+                                <th>ATIVIDADES ATUAIS</th>
+                                <th style={{ textAlign: 'right' }}>GERENCIAR</th>
                             </tr>
                         </thead>
                         <tbody>
                             {loading ? (
-                                <tr><td colSpan={5} style={{ padding: '2rem', textAlign: 'center' }}>Carregando equipe...</td></tr>
+                                <tr><td colSpan={4} style={{ textAlign: 'center', padding: '3rem' }}><RefreshCw className="spin" /></td></tr>
                             ) : team.length === 0 ? (
-                                <tr><td colSpan={5} style={{ padding: '2rem', textAlign: 'center', opacity: 0.6 }}>Nenhum assessor encontrado. Convide alguém!</td></tr>
-                            ) : team.map((member) => (
-                                <tr key={member.id} style={{ borderBottom: '1px solid var(--border)' }}>
-                                    <td style={{ padding: '1rem' }} data-label="Colaborador">
-                                        <div style={{ fontWeight: 600 }}>{member.full_name || 'Sem nome'}</div>
-                                        <div style={{ fontSize: '0.8rem', opacity: 0.7, textTransform: 'uppercase', letterSpacing: '0.5px' }}>{member.role}</div>
-                                    </td>
-                                    <td style={{ padding: '1rem' }} data-label="Contact">
-                                        <div style={{ fontSize: '0.9rem' }}>{member.email}</div>
-                                        <div style={{ fontSize: '0.8rem', opacity: 0.7 }}>{member.phone || '-'}</div>
-                                    </td>
-                                    <td style={{ padding: '1rem' }} data-label="Atividades">
-                                        {member.tasks && member.tasks.length > 0 ? (
-                                            <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                                                {member.tasks.slice(0, 2).map(task => ( // Show max 2
-                                                    <span key={task.id} style={{
-                                                        fontSize: '0.75rem',
-                                                        background: 'rgba(255,255,255,0.05)',
-                                                        padding: '2px 6px',
-                                                        borderRadius: '4px',
-                                                        display: 'inline-block',
-                                                        borderLeft: task.status === 'in_progress' ? '2px solid #38a169' : '2px solid #718096'
-                                                    }}>
-                                                        {task.title}
-                                                    </span>
-                                                ))}
-                                                {member.tasks.length > 2 && <span style={{ fontSize: '0.7rem', opacity: 0.5 }}>+ {member.tasks.length - 2} tarefas</span>}
+                                <tr><td colSpan={4} style={{ textAlign: 'center', padding: '3rem', opacity: 0.5 }}>Sem assessores vinculados.</td></tr>
+                            ) : team.map(member => (
+                                <tr key={member.id} className="hover-bg">
+                                    <td>
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                                            <div style={{ width: '40px', height: '40px', borderRadius: '12px', background: 'var(--primary)', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 800 }}>
+                                                {member.full_name?.charAt(0) || 'A'}
                                             </div>
-                                        ) : (
-                                            <span style={{ fontSize: '0.8rem', opacity: 0.5, fontStyle: 'italic' }}>Nenhuma tarefa ativa</span>
-                                        )}
+                                            <div>
+                                                <div style={{ fontWeight: 800, fontSize: '0.95rem' }}>{member.full_name}</div>
+                                                <div style={{ fontSize: '0.75rem', color: 'var(--secondary)', fontWeight: 800, textTransform: 'uppercase' }}>{member.role || 'ASSESSOR'}</div>
+                                            </div>
+                                        </div>
                                     </td>
-                                    <td style={{ padding: '1rem', textAlign: 'right' }} data-label="Ações">
-                                        <button className="btn-gold outline" style={{ fontSize: '0.75rem', padding: '0.3rem 0.6rem' }}>
-                                            Ver Detalhes
-                                        </button>
+                                    <td>
+                                        <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                                            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.85rem', fontWeight: 600 }}>
+                                                <Mail size={12} style={{ opacity: 0.5 }} /> {member.email}
+                                            </div>
+                                            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.85rem', fontWeight: 600 }}>
+                                                <Phone size={12} style={{ opacity: 0.5 }} /> {member.phone || 'Não informado'}
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px' }}>
+                                            {member.tasks && member.tasks.length > 0 ? (
+                                                member.tasks.slice(0, 2).map((t, idx) => (
+                                                    <span key={idx} style={{
+                                                        padding: '2px 8px',
+                                                        background: 'var(--bg-color)',
+                                                        borderRadius: '4px',
+                                                        fontSize: '0.7rem',
+                                                        fontWeight: 700,
+                                                        borderLeft: t.status === 'in_progress' ? '2px solid #38a169' : '2px solid var(--border)'
+                                                    }}>
+                                                        {t.title}
+                                                    </span>
+                                                ))
+                                            ) : (
+                                                <span style={{ fontSize: '0.8rem', opacity: 0.5, fontStyle: 'italic' }}>Nenhuma tarefa ativa</span>
+                                            )}
+                                            {member.tasks && member.tasks.length > 2 && (
+                                                <span style={{ padding: '2px 8px', fontSize: '0.7rem', opacity: 0.5 }}>+{member.tasks.length - 2}</span>
+                                            )}
+                                        </div>
+                                    </td>
+                                    <td style={{ textAlign: 'right' }}>
+                                        <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '8px' }}>
+                                            <button className="close-btn" style={{ transform: 'none' }} title="Editar"><Edit size={16} /></button>
+                                            <button className="close-btn" style={{ transform: 'none' }} title="Ver Produtividade"><ExternalLink size={16} /></button>
+                                            <button className="close-btn" style={{ transform: 'none', color: '#e53e3e' }} title="Remover"><Trash2 size={16} /></button>
+                                        </div>
                                     </td>
                                 </tr>
                             ))}
@@ -211,18 +215,29 @@ const TeamManagement = () => {
                 </div>
             </div>
 
-            <Modal isOpen={isAddModalOpen} onClose={() => setIsAddModalOpen(false)} title="Convidar Novo Assessor">
+            <Modal isOpen={isAddModalOpen} onClose={() => setIsAddModalOpen(false)} title="Adicionar Novo Colaborador">
                 <div style={{ textAlign: 'center', padding: '1rem' }}>
-                    <AlertCircle size={48} color="var(--secondary)" style={{ marginBottom: '1rem' }} />
-                    <p>Para adicionar um novo assessor, peça para ele se cadastrar no sistema usando o link de cadastro.</p>
-                    <p style={{ marginTop: '1rem', fontSize: '0.9rem', opacity: 0.8 }}>
-                        Após o cadastro, o perfil dele aparecerá aqui se ele for vinculado ao seu gabinete.
-                    </p>
-                    <div style={{ background: 'rgba(255,255,255,0.05)', padding: '1rem', borderRadius: '0.5rem', marginTop: '1.5rem', wordBreak: 'break-all', fontFamily: 'monospace', fontSize: '0.85rem' }}>
-                        https://go-gabinete-digital.vercel.app/
+                    <div style={{ padding: '2rem', background: 'rgba(212, 175, 55, 0.05)', borderRadius: '24px', marginBottom: '2rem' }}>
+                        <Users size={48} className="text-gold" style={{ marginBottom: '1rem' }} />
+                        <p style={{ fontWeight: 600, color: 'var(--text)' }}>Link de Convite para o Gabinete</p>
+                        <p style={{ fontSize: '0.9rem', color: 'var(--text-light)', marginTop: '8px' }}>Compartilhe este link com seu assessor para que ele se vincule automaticamente ao seu tenant.</p>
                     </div>
-                    <button className="btn-gold" style={{ marginTop: '1.5rem', width: '100%' }} onClick={() => setIsAddModalOpen(false)}>
-                        Entendi
+
+                    <div style={{
+                        background: 'var(--bg-color)',
+                        padding: '1.25rem',
+                        borderRadius: '16px',
+                        border: '1px solid var(--border)',
+                        fontFamily: 'monospace',
+                        fontSize: '0.85rem',
+                        marginBottom: '2rem',
+                        wordBreak: 'break-all'
+                    }}>
+                        {window.location.origin}/invite/{tenant.id}
+                    </div>
+
+                    <button className="btn-gold" style={{ width: '100%', padding: '16px', borderRadius: '16px', fontWeight: 800 }}>
+                        <ExternalLink size={20} /> Copiar Link de Convite
                     </button>
                 </div>
             </Modal>

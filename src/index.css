@@ -6,7 +6,7 @@
   --primary-accent: #1e293b;
   --secondary: #d4af37;
   --secondary-glow: rgba(212, 175, 55, 0.4);
-  
+
   /* Theme Variables - Default (Light) */
   --bg-color: #f1f5f9;
   --surface: #ffffff;
@@ -68,7 +68,11 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
-h1, h2, h3, h4, .font-heading {
+h1,
+h2,
+h3,
+h4,
+.font-heading {
   font-family: 'Outfit', sans-serif;
   font-weight: 700;
   letter-spacing: -0.02em;
@@ -236,7 +240,9 @@ h1, h2, h3, h4, .font-heading {
 }
 
 /* Inputs */
-input, select, textarea {
+input,
+select,
+textarea {
   background: var(--input-bg);
   border: 1px solid var(--border);
   border-radius: 12px;
@@ -247,7 +253,9 @@ input, select, textarea {
   transition: var(--transition);
 }
 
-input:focus, select:focus, textarea:focus {
+input:focus,
+select:focus,
+textarea:focus {
   border-color: var(--secondary);
   box-shadow: 0 0 0 4px var(--secondary-glow);
   outline: none;
@@ -258,7 +266,8 @@ input:focus, select:focus, textarea:focus {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  margin-bottom: 3rem; /* Extra breathing room */
+  margin-bottom: 3rem;
+  /* Extra breathing room */
   gap: 2rem;
 }
 
@@ -279,15 +288,106 @@ input:focus, select:focus, textarea:focus {
 ::-webkit-scrollbar {
   width: 6px;
 }
+
 ::-webkit-scrollbar-track {
   background: transparent;
 }
+
 ::-webkit-scrollbar-thumb {
   background: rgba(15, 23, 42, 0.1);
   border-radius: 10px;
 }
+
 ::-webkit-scrollbar-thumb:hover {
   background: var(--secondary);
+}
+
+/* Modals & Drawers */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(15, 23, 42, 0.8);
+  backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+  padding: 1.5rem;
+}
+
+.modal-content {
+  background: var(--bg-color);
+  border: 1px solid var(--border);
+  border-radius: 24px;
+  width: 100%;
+  max-width: 550px;
+  max-height: 90vh;
+  overflow-y: auto;
+  position: relative;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+}
+
+.modal-header {
+  padding: 1.5rem 2rem;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.drawer-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(15, 23, 42, 0.6);
+  backdrop-filter: blur(4px);
+  z-index: 1000;
+}
+
+.drawer-content {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 100%;
+  max-width: 600px;
+  background: var(--bg-color);
+  border-left: 1px solid var(--border);
+  z-index: 1001;
+  padding: 2rem;
+  overflow-y: auto;
+  box-shadow: -10px 0 30px rgba(0, 0, 0, 0.3);
+}
+
+.drawer-header {
+  margin-bottom: 2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.close-btn {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  color: var(--text);
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.close-btn:hover {
+  background: var(--border);
+  transform: rotate(90deg);
 }
 
 /* Responsive Overrides */
@@ -304,7 +404,7 @@ input:focus, select:focus, textarea:focus {
     padding: 1.5rem;
     padding-top: 90px;
   }
-  
+
   .sidebar {
     position: fixed;
     left: -100%;
@@ -314,19 +414,19 @@ input:focus, select:focus, textarea:focus {
     transition: left 0.3s ease;
     background: var(--primary) !important;
   }
-  
+
   .sidebar.mobile-open {
     left: 0;
   }
-  
+
   .mobile-header {
     display: flex;
   }
-  
+
   .responsive-table thead {
     display: none;
   }
-  
+
   .responsive-table tr {
     display: block;
     margin-bottom: 1.5rem;
@@ -335,7 +435,7 @@ input:focus, select:focus, textarea:focus {
     background: var(--surface);
     padding: 1rem;
   }
-  
+
   .responsive-table td {
     display: flex;
     justify-content: space-between;
@@ -344,11 +444,11 @@ input:focus, select:focus, textarea:focus {
     border-bottom: 1px solid var(--border);
     text-align: right;
   }
-  
+
   .responsive-table td:last-child {
     border-bottom: none;
   }
-  
+
   .responsive-table td::before {
     content: attr(data-label);
     font-weight: 600;

@@ -1,110 +1,231 @@
-import { useState } from 'react';
-import { Clock, MapPin, Plus, ChevronLeft, ChevronRight } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Clock, MapPin, Plus, ChevronLeft, ChevronRight, Save, Calendar as CalendarIcon, Briefcase, Camera, X } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { Modal } from '../components/UIComponents';
+import { supabase } from '../lib/supabase';
+import { useTenant } from '../context/TenantContext';
 
-const events = [
-    { id: 1, title: 'Reunião de Bairro - Vila Nova', time: '09:00', location: 'Centro Comunitário', category: 'Eleitoral', description: 'Ouvir demandas sobre saneamento.' },
-    { id: 2, title: 'Sessão Ordinária - Câmara', time: '14:00', location: 'Plenário Principal', category: 'Legislativo', description: 'Votação do orçamento anual.' },
-    { id: 3, title: 'Entrevista Rádio Local', time: '18:30', location: 'Rádio Comunitária FM', category: 'Comunicação', description: 'Divulgação dos projetos de educação.' },
-];
+interface CalendarEvent {
+    id: string;
+    title: string;
+    description: string;
+    date: string;
+    time: string;
+    location: string;
+    category: 'Eleitoral' | 'Legislativo' | 'Comunicação' | 'Outros';
+}
 
 const CalendarPage = () => {
+    const { tenant } = useTenant();
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [events, setEvents] = useState<CalendarEvent[]>([]);
+    const [isLoading, setIsLoading] = useState(true);
+
+    // Form states
+    const [title, setTitle] = useState('');
+    const [description, setDescription] = useState('');
+    const [date, setDate] = useState('');
+    const [time, setTime] = useState('');
+    const [location, setLocation] = useState('');
+    const [category, setCategory] = useState<CalendarEvent['category']>('Outros');
+
+    useEffect(() => {
+        if (tenant.id) {
+            fetchEvents();
+        }
+    }, [tenant.id]);
+
+    const fetchEvents = async () => {
+        setIsLoading(true);
+        const { data, error } = await supabase
+            .from('calendar_events')
+            .select('*')
+            .eq('tenant_id', tenant.id)
+            .order('date', { ascending: true })
+            .order('time', { ascending: true });
+
+        if (error) {
+            console.error('Error fetching events:', error);
+        } else {
+            setEvents(data || []);
+        }
+        setIsLoading(false);
+    };
+
+    const handleAddEvent = async (e: React.FormEvent) => {
+        e.preventDefault();
+        if (!tenant.id) return;
+
+        const newEvent = {
+            tenant_id: tenant.id,
+            title,
+            description,
+            date,
+            time,
+            location,
+            category
+        };
+
+        const { data, error } = await supabase
+            .from('calendar_events')
+            .insert([newEvent])
+            .select();
+
+        if (error) {
+            console.error('Error adding event:', error);
+            alert('Erro ao salvar evento');
+        } else if (data) {
+            setEvents([...events, data[0]].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()));
+            setIsModalOpen(false);
+            // Clear form
+            setTitle('');
+            setDescription('');
+            setDate('');
+            setTime('');
+            setLocation('');
+        }
+    };
+
+    const todayEvents = events.filter(e => e.date === new Date().toISOString().split('T')[0]);
 
     return (
         <motion.div
             initial={{ opacity: 0, scale: 0.98 }}
             animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.5 }}
+            transition={{ duration: 0.4 }}
         >
-            <header style={{ marginBottom: '2rem', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
+            <header className="responsive-header">
                 <div>
-                    <h1>Agenda do Gabinete</h1>
-                    <p style={{ color: 'var(--text-light)' }}>Gestão de compromissos legislativos e de campanha.</p>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '0.5rem' }}>
+                        <div style={{
+                            padding: '12px',
+                            background: 'var(--primary)',
+                            borderRadius: '16px',
+                            color: 'var(--secondary)',
+                            boxShadow: '0 8px 16px rgba(15,23,42,0.1)'
+                        }}>
+                            <CalendarIcon size={32} />
+                        </div>
+                        <h1 style={{ fontSize: '2.5rem', fontWeight: 800 }}>Agenda do Gabinete</h1>
+                    </div>
+                    <p style={{ color: 'var(--text-light)', fontSize: '1.1rem', fontWeight: 500 }}>
+                        Gestão de compromissos legislativos e de campanha.
+                    </p>
                 </div>
-                <button className="btn-gold flex-center gap-1" onClick={() => setIsModalOpen(true)}>
-                    <Plus size={18} /> Novo Evento
+                <button
+                    className="btn-gold"
+                    onClick={() => setIsModalOpen(true)}
+                    style={{ borderRadius: '14px', padding: '12px 24px' }}
+                >
+                    <Plus size={20} /> Novo Compromisso
                 </button>
             </header>
 
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 350px', gap: '2rem' }}>
-                <div className="glass-card" style={{ padding: '1.5rem' }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
-                        <h2 style={{ fontSize: '1.25rem', marginBottom: 0 }}>Janeiro 2026</h2>
-                        <div style={{ display: 'flex', gap: '0.5rem' }}>
-                            <button style={{ background: 'var(--bg-color)', border: 'none', padding: '0.5rem', borderRadius: '0.5rem', cursor: 'pointer', color: 'var(--text)' }}><ChevronLeft size={18} /></button>
-                            <button style={{ background: 'var(--bg-color)', border: 'none', padding: '0.5rem', borderRadius: '0.5rem', cursor: 'pointer', color: 'var(--text)' }}><ChevronRight size={18} /></button>
+            <div className="grid-2-1" style={{ gap: '2rem' }}>
+                <div className="glass-card" style={{ padding: '0', overflow: 'hidden' }}>
+                    <div style={{ padding: '2rem', background: 'rgba(255,255,255,0.02)', borderBottom: '1px solid var(--border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <h2 style={{ fontSize: '1.5rem', margin: 0, fontWeight: 800 }}>Calendário Estratégico</h2>
+                        <div style={{ display: 'flex', gap: '0.75rem' }}>
+                            <button className="close-btn" style={{ transform: 'none' }}><ChevronLeft size={18} /></button>
+                            <button className="close-btn" style={{ transform: 'none' }}><ChevronRight size={18} /></button>
                         </div>
                     </div>
 
-                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: '1px', background: 'var(--border)', border: '1px solid var(--border)' }}>
-                        {['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'].map(day => (
-                            <div key={day} style={{ background: 'var(--bg-color)', padding: '0.75rem', textAlign: 'center', fontWeight: 600, fontSize: '0.8rem', color: 'var(--text-light)' }}>{day}</div>
-                        ))}
-                        {[...Array(31)].map((_, i) => (
-                            <div key={i} style={{
-                                background: 'var(--surface)',
-                                minHeight: '100px',
-                                padding: '0.5rem',
-                                position: 'relative',
-                                opacity: i + 1 > 14 && i + 1 < 20 ? 1 : 0.8
-                            }}>
-                                <span style={{ fontSize: '0.8rem', fontWeight: (i + 1 === 14) ? 700 : 400, color: (i + 1 === 14) ? 'var(--primary)' : 'inherit' }}>
-                                    {i + 1}
-                                </span>
-                                {i + 1 === 14 && (
-                                    <div style={{ marginTop: '0.25rem', padding: '0.25rem', background: 'rgba(212, 175, 55, 0.2)', borderLeft: '3px solid var(--secondary)', fontSize: '0.65rem', borderRadius: '2px', color: 'var(--text)' }}>
-                                        Sessão Câmara...
-                                    </div>
-                                )}
-                                {i + 1 === 14 && (
-                                    <div style={{ marginTop: '0.25rem', padding: '0.25rem', background: 'rgba(26, 54, 93, 0.1)', borderLeft: '3px solid var(--primary)', fontSize: '0.65rem', borderRadius: '2px', color: 'var(--text)' }}>
-                                        Reunião Vila...
-                                    </div>
-                                )}
-                            </div>
-                        ))}
+                    <div style={{ padding: '1.5rem' }}>
+                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: '8px', marginBottom: '8px' }}>
+                            {['DOM', 'SEG', 'TER', 'QUA', 'QUI', 'SEX', 'SÁB'].map(day => (
+                                <div key={day} style={{ padding: '10px', textAlign: 'center', fontWeight: 800, fontSize: '0.7rem', color: 'var(--text-light)', letterSpacing: '0.1em' }}>{day}</div>
+                            ))}
+                        </div>
+                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: '8px' }}>
+                            {[...Array(31)].map((_, i) => {
+                                const day = i + 1;
+                                const hasEvent = events.some(e => new Date(e.date).getDate() === day);
+                                return (
+                                    <motion.div
+                                        whileHover={{ y: -2 }}
+                                        key={i}
+                                        style={{
+                                            background: i + 1 === 16 ? 'var(--primary)' : 'rgba(255,255,255,0.02)',
+                                            minHeight: '100px',
+                                            padding: '12px',
+                                            borderRadius: '16px',
+                                            border: '1px solid',
+                                            borderColor: i + 1 === 16 ? 'var(--primary)' : 'var(--border)',
+                                            position: 'relative',
+                                            cursor: 'pointer'
+                                        }}
+                                    >
+                                        <span style={{ fontSize: '0.9rem', fontWeight: 800, color: i + 1 === 16 ? 'white' : 'inherit' }}>
+                                            {day}
+                                        </span>
+                                        {hasEvent && (
+                                            <div style={{
+                                                marginTop: '8px',
+                                                width: '6px',
+                                                height: '6px',
+                                                borderRadius: '50%',
+                                                background: i + 1 === 16 ? 'white' : 'var(--secondary)',
+                                                boxShadow: i + 1 === 16 ? 'none' : '0 0 10px var(--secondary)'
+                                            }} />
+                                        )}
+                                    </motion.div>
+                                );
+                            })}
+                        </div>
                     </div>
                 </div>
 
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
                     <div className="glass-card">
-                        <h3>Compromissos de Hoje</h3>
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                            {events.map((event) => (
-                                <div key={event.id} style={{ padding: '1rem', background: 'var(--surface)', borderRadius: '0.8rem', border: '1px solid var(--border)', boxShadow: '0 2px 4px rgba(0,0,0,0.02)' }}>
-                                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
-                                        <span style={{ fontSize: '0.7rem', fontWeight: 700, padding: '2px 8px', borderRadius: '10px', background: 'var(--primary)', color: 'white' }}>
-                                            {event.category}
-                                        </span>
-                                        <div style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '0.75rem', color: 'var(--text-light)' }}>
-                                            <Clock size={12} /> {event.time}
+                        <h3 style={{ margin: '0 0 2rem 0', fontSize: '1.1rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Compromissos de Hoje</h3>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+                            {todayEvents.length === 0 ? (
+                                <div style={{ padding: '2rem', textAlign: 'center', opacity: 0.5 }}>
+                                    <Clock size={32} style={{ margin: '0 auto 10px' }} />
+                                    <p style={{ fontSize: '0.9rem', fontWeight: 600 }}>Nenhum evento para hoje.</p>
+                                </div>
+                            ) : (
+                                todayEvents.map((event) => (
+                                    <div key={event.id} style={{
+                                        padding: '1.25rem',
+                                        background: 'rgba(255,255,255,0.02)',
+                                        borderRadius: '16px',
+                                        border: '1px solid var(--border)',
+                                        position: 'relative'
+                                    }}>
+                                        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '1rem' }}>
+                                            <span style={{ fontSize: '0.7rem', fontWeight: 800, padding: '4px 10px', borderRadius: '8px', background: 'var(--secondary)', color: 'var(--primary)', textTransform: 'uppercase' }}>
+                                                {event.category}
+                                            </span>
+                                            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.85rem', fontWeight: 700, color: 'var(--text-light)' }}>
+                                                <Clock size={14} /> {event.time}
+                                            </div>
+                                        </div>
+                                        <h4 style={{ fontSize: '1.1rem', margin: '0 0 8px 0', fontWeight: 800 }}>{event.title}</h4>
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.85rem', color: 'var(--text-light)', fontWeight: 600 }}>
+                                            <MapPin size={14} /> {event.location}
                                         </div>
                                     </div>
-                                    <h4 style={{ fontSize: '1rem', marginBottom: '0.5rem' }}>{event.title}</h4>
-                                    <div style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '0.8rem', color: 'var(--text-light)' }}>
-                                        <MapPin size={12} /> {event.location}
-                                    </div>
-                                </div>
-                            ))}
+                                ))
+                            )}
                         </div>
                     </div>
 
-                    <div className="glass-card" style={{ background: 'var(--primary)', color: 'white' }}>
-                        <h3 style={{ color: 'white' }}>Resumo da Semana</h3>
-                        <div style={{ display: 'flex', justifyContent: 'space-around', textAlign: 'center', marginTop: '1rem' }}>
-                            <div>
-                                <p style={{ fontSize: '1.5rem', fontWeight: 700, margin: 0 }}>12</p>
-                                <p style={{ fontSize: '0.7rem', opacity: 0.8 }}>Reuniões</p>
+                    <div className="glass-card" style={{ background: 'linear-gradient(135deg, var(--primary) 0%, var(--primary-accent) 100%)', color: 'white' }}>
+                        <h3 style={{ color: 'white', margin: '0 0 2rem 0', fontSize: '1rem', fontWeight: 800, textTransform: 'uppercase' }}>Monitoramento de Presença</h3>
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '1rem', textAlign: 'center' }}>
+                            <div style={{ padding: '1rem', background: 'rgba(255,255,255,0.1)', borderRadius: '16px' }}>
+                                <p style={{ fontSize: '1.75rem', fontWeight: 800, margin: 0 }}>{events.filter(e => e.category === 'Legislativo').length}</p>
+                                <p style={{ fontSize: '0.7rem', fontWeight: 700, opacity: 0.8, marginTop: '4px', textTransform: 'uppercase' }}>Câmara</p>
                             </div>
-                            <div>
-                                <p style={{ fontSize: '1.5rem', fontWeight: 700, margin: 0 }}>4</p>
-                                <p style={{ fontSize: '0.7rem', opacity: 0.8 }}>Sessões</p>
+                            <div style={{ padding: '1rem', background: 'rgba(255,255,255,0.1)', borderRadius: '16px' }}>
+                                <p style={{ fontSize: '1.75rem', fontWeight: 800, margin: 0 }}>{events.filter(e => e.category === 'Eleitoral').length}</p>
+                                <p style={{ fontSize: '0.7rem', fontWeight: 700, opacity: 0.8, marginTop: '4px', textTransform: 'uppercase' }}>Campo</p>
                             </div>
-                            <div>
-                                <p style={{ fontSize: '1.5rem', fontWeight: 700, margin: 0 }}>5</p>
-                                <p style={{ fontSize: '0.7rem', opacity: 0.8 }}>Visitas</p>
+                            <div style={{ padding: '1rem', background: 'rgba(255,255,255,0.1)', borderRadius: '16px' }}>
+                                <p style={{ fontSize: '1.75rem', fontWeight: 800, margin: 0 }}>{events.filter(e => e.category === 'Comunicação').length}</p>
+                                <p style={{ fontSize: '0.7rem', fontWeight: 700, opacity: 0.8, marginTop: '4px', textTransform: 'uppercase' }}>Mídia</p>
                             </div>
                         </div>
                     </div>
@@ -114,40 +235,74 @@ const CalendarPage = () => {
             <Modal
                 isOpen={isModalOpen}
                 onClose={() => setIsModalOpen(false)}
-                title="Agendar Novo Evento"
+                title="Novo Compromisso Estratégico"
             >
-                <form style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                <form onSubmit={handleAddEvent} style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', padding: '1rem 0.5rem' }}>
                     <div>
-                        <label>Título do Evento</label>
-                        <input type="text" placeholder="Ex: Reunião com Secretário de Obras" />
+                        <label style={{ display: 'block', marginBottom: '8px', fontSize: '0.85rem', fontWeight: 700, color: 'var(--text-light)', textTransform: 'uppercase' }}>Título do Compromisso</label>
+                        <input
+                            type="text"
+                            required
+                            placeholder="Ex: Reunião Bairro Vila Nova"
+                            className="form-input"
+                            style={{ width: '100%', padding: '14px', borderRadius: '12px', background: 'var(--bg-color)', border: '1px solid var(--border)' }}
+                            value={title}
+                            onChange={(e) => setTitle(e.target.value)}
+                        />
                     </div>
                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
                         <div>
-                            <label>Data</label>
-                            <input type="date" />
+                            <label style={{ display: 'block', marginBottom: '8px', fontSize: '0.85rem', fontWeight: 700, color: 'var(--text-light)', textTransform: 'uppercase' }}>Data</label>
+                            <input
+                                type="date"
+                                required
+                                className="form-input"
+                                style={{ width: '100%', padding: '14px', borderRadius: '12px', background: 'var(--bg-color)', border: '1px solid var(--border)' }}
+                                value={date}
+                                onChange={(e) => setDate(e.target.value)}
+                            />
                         </div>
                         <div>
-                            <label>Horário</label>
-                            <input type="time" />
+                            <label style={{ display: 'block', marginBottom: '8px', fontSize: '0.85rem', fontWeight: 700, color: 'var(--text-light)', textTransform: 'uppercase' }}>Horário</label>
+                            <input
+                                type="time"
+                                required
+                                className="form-input"
+                                style={{ width: '100%', padding: '14px', borderRadius: '12px', background: 'var(--bg-color)', border: '1px solid var(--border)' }}
+                                value={time}
+                                onChange={(e) => setTime(e.target.value)}
+                            />
                         </div>
                     </div>
                     <div>
-                        <label>Local</label>
-                        <input type="text" placeholder="Localização do evento" />
+                        <label style={{ display: 'block', marginBottom: '8px', fontSize: '0.85rem', fontWeight: 700, color: 'var(--text-light)', textTransform: 'uppercase' }}>Localização</label>
+                        <input
+                            type="text"
+                            required
+                            placeholder="Associação de Moradores, Plenário, etc."
+                            className="form-input"
+                            style={{ width: '100%', padding: '14px', borderRadius: '12px', background: 'var(--bg-color)', border: '1px solid var(--border)' }}
+                            value={location}
+                            onChange={(e) => setLocation(e.target.value)}
+                        />
                     </div>
                     <div>
-                        <label>Categoria</label>
-                        <select>
-                            <option>Eleitoral</option>
-                            <option>Legislativo</option>
-                            <option>Comunicação</option>
-                            <option>Outros</option>
+                        <label style={{ display: 'block', marginBottom: '8px', fontSize: '0.85rem', fontWeight: 700, color: 'var(--text-light)', textTransform: 'uppercase' }}>Categoria Estratégica</label>
+                        <select
+                            className="form-input"
+                            style={{ width: '100%', padding: '14px', borderRadius: '12px', background: 'var(--bg-color)', border: '1px solid var(--border)', fontWeight: 600 }}
+                            value={category}
+                            onChange={(e) => setCategory(e.target.value as any)}
+                        >
+                            <option value="Eleitoral">Eleitoral (Campo)</option>
+                            <option value="Legislativo">Legislativo (Câmara)</option>
+                            <option value="Comunicação">Comunicação (Mídia)</option>
+                            <option value="Outros">Outros Transversais</option>
                         </select>
                     </div>
-                    <div style={{ display: 'flex', gap: '1rem', marginTop: '1.5rem' }}>
-                        <button type="button" className="btn-primary" style={{ flex: 1 }}>Salvar Evento</button>
-                        <button type="button" className="btn-primary" style={{ background: 'var(--bg-color)', color: 'var(--text)', border: '1px solid var(--border)' }} onClick={() => setIsModalOpen(false)}>Cancelar</button>
-                    </div>
+                    <button type="submit" className="btn-gold" style={{ marginTop: '0.5rem', padding: '16px', borderRadius: '14px', fontSize: '1rem', fontWeight: 800 }}>
+                        <Save size={20} /> Salvar na Agenda do Mandato
+                    </button>
                 </form>
             </Modal>
         </motion.div>
