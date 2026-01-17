@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import {
     Globe, Type, Eye, Save, Smartphone,
-    Monitor, Video, MessageCircle, AlertTriangle, RefreshCw
+    Monitor, Video, MessageCircle, AlertTriangle, RefreshCw,
+    Layout, Image as ImageIcon, Plus, Trash2, Palette, Check
 } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { useTenant } from '../context/TenantContext';
@@ -13,30 +14,58 @@ const MandateSiteBuilder = () => {
     const [isLoading, setIsLoading] = useState(true);
     const [isPublishing, setIsPublishing] = useState(false);
     const [previewMode, setPreviewMode] = useState<'desktop' | 'mobile'>('desktop');
+    const [activeTab, setActiveTab] = useState<'content' | 'style'>('content');
 
-    // Default configuration if nothing in DB
+    // Default configuration with Granular Control
     const defaultConfig = {
-        heroTitle: `Vereador ${tenant.name || 'Nome do Vereador'}`,
-        heroSubtitle: 'Trabalhando por uma cidade melhor e mais justa.',
-        vereadorNumber: '12.345',
-        vereadorPhoto: null,
-        whatsappNumber: '',
-        customDomain: '',
-        primaryColor: '#0f172a',
-        textColor: '#ffffff',
-        showBio: true,
-        bioText: 'Nascido e criado nesta cidade, dedico minha vida ao serviço público...',
-        showProjects: true,
-        showVideo: true,
-        videoUrl: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
-        showGallery: true,
-        galleryImages: [
-            'https://images.unsplash.com/photo-1577962917302-cd874c4e31d2?auto=format&fit=crop&q=80&w=1000',
-            'https://images.unsplash.com/photo-1555848962-6e79363ec58f?auto=format&fit=crop&q=80&w=1000'
-        ],
-        showBlog: true,
-        announcement: { active: false, title: '', text: '', bgColor: '#c53030', textColor: '#ffffff' },
-        whatsappGroup: { active: false, url: '', title: 'Grupo de Apoio', description: 'Receba notícias exclusivas.', bgColor: '#25D366', textColor: '#ffffff' }
+        meta: {
+            title: `Vereador ${tenant.name || 'Nome'}`,
+            description: 'Trabalhando por uma cidade melhor.'
+        },
+        theme: {
+            primary: '#0f172a',
+            secondary: '#d4af37',
+            background: '#f8fafc',
+            text: '#1e293b',
+            font: 'Inter'
+        },
+        sections: {
+            hero: {
+                enabled: true,
+                title: `Vereador ${tenant.name || 'Nome'}`,
+                subtitle: 'Trabalhando por uma cidade melhor e mais justa.',
+                number: '12.345',
+                bgImage: 'https://images.unsplash.com/photo-1444703686981-a3abbc4d4fe3?auto=format&fit=crop&q=80&w=2000',
+                overlayOpacity: 0.7,
+                bgColor: '#0f172a',
+                textColor: '#ffffff'
+            },
+            bio: {
+                enabled: true,
+                title: 'Quem Sou',
+                content: 'Nascido e criado nesta cidade, dedico minha vida ao serviço público...',
+                bgColor: '#ffffff',
+                textColor: '#1e293b'
+            },
+            projects: {
+                enabled: true,
+                title: 'Projetos de Lei',
+                items: [
+                    { title: 'Lei da Transparência', status: 'Aprovado', desc: 'Garante acesso total aos gastos públicos.' },
+                    { title: 'Programa Bairro Seguro', status: 'Em Tramitação', desc: 'Instalação de câmeras inteligentes.' }
+                ],
+                bgColor: '#f1f5f9',
+                textColor: '#1e293b'
+            },
+            whatsapp: {
+                enabled: true,
+                title: 'Participe do Mandato',
+                description: 'Entre no nosso grupo exclusivo e receba atualizações.',
+                link: 'https://wa.me/',
+                bgColor: '#25D366',
+                textColor: '#ffffff'
+            }
+        }
     };
 
     useEffect(() => {
@@ -53,11 +82,11 @@ const MandateSiteBuilder = () => {
             .eq('id', tenant.id)
             .single();
 
-        if (error) {
-            console.error('Error fetching site config:', error);
+        if (error || !data.site_config) {
             setSiteConfig(defaultConfig);
         } else {
-            setSiteConfig(data.site_config || defaultConfig);
+            // Merge deeper to avoid missing keys on legacy configs
+            setSiteConfig({ ...defaultConfig, ...data.site_config, sections: { ...defaultConfig.sections, ...data.site_config.sections } });
         }
         setIsLoading(false);
     };
@@ -70,235 +99,288 @@ const MandateSiteBuilder = () => {
             .eq('id', tenant.id);
 
         if (error) {
-            console.error('Error publishing site:', error);
             alert('Erro ao publicar site');
         } else {
-            alert("Site publicado com sucesso! Acesse em: seu-dominio.com.br");
+            alert("Site atualizado com sucesso!");
         }
         setIsPublishing(false);
     };
 
-    if (isLoading || !siteConfig) return <div style={{ display: 'flex', justifyContent: 'center', padding: '5rem' }}><RefreshCw className="spin" /></div>;
+    if (isLoading || !siteConfig) return <div className="flex-center p-5"><RefreshCw className="spin" /></div>;
+
+    const ColorPicker = ({ label, value, onChange }: any) => (
+        <div style={{ marginBottom: '1rem' }}>
+            <label style={{ fontSize: '0.75rem', fontWeight: 700, opacity: 0.7, textTransform: 'uppercase', marginBottom: '4px', display: 'block' }}>{label}</label>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', background: 'var(--bg-color)', padding: '6px', borderRadius: '8px', border: '1px solid var(--border)' }}>
+                <input
+                    type="color"
+                    value={value}
+                    onChange={(e) => onChange(e.target.value)}
+                    style={{ width: '30px', height: '30px', border: 'none', borderRadius: '4px', cursor: 'pointer', background: 'none' }}
+                />
+                <input
+                    type="text"
+                    value={value}
+                    onChange={(e) => onChange(e.target.value)}
+                    style={{ border: 'none', background: 'transparent', fontSize: '0.85rem', fontWeight: 600, color: 'var(--text)', width: '100%' }}
+                />
+            </div>
+        </div>
+    );
 
     return (
         <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            style={{ display: 'grid', gridTemplateColumns: '400px 1fr', gap: '2rem', height: 'calc(100vh - 120px)' }}
+            style={{ display: 'grid', gridTemplateColumns: '450px 1fr', gap: '2rem', height: 'calc(100vh - 120px)' }}
             className="flex-col-mobile"
         >
-            {/* Control Panel */}
-            <div className="glass-card" style={{ display: 'flex', flexDirection: 'column', gap: '2rem', overflowY: 'auto', padding: '1.5rem' }}>
-                <div style={{ paddingBottom: '1rem', borderBottom: '1px solid var(--border)' }}>
-                    <h2 style={{ fontSize: '1.25rem', marginBottom: '4px', fontWeight: 800 }}>Construtor de Portal</h2>
-                    <p style={{ fontSize: '0.85rem', color: 'var(--text-light)', fontWeight: 600 }}>Crie seu portal de mandato premium em segundos.</p>
+            {/* EDITOR PANEL */}
+            <div className="glass-card" style={{ display: 'flex', flexDirection: 'column', overflow: 'hidden', padding: 0 }}>
+                {/* Editor Header */}
+                <div style={{ padding: '1.5rem', borderBottom: '1px solid var(--border)', background: 'var(--surface)' }}>
+                    <h2 style={{ fontSize: '1.25rem', fontWeight: 800, margin: 0 }}>Construtor de Portal</h2>
+                    <div style={{ display: 'flex', gap: '1rem', marginTop: '1rem' }}>
+                        <button
+                            onClick={() => setActiveTab('content')}
+                            style={{
+                                flex: 1, padding: '8px', borderRadius: '8px', border: 'none', fontWeight: 700, cursor: 'pointer',
+                                background: activeTab === 'content' ? 'var(--primary)' : 'transparent',
+                                color: activeTab === 'content' ? 'white' : 'var(--text-light)'
+                            }}
+                        >
+                            Conteúdo
+                        </button>
+                        <button
+                            onClick={() => setActiveTab('style')}
+                            style={{
+                                flex: 1, padding: '8px', borderRadius: '8px', border: 'none', fontWeight: 700, cursor: 'pointer',
+                                background: activeTab === 'style' ? 'var(--primary)' : 'transparent',
+                                color: activeTab === 'style' ? 'white' : 'var(--text-light)'
+                            }}
+                        >
+                            <Palette size={16} style={{ display: 'inline', marginRight: '5px' }} /> Estilo
+                        </button>
+                    </div>
                 </div>
 
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-                    <section>
-                        <h3 style={{ fontSize: '0.9rem', fontWeight: 800, textTransform: 'uppercase', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                            <Type size={16} /> Identidade Visual
-                        </h3>
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                            <input
-                                className="form-input"
-                                value={siteConfig.heroTitle}
-                                onChange={(e) => setSiteConfig({ ...siteConfig, heroTitle: e.target.value })}
-                                placeholder="Título do Site"
-                            />
-                            <textarea
-                                className="form-input"
-                                value={siteConfig.heroSubtitle}
-                                onChange={(e) => setSiteConfig({ ...siteConfig, heroSubtitle: e.target.value })}
-                                placeholder="Subtítulo / Slogan"
-                                rows={2}
-                            />
+                <div style={{ flex: 1, overflowY: 'auto', padding: '1.5rem', display: 'flex', flexDirection: 'column', gap: '2rem' }}>
+
+                    {activeTab === 'style' && (
+                        <div className="animate-fade-in">
+                            <h3 style={{ fontSize: '0.9rem', fontWeight: 800, textTransform: 'uppercase', marginBottom: '1rem' }}>Identidade Global</h3>
                             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
-                                <div>
-                                    <label style={{ fontSize: '0.7rem', fontWeight: 700, opacity: 0.6 }}>COR PRINCIPAL</label>
-                                    <input type="color" value={siteConfig.primaryColor} onChange={(e) => setSiteConfig({ ...siteConfig, primaryColor: e.target.value })} style={{ width: '100%', height: '40px', border: 'none', borderRadius: '8px', cursor: 'pointer' }} />
-                                </div>
-                                <div>
-                                    <label style={{ fontSize: '0.7rem', fontWeight: 700, opacity: 0.6 }}>COR TEXTO</label>
-                                    <input type="color" value={siteConfig.textColor} onChange={(e) => setSiteConfig({ ...siteConfig, textColor: e.target.value })} style={{ width: '100%', height: '40px', border: 'none', borderRadius: '8px', cursor: 'pointer' }} />
-                                </div>
+                                <ColorPicker label="Cor Primária" value={siteConfig.theme.primary} onChange={(v: string) => setSiteConfig({ ...siteConfig, theme: { ...siteConfig.theme, primary: v } })} />
+                                <ColorPicker label="Cor Secundária" value={siteConfig.theme.secondary} onChange={(v: string) => setSiteConfig({ ...siteConfig, theme: { ...siteConfig.theme, secondary: v } })} />
+                                <ColorPicker label="Fundo Geral" value={siteConfig.theme.background} onChange={(v: string) => setSiteConfig({ ...siteConfig, theme: { ...siteConfig.theme, background: v } })} />
+                                <ColorPicker label="Texto Geral" value={siteConfig.theme.text} onChange={(v: string) => setSiteConfig({ ...siteConfig, theme: { ...siteConfig.theme, text: v } })} />
                             </div>
                         </div>
-                    </section>
+                    )}
 
-                    <section>
-                        <h3 style={{ fontSize: '0.9rem', fontWeight: 800, textTransform: 'uppercase', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                            <Globe size={16} /> Blocos de Conteúdo
-                        </h3>
-                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
-                            {['showBio', 'showProjects', 'showVideo', 'showGallery', 'showBlog'].map((module: string) => (
-                                <label key={module} style={{
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    gap: '8px',
-                                    fontSize: '0.85rem',
-                                    fontWeight: 600,
-                                    cursor: 'pointer',
-                                    padding: '8px 12px',
-                                    background: 'var(--bg-color)',
-                                    borderRadius: '10px',
-                                    border: '1px solid var(--border)'
-                                }}>
-                                    <input type="checkbox" checked={siteConfig[module]} onChange={(e) => setSiteConfig({ ...siteConfig, [module]: e.target.checked })} />
-                                    {module.replace('show', '')}
-                                </label>
-                            ))}
-                        </div>
-                    </section>
+                    {activeTab === 'content' && (
+                        <div className="animate-fade-in" style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
+                            {/* Hero Config */}
+                            <section style={{ padding: '1rem', border: '1px solid var(--border)', borderRadius: '12px' }}>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '1rem' }}>
+                                    <h4 style={{ margin: 0, fontWeight: 800 }}>Topo (Hero)</h4>
+                                    <input type="checkbox" checked={siteConfig.sections.hero.enabled} onChange={e => setSiteConfig({ ...siteConfig, sections: { ...siteConfig.sections, hero: { ...siteConfig.sections.hero, enabled: e.target.checked } } })} />
+                                </div>
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                                    <input className="form-input" placeholder="Título" value={siteConfig.sections.hero.title} onChange={e => setSiteConfig({ ...siteConfig, sections: { ...siteConfig.sections, hero: { ...siteConfig.sections.hero, title: e.target.value } } })} />
+                                    <input className="form-input" placeholder="Subtítulo" value={siteConfig.sections.hero.subtitle} onChange={e => setSiteConfig({ ...siteConfig, sections: { ...siteConfig.sections, hero: { ...siteConfig.sections.hero, subtitle: e.target.value } } })} />
+                                    <input className="form-input" placeholder="Número de Urna" value={siteConfig.sections.hero.number} onChange={e => setSiteConfig({ ...siteConfig, sections: { ...siteConfig.sections, hero: { ...siteConfig.sections.hero, number: e.target.value } } })} />
+                                    <ColorPicker label="Fundo da Seção" value={siteConfig.sections.hero.bgColor} onChange={(v: string) => setSiteConfig({ ...siteConfig, sections: { ...siteConfig.sections, hero: { ...siteConfig.sections.hero, bgColor: v } } })} />
+                                </div>
+                            </section>
 
-                    <section>
-                        <h3 style={{ fontSize: '0.9rem', fontWeight: 800, textTransform: 'uppercase', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                            <AlertTriangle size={16} /> Alertas & Social
-                        </h3>
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                            <label style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.85rem', fontWeight: 600 }}>
-                                <input type="checkbox" checked={siteConfig.announcement.active} onChange={(e) => setSiteConfig({ ...siteConfig, announcement: { ...siteConfig.announcement, active: e.target.checked } })} />
-                                Ativar Comunicado Urgente
-                            </label>
-                            <label style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.85rem', fontWeight: 600 }}>
-                                <input type="checkbox" checked={siteConfig.whatsappGroup.active} onChange={(e) => setSiteConfig({ ...siteConfig, whatsappGroup: { ...siteConfig.whatsappGroup, active: e.target.checked } })} />
-                                Ativar Link Grupo WhatsApp
-                            </label>
+                            {/* Bio Config */}
+                            <section style={{ padding: '1rem', border: '1px solid var(--border)', borderRadius: '12px' }}>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '1rem' }}>
+                                    <h4 style={{ margin: 0, fontWeight: 800 }}>Sobre / Biografia</h4>
+                                    <input type="checkbox" checked={siteConfig.sections.bio.enabled} onChange={e => setSiteConfig({ ...siteConfig, sections: { ...siteConfig.sections, bio: { ...siteConfig.sections.bio, enabled: e.target.checked } } })} />
+                                </div>
+                                <textarea className="form-input" rows={4} value={siteConfig.sections.bio.content} onChange={e => setSiteConfig({ ...siteConfig, sections: { ...siteConfig.sections, bio: { ...siteConfig.sections.bio, content: e.target.value } } })} />
+                                <div style={{ marginTop: '1rem', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+                                    <ColorPicker label="Fundo" value={siteConfig.sections.bio.bgColor} onChange={(v: string) => setSiteConfig({ ...siteConfig, sections: { ...siteConfig.sections, bio: { ...siteConfig.sections.bio, bgColor: v } } })} />
+                                    <ColorPicker label="Texto" value={siteConfig.sections.bio.textColor} onChange={(v: string) => setSiteConfig({ ...siteConfig, sections: { ...siteConfig.sections, bio: { ...siteConfig.sections.bio, textColor: v } } })} />
+                                </div>
+                            </section>
+
+                            {/* Whatsapp Config */}
+                            <section style={{ padding: '1rem', border: '1px solid var(--border)', borderRadius: '12px' }}>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '1rem' }}>
+                                    <h4 style={{ margin: 0, fontWeight: 800 }}>Banner WhatsApp</h4>
+                                    <input type="checkbox" checked={siteConfig.sections.whatsapp.enabled} onChange={e => setSiteConfig({ ...siteConfig, sections: { ...siteConfig.sections, whatsapp: { ...siteConfig.sections.whatsapp, enabled: e.target.checked } } })} />
+                                </div>
+                                <input className="form-input mb-2" placeholder="Título" value={siteConfig.sections.whatsapp.title} onChange={e => setSiteConfig({ ...siteConfig, sections: { ...siteConfig.sections, whatsapp: { ...siteConfig.sections.whatsapp, title: e.target.value } } })} />
+                                <ColorPicker label="Cor do Banner" value={siteConfig.sections.whatsapp.bgColor} onChange={(v: string) => setSiteConfig({ ...siteConfig, sections: { ...siteConfig.sections, whatsapp: { ...siteConfig.sections.whatsapp, bgColor: v } } })} />
+                            </section>
                         </div>
-                    </section>
+                    )}
                 </div>
 
-                <div style={{ marginTop: 'auto', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                    <button className="btn-gold" style={{ width: '100%', borderRadius: '14px' }} onClick={handlePublish} disabled={isPublishing}>
-                        {isPublishing ? <RefreshCw className="spin" size={18} /> : <><Save size={18} /> Publicar Alterações</>}
+                <div style={{ padding: '1.5rem', borderTop: '1px solid var(--border)', background: 'var(--surface)' }}>
+                    <button className="btn-gold" style={{ width: '100%', borderRadius: '12px', padding: '14px', fontWeight: 800 }} onClick={handlePublish} disabled={isPublishing}>
+                        {isPublishing ? <RefreshCw className="spin" size={18} /> : <span><Save size={18} style={{ marginRight: '8px' }} /> Publicar Site</span>}
                     </button>
-                    <button className="btn-gold outline" style={{ width: '100%', borderRadius: '14px' }}>
-                        <Eye size={18} /> Ver Página Pública
-                    </button>
+                    <a href={`http://${tenant.slug || 'mandato'}.gabinete.app`} target="_blank" style={{ display: 'block', textAlign: 'center', marginTop: '1rem', color: 'var(--text-light)', fontSize: '0.85rem', textDecoration: 'none' }}>
+                        Ver online: {tenant.slug}.gabinete.app
+                    </a>
                 </div>
             </div>
 
-            {/* Preview Panel */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+            {/* PREVIEW PANEL */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
                 <div style={{ display: 'flex', justifyContent: 'center', gap: '1rem' }}>
-                    <button
-                        onClick={() => setPreviewMode('desktop')}
-                        style={{
-                            padding: '10px 20px',
-                            borderRadius: '30px',
-                            border: 'none',
-                            background: previewMode === 'desktop' ? 'var(--primary)' : 'var(--surface)',
-                            color: previewMode === 'desktop' ? 'white' : 'var(--text)',
-                            fontWeight: 700,
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: '8px',
-                            cursor: 'pointer'
-                        }}
-                    >
-                        <Monitor size={18} /> Desktop
-                    </button>
-                    <button
-                        onClick={() => setPreviewMode('mobile')}
-                        style={{
-                            padding: '10px 20px',
-                            borderRadius: '30px',
-                            border: 'none',
-                            background: previewMode === 'mobile' ? 'var(--primary)' : 'var(--surface)',
-                            color: previewMode === 'mobile' ? 'white' : 'var(--text)',
-                            fontWeight: 700,
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: '8px',
-                            cursor: 'pointer'
-                        }}
-                    >
-                        <Smartphone size={18} /> Mobile
-                    </button>
+                    <button onClick={() => setPreviewMode('desktop')} className={`btn-ghost ${previewMode === 'desktop' ? 'active-pill' : ''}`} style={{ borderRadius: '20px', padding: '8px 16px', fontWeight: 600 }}>Desktop</button>
+                    <button onClick={() => setPreviewMode('mobile')} className={`btn-ghost ${previewMode === 'mobile' ? 'active-pill' : ''}`} style={{ borderRadius: '20px', padding: '8px 16px', fontWeight: 600 }}>Mobile</button>
                 </div>
 
                 <div style={{
                     flex: 1,
                     background: '#e2e8f0',
                     borderRadius: '24px',
-                    padding: previewMode === 'desktop' ? '1rem' : '1px',
                     display: 'flex',
                     justifyContent: 'center',
                     alignItems: 'center',
+                    padding: previewMode === 'desktop' ? '2rem' : '0',
                     overflow: 'hidden'
                 }}>
                     <div style={{
                         width: previewMode === 'desktop' ? '100%' : '375px',
                         height: previewMode === 'desktop' ? '100%' : '667px',
-                        background: 'white',
-                        borderRadius: previewMode === 'desktop' ? '16px' : '40px',
-                        boxShadow: '0 25px 50px -12px rgba(0,0,0,0.1)',
+                        background: siteConfig.theme.background,
+                        borderRadius: previewMode === 'desktop' ? '12px' : '40px',
+                        boxShadow: '0 25px 50px -12px rgba(0,0,0,0.25)',
                         overflowY: 'auto',
                         position: 'relative',
-                        transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)'
+                        transition: 'all 0.3s ease',
+                        border: previewMode === 'mobile' ? '12px solid #1a202c' : 'none'
                     }}>
-                        {/* THE SITE PREVIEW */}
-                        <header style={{
-                            background: siteConfig.primaryColor,
-                            color: siteConfig.textColor,
-                            padding: '4rem 2rem',
-                            textAlign: 'center',
-                            position: 'relative',
-                            overflow: 'hidden'
-                        }}>
-                            <div style={{ position: 'relative', zIndex: 2 }}>
-                                <span style={{
-                                    background: 'var(--secondary)',
-                                    color: 'black',
-                                    padding: '4px 20px',
-                                    borderRadius: '50px',
-                                    fontWeight: 900,
-                                    fontSize: '1.5rem',
-                                    marginBottom: '1rem',
-                                    display: 'inline-block'
-                                }}>{siteConfig.vereadorNumber}</span>
-                                <h1 style={{ fontSize: '2.5rem', margin: '0.5rem 0', fontWeight: 800 }}>{siteConfig.heroTitle}</h1>
-                                <p style={{ opacity: 0.8, fontSize: '1.2rem', maxWidth: '500px', margin: '0 auto' }}>{siteConfig.heroSubtitle}</p>
-                            </div>
-                        </header>
-
-                        <div style={{ padding: '2rem', display: 'flex', flexDirection: 'column', gap: '2rem', marginTop: '-2rem' }}>
-                            {siteConfig.announcement.active && (
-                                <div style={{ background: siteConfig.announcement.bgColor, color: siteConfig.announcement.textColor, padding: '1.5rem', borderRadius: '16px', textAlign: 'center' }}>
-                                    <h4 style={{ margin: '0 0 5px 0' }}>{siteConfig.announcement.title}</h4>
-                                    <p style={{ margin: 0, opacity: 0.9 }}>{siteConfig.announcement.text}</p>
+                        {/* HERO */}
+                        {siteConfig.sections.hero.enabled && (
+                            <div style={{
+                                position: 'relative',
+                                background: siteConfig.sections.hero.bgColor,
+                                color: siteConfig.sections.hero.textColor,
+                                padding: previewMode === 'mobile' ? '4rem 1.5rem' : '6rem 4rem',
+                                textAlign: 'center',
+                                overflow: 'hidden'
+                            }}>
+                                <div style={{ // BG Image
+                                    position: 'absolute', inset: 0,
+                                    backgroundImage: `url(${siteConfig.sections.hero.bgImage})`,
+                                    backgroundSize: 'cover', backgroundPosition: 'center',
+                                    opacity: 0.2
+                                }}></div>
+                                <div style={{ position: 'relative', zIndex: 2, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1rem' }}>
+                                    <span style={{
+                                        background: siteConfig.theme.secondary,
+                                        color: '#000',
+                                        padding: '0.5rem 1.5rem',
+                                        borderRadius: '50px',
+                                        fontWeight: 800,
+                                        fontSize: '1.25rem',
+                                        boxShadow: '0 4px 15px rgba(0,0,0,0.2)'
+                                    }}>
+                                        {siteConfig.sections.hero.number}
+                                    </span>
+                                    <h1 style={{ fontSize: previewMode === 'mobile' ? '2.5rem' : '4rem', fontWeight: 900, lineHeight: 1.1, margin: 0 }}>
+                                        {siteConfig.sections.hero.title}
+                                    </h1>
+                                    <p style={{ fontSize: previewMode === 'mobile' ? '1.1rem' : '1.5rem', opacity: 0.9, fontWeight: 500, maxWidth: '600px' }}>
+                                        {siteConfig.sections.hero.subtitle}
+                                    </p>
                                 </div>
-                            )}
+                            </div>
+                        )}
 
-                            {siteConfig.showBio && (
-                                <section>
-                                    <h2 style={{ borderLeft: '4px solid var(--secondary)', paddingLeft: '1rem', marginBottom: '1rem' }}>Biografia</h2>
-                                    <p style={{ color: '#4a5568', lineHeight: 1.6 }}>{siteConfig.bioText}</p>
-                                </section>
-                            )}
+                        <div style={{
+                            padding: previewMode === 'mobile' ? '2rem 1.5rem' : '3rem 4rem',
+                            display: 'flex',
+                            flexDirection: 'column',
+                            gap: '3rem' // BREATHING ROOM
+                        }}>
 
-                            {siteConfig.showVideo && (
-                                <section>
-                                    <h2 style={{ borderLeft: '4px solid var(--secondary)', paddingLeft: '1rem', marginBottom: '1rem' }}>Destaque da Semana</h2>
-                                    <div style={{ aspectRatio: '16/9', background: '#000', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff' }}>
-                                        <Video size={48} />
+                            {/* STATUS CARDS - Simulated Dynamic Content */}
+                            <div style={{ display: 'grid', gridTemplateColumns: previewMode === 'mobile' ? '1fr' : 'repeat(3, 1fr)', gap: '1.5rem' }}>
+                                {[1, 2, 3].map(i => (
+                                    <div key={i} style={{
+                                        background: 'white',
+                                        borderRadius: '16px',
+                                        padding: '1.5rem',
+                                        boxShadow: '0 10px 15px -3px rgba(0,0,0,0.05)',
+                                        borderTop: `4px solid ${siteConfig.theme.primary}`
+                                    }}>
+                                        <h4 style={{ margin: '0 0 10px 0', fontSize: '1.1rem', color: siteConfig.theme.primary }}>Conquista {i}</h4>
+                                        <p style={{ margin: 0, color: '#64748b', fontSize: '0.9rem' }}>Pavimentação concluída no bairro das Flores graças à nossa indicação.</p>
+                                    </div>
+                                ))}
+                            </div>
+
+                            {/* BIO SECTION */}
+                            {siteConfig.sections.bio.enabled && (
+                                <section style={{
+                                    background: siteConfig.sections.bio.bgColor,
+                                    color: siteConfig.sections.bio.textColor,
+                                    padding: '2rem',
+                                    borderRadius: '24px',
+                                    boxShadow: '0 4px 6px -1px rgba(0,0,0,0.05)'
+                                }}>
+                                    <div style={{ display: 'flex', flexDirection: previewMode === 'mobile' ? 'column' : 'row', gap: '2rem', alignItems: 'center' }}>
+                                        <div style={{ flex: 1 }}>
+                                            <h2 style={{ fontSize: '2rem', fontWeight: 800, marginBottom: '1rem', color: siteConfig.theme.secondary }}>{siteConfig.sections.bio.title}</h2>
+                                            <p style={{ lineHeight: 1.8, fontSize: '1.1rem' }}>{siteConfig.sections.bio.content}</p>
+                                            <button style={{ marginTop: '1.5rem', padding: '12px 24px', background: siteConfig.theme.primary, color: 'white', border: 'none', borderRadius: '10px', fontWeight: 700, cursor: 'pointer' }}>
+                                                Conheça Minha História
+                                            </button>
+                                        </div>
+                                        <div style={{ width: previewMode === 'mobile' ? '100%' : '300px', height: '300px', background: '#cbd5e1', borderRadius: '20px', overflow: 'hidden' }}>
+                                            <img src="https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&q=80&w=1000" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                                        </div>
                                     </div>
                                 </section>
                             )}
 
-                            {siteConfig.whatsappGroup.active && (
-                                <section style={{ background: siteConfig.whatsappGroup.bgColor, color: siteConfig.whatsappGroup.textColor, padding: '2rem', borderRadius: '16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                    <div>
-                                        <h3 style={{ margin: 0 }}>{siteConfig.whatsappGroup.title}</h3>
-                                        <p style={{ margin: 0, opacity: 0.8 }}>{siteConfig.whatsappGroup.description}</p>
-                                    </div>
-                                    <MessageCircle size={32} />
+                            {/* WHATSAPP CTA */}
+                            {siteConfig.sections.whatsapp.enabled && (
+                                <section style={{
+                                    background: siteConfig.sections.whatsapp.bgColor,
+                                    color: siteConfig.sections.whatsapp.textColor,
+                                    padding: '3rem',
+                                    borderRadius: '24px',
+                                    textAlign: 'center',
+                                    boxShadow: '0 20px 25px -5px rgba(0,0,0,0.1)'
+                                }}>
+                                    <MessageCircle size={48} style={{ marginBottom: '1rem' }} />
+                                    <h2 style={{ fontSize: '2rem', fontWeight: 900, marginBottom: '0.5rem' }}>{siteConfig.sections.whatsapp.title}</h2>
+                                    <p style={{ fontSize: '1.2rem', opacity: 0.9, marginBottom: '2rem' }}>{siteConfig.sections.whatsapp.description}</p>
+                                    <button style={{
+                                        padding: '16px 32px',
+                                        background: 'white',
+                                        color: siteConfig.sections.whatsapp.bgColor,
+                                        border: 'none',
+                                        borderRadius: '50px',
+                                        fontWeight: 800,
+                                        fontSize: '1.1rem',
+                                        cursor: 'pointer',
+                                        boxShadow: '0 10px 15px rgba(0,0,0,0.1)'
+                                    }}>
+                                        ENTRAR NO GRUPO VIP
+                                    </button>
                                 </section>
                             )}
+
                         </div>
 
-                        <footer style={{ padding: '3rem 2rem', background: '#0f172a', color: 'white', textAlign: 'center', fontSize: '0.8rem' }}>
-                            <p>© 2026 {siteConfig.heroTitle} | Cabinet Digital</p>
+                        {/* FOOTER */}
+                        <footer style={{ background: siteConfig.theme.primary, color: 'white', padding: '3rem', textAlign: 'center' }}>
+                            <h3 style={{ fontWeight: 900, marginBottom: '1rem' }}>VEREADOR {tenant.name?.toUpperCase()}</h3>
+                            <p style={{ opacity: 0.6 }}>Política feita com transparência e tecnologia.</p>
+                            <div style={{ marginTop: '2rem', paddingTop: '1rem', borderTop: '1px solid rgba(255,255,255,0.1)', fontSize: '0.8rem', opacity: 0.4 }}>
+                                © 2026 Gabinete Digital
+                            </div>
                         </footer>
                     </div>
                 </div>
