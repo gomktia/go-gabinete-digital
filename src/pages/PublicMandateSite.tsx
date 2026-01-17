@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import {
-    MessageCircle, Video, Image as ImageIcon, ExternalLink, RefreshCw
+    MessageCircle, ExternalLink, RefreshCw
 } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 
