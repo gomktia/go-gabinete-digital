@@ -129,19 +129,20 @@ export const TenantProvider: React.FC<{ children: React.ReactNode }> = ({ childr
 
     const checkSession = async () => {
         try {
-            // Fast check: get session from local storage first
+            console.log('[Auth] Checking existing session...');
             const { data: { session }, error } = await supabase.auth.getSession();
 
             if (error) throw error;
 
             if (session) {
+                console.log('[Auth] Session found for user:', session.user.id);
                 await fetchProfileAndTenant(session.user.id);
             } else {
-                // Returns immediately if no session found locally
+                console.log('[Auth] No active session found.');
                 setLoading(false);
             }
         } catch (error) {
-            console.error('Session check failed:', error);
+            console.error('[Auth] Session check failed:', error);
             setLoading(false);
         }
     };
@@ -150,17 +151,26 @@ export const TenantProvider: React.FC<{ children: React.ReactNode }> = ({ childr
         const startTime = performance.now();
         setLoading(true);
         try {
-            // Optimization: Fetch profile and tenant in a SINGLE query using joins
+            console.log('[Tenant] Fetching profile for:', userId);
             const { data: profileWithTenant, error: fetchError } = await supabase
                 .from('profiles')
                 .select('*, tenants(*)')
                 .eq('id', userId)
                 .single();
 
-            if (fetchError) throw fetchError;
+            if (fetchError) {
+                if (fetchError.code === 'PGRST116') {
+                    console.warn('[Tenant] Profile not found for this user. Clearing invalid session.');
+                    await supabase.auth.signOut();
+                    setTenant(defaultSettings);
+                    return;
+                }
+                throw fetchError;
+            }
 
-            if (profileWithTenant) {
+            if (profileWithTenant && profileWithTenant.tenants) {
                 const tenantData = profileWithTenant.tenants;
+                console.log('[Tenant] Successfully loaded tenant:', tenantData.name);
 
                 setTenant(prev => ({
                     ...prev,
@@ -176,14 +186,22 @@ export const TenantProvider: React.FC<{ children: React.ReactNode }> = ({ childr
                     userId: userId,
                     primaryColor: tenantData.settings?.primaryColor || prev.primaryColor,
                     secondaryColor: tenantData.settings?.secondaryColor || prev.secondaryColor,
-                    photoUrl: profileWithTenant.avatar_url
+                    photoUrl: profileWithTenant.avatar_url,
+                    theme: tenantData.settings?.theme || prev.theme // Use saved theme if exists
                 }));
+            } else {
+                console.warn('[Tenant] Incomplete profile data. Redirecting to setup...');
+                // Fallback to minimal state so user isn't stuck
+                setTenant(prev => ({ ...prev, userId, isLoggedIn: true }));
             }
             const endTime = performance.now();
             console.log(`[Performance] Profile/Tenant loaded in ${(endTime - startTime).toFixed(2)}ms`);
-        } catch (error) {
-            console.error('Error loading tenant data:', error);
-            // On error, we still want to stop loading but stay logged out or show error
+        } catch (error: any) {
+            console.error('[Tenant] Error loading tenant data:', error.message);
+            // If it's a critical error, we might want to logout
+            if (error.status === 403 || error.status === 401) {
+                await supabase.auth.signOut();
+            }
         } finally {
             setLoading(false);
         }
@@ -211,6 +229,7 @@ export const TenantProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     const login = async (email: string, pass: string) => {
         try {
             setLoading(true);
+            console.log('[Auth] Attempting login for:', email);
             const { data, error } = await supabase.auth.signInWithPassword({
                 email,
                 password: pass,
@@ -219,14 +238,16 @@ export const TenantProvider: React.FC<{ children: React.ReactNode }> = ({ childr
             if (error) throw error;
 
             if (data.user) {
-                // Manually trigger data fetch to speed up login redirect
+                console.log('[Auth] Login successful, fetching data...');
+                // We DON'T need to call fetchProfileAndTenant here if onAuthStateChange handles it,
+                // but doing it explicitly ensures we wait and can return success/fail to the UI
                 await fetchProfileAndTenant(data.user.id);
                 return { success: true };
             }
 
             return { success: false, error: 'Usuário não encontrado.' };
         } catch (error: any) {
-            console.error('Login error:', error.message);
+            console.error('[Auth] Login failed:', error.message);
             setLoading(false);
             return { success: false, error: error.message };
         }

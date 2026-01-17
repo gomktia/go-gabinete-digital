@@ -113,6 +113,33 @@ function AppContent() {
           >
             Iniciando ambiente seguro...
           </motion.p>
+
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 4 }}
+            style={{ marginTop: '2rem' }}
+          >
+            <button
+              onClick={() => {
+                localStorage.clear();
+                window.location.href = '/';
+              }}
+              style={{
+                background: 'rgba(255,255,255,0.05)',
+                border: '1px solid rgba(255,255,255,0.1)',
+                color: 'rgba(255,255,255,0.4)',
+                padding: '8px 16px',
+                borderRadius: '8px',
+                fontSize: '0.7rem',
+                cursor: 'pointer',
+                textTransform: 'uppercase',
+                letterSpacing: '1px'
+              }}
+            >
+              Problemas para entrar? Limpar Sistema
+            </button>
+          </motion.div>
         </motion.div>
       </div>
     );
