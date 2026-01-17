@@ -169,7 +169,7 @@ function AppContent() {
       <Sidebar />
       <main className="main-content">
         <Routes>
-          <Route path="/" element={<Dashboard />} />
+          <Route path="/" element={tenant.role === 'SUPER_ADMIN' ? <SuperAdmin /> : <Dashboard />} />
           {/* Public routes redirect to home if logged in */}
           <Route path="/login" element={<Navigate to="/" />} />
           <Route path="/register" element={<Navigate to="/" />} />

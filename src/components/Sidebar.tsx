@@ -28,16 +28,36 @@ const Sidebar = () => {
     };
 
     // Organized Groups
-    const navGroups = [
+    const navGroups = tenant.role === 'SUPER_ADMIN' ? [
+        {
+            id: 'admin_core',
+            label: 'Plataforma SaaS',
+            icon: Shield,
+            items: [
+                { id: 'admin_dash', label: 'Dashboard Global', icon: LayoutDashboard, path: '/', roles: ['SUPER_ADMIN'] },
+                { id: 'tenants', label: 'Gestão de Clientes', icon: Users, path: '/super-admin', roles: ['SUPER_ADMIN'] },
+                { id: 'subscription', label: 'Planos e Faturamento', icon: DollarSign, path: '/subscription', roles: ['SUPER_ADMIN'] },
+            ]
+        },
+        {
+            id: 'system_tools',
+            label: 'Monitoramento',
+            icon: Settings,
+            items: [
+                { id: 'wa_config', label: 'Status Conexões', icon: Zap, path: '/wa-config', roles: ['SUPER_ADMIN'] },
+                { id: 'settings', label: 'Configurações Master', icon: Settings, path: '/settings', roles: ['SUPER_ADMIN'] },
+            ]
+        }
+    ] : [
         {
             id: 'gestao',
             label: 'Gestão',
             icon: Briefcase,
             items: [
-                { id: 'dashboard', label: 'Painel', icon: LayoutDashboard, path: '/', roles: ['SUPER_ADMIN', 'VEREADOR', 'ASSESSOR'] },
-                { id: 'calendar', label: 'Agenda', icon: Calendar, path: '/calendar', roles: ['SUPER_ADMIN', 'VEREADOR', 'ASSESSOR'] },
-                { id: 'finance', label: 'Financeiro', icon: DollarSign, path: '/finance', roles: ['SUPER_ADMIN', 'VEREADOR', 'ASSESSOR'] },
-                { id: 'team', label: 'Equipe', icon: Users, path: '/team', roles: ['SUPER_ADMIN', 'VEREADOR', 'ASSESSOR'] },
+                { id: 'dashboard', label: 'Painel', icon: LayoutDashboard, path: '/', roles: ['VEREADOR', 'ASSESSOR'] },
+                { id: 'calendar', label: 'Agenda', icon: Calendar, path: '/calendar', roles: ['VEREADOR', 'ASSESSOR'] },
+                { id: 'finance', label: 'Financeiro', icon: DollarSign, path: '/finance', roles: ['VEREADOR', 'ASSESSOR'] },
+                { id: 'team', label: 'Equipe', icon: Users, path: '/team', roles: ['VEREADOR', 'ASSESSOR'] },
             ]
         },
         {
@@ -45,9 +65,9 @@ const Sidebar = () => {
             label: 'Legislativo',
             icon: FileText,
             items: [
-                { id: 'docs', label: 'Tramitação', icon: FileText, path: '/documents', roles: ['SUPER_ADMIN', 'VEREADOR', 'ASSESSOR'] },
-                { id: 'proposals', label: 'Proposições', icon: FileText, path: '/proposals', roles: ['SUPER_ADMIN', 'VEREADOR', 'ASSESSOR'] },
-                { id: 'demands', label: 'Demandas', icon: List, path: '/demands', roles: ['SUPER_ADMIN', 'VEREADOR', 'ASSESSOR'] },
+                { id: 'docs', label: 'Tramitação', icon: FileText, path: '/documents', roles: ['VEREADOR', 'ASSESSOR'] },
+                { id: 'proposals', label: 'Proposições', icon: FileText, path: '/proposals', roles: ['VEREADOR', 'ASSESSOR'] },
+                { id: 'demands', label: 'Demandas', icon: List, path: '/demands', roles: ['VEREADOR', 'ASSESSOR'] },
             ]
         },
         {
@@ -55,11 +75,11 @@ const Sidebar = () => {
             label: 'Comunicação',
             icon: Share2,
             items: [
-                { id: 'site', label: 'Meu Site', icon: Globe, path: '/site-builder', roles: ['SUPER_ADMIN', 'VEREADOR', 'ASSESSOR'] },
-                { id: 'social-media', label: 'Agente Social', icon: Share2, path: '/social-media', roles: ['SUPER_ADMIN', 'VEREADOR', 'ASSESSOR'] },
-                { id: 'messages', label: 'WhatsApp', icon: MessageSquare, path: '/messages', roles: ['SUPER_ADMIN', 'VEREADOR', 'ASSESSOR'] },
-                { id: 'voters', label: 'Eleitores CRM', icon: Users, path: '/voters', roles: ['SUPER_ADMIN', 'VEREADOR', 'ASSESSOR'] },
-                { id: 'wa-config', label: 'Conexão Zap', icon: Zap, path: '/wa-config', roles: ['SUPER_ADMIN', 'VEREADOR'] },
+                { id: 'site', label: 'Meu Site', icon: Globe, path: '/site-builder', roles: ['VEREADOR', 'ASSESSOR'] },
+                { id: 'social-media', label: 'Agente Social', icon: Share2, path: '/social-media', roles: ['VEREADOR', 'ASSESSOR'] },
+                { id: 'messages', label: 'WhatsApp', icon: MessageSquare, path: '/messages', roles: ['VEREADOR', 'ASSESSOR'] },
+                { id: 'voters', label: 'Eleitores CRM', icon: Users, path: '/voters', roles: ['VEREADOR', 'ASSESSOR'] },
+                { id: 'wa-config', label: 'Conexão Zap', icon: Zap, path: '/wa-config', roles: ['VEREADOR'] },
             ]
         },
         {
@@ -67,18 +87,9 @@ const Sidebar = () => {
             label: 'Estratégia',
             icon: Bot,
             items: [
-                { id: 'ai-advisor', label: 'Estratégia IA', icon: Bot, path: '/advisor', roles: ['SUPER_ADMIN', 'VEREADOR', 'ASSESSOR'] },
-                { id: 'map', label: 'Mapa da Mina', icon: Map, path: '/map', roles: ['SUPER_ADMIN', 'VEREADOR', 'ASSESSOR'] },
-                { id: 'radar', label: 'Radar de Verbas', icon: Radar, path: '/radar', roles: ['SUPER_ADMIN', 'VEREADOR', 'ASSESSOR'] },
-            ]
-        },
-        {
-            id: 'admin',
-            label: 'Administração SaaS',
-            icon: Shield,
-            items: [
-                { id: 'super-admin', label: 'Painel Admin', icon: Shield, path: '/super-admin', roles: ['SUPER_ADMIN'] },
-                { id: 'subscription', label: 'Planos e Taxas', icon: DollarSign, path: '/subscription', roles: ['SUPER_ADMIN'] },
+                { id: 'ai-advisor', label: 'Estratégia IA', icon: Bot, path: '/advisor', roles: ['VEREADOR', 'ASSESSOR'] },
+                { id: 'map', label: 'Mapa da Mina', icon: Map, path: '/map', roles: ['VEREADOR', 'ASSESSOR'] },
+                { id: 'radar', label: 'Radar de Verbas', icon: Radar, path: '/radar', roles: ['VEREADOR', 'ASSESSOR'] },
             ]
         }
     ];
