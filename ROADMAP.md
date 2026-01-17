@@ -34,32 +34,37 @@ Este documento consolida as ideias e funcionalidades planejadas para transformar
 - Gestão de Demandas.
 - Agenda e Finanças.
 
+### 7. Gerador de Ofícios Legislativos (PDF)
+- **Status:** [Implementado v1] (`DocumentGeneratorModal.tsx`)
+- Transformação de demandas em documentos oficiais (Ofícios, Requerimentos, Moções).
+- Templates editáveis com preview em tempo real.
+- Exportação para PDF (A4).
+
+### 8. Entrada de Dados por Voz (O "Zap do Mandato")
+- **Status:** [Implementado v1] (`DemandsPage.tsx`)
+- Reconhecimento de fala via Web Speech API.
+- Preenchimento automático de Título e Local via simulação de IA.
+
+### 9. O "Cérebro da Equipe" (IA Proativa)
+- **Status:** [Implementado v1] (`MandateIntelligence.tsx` e `Dashboard.tsx`)
+- Dashboard com "Alertas de Crise" (Demandas acumuladas em bairros).
+- "Sugestão do Dia" baseada em eleitores sem contato recente.
+- Oportunidades de ações legislativas baseadas em categorias de demandas.
+
+### 10. Árvore Genealógica do Voto
+- **Status:** [Implementado v1] (`VoteGenealogy.tsx`)
+- Visualização hierárquica de indicações (Referral Tree).
+- Identificação visual de "Cabos Eleitorais" influentes.
+- Navegação recursiva por nós da rede.
+
 ---
 
 ## 🚀 Próximos Passos (O que falta)
 
-### 1. Entrada de Dados por Voz (O "Zap do Mandato")
-**Objetivo:** Permitir cadastro de demandas via áudio para assessores que não gostam de digitar.
-- Integração com OpenAI Whisper para transcrever áudio em texto estruturado.
-
-### 2. O "Cérebro da Equipe" (IA Proativa)
-**Objetivo:** Dashboard que avisa o vereador onde ele está perdendo terreno.
-- Alertas automáticos: "Bairro X está reclamando muito de Iluminação".
-- "Sugestão do Dia": Quem visitar hoje.
-
-### 3. Gerador de Ofícios Legislativos (PDF)
-**Objetivo:** Transformar a demanda do APP em um PDF oficial da Câmara com um clique.
-- Templates jurídicos pré-aprovados.
-
-### 4. Árvore Genealógica do Voto
-**Objetivo:** Visualizar quem indicou quem.
-- Gráfico de rede mostrando os "Cabos Eleitorais" mais efetivos.
-
-### 5. Radar de Verbas e Diário Oficial
+### 1. Radar de Verbas e Diário Oficial
 **Objetivo:** Monitoramento automático de oportunidades de recursos.
 - Scraper de editais.
 
-### 6. Módulo Financeiro Avançado (SaaS)
+### 2. Módulo Financeiro Avançado (SaaS)
 **Objetivo:** Vender o software para outros vereadores.
-- Integração com Gateway de Pagamento (Stripe/Asaas) para cobrança de assinatura.
 

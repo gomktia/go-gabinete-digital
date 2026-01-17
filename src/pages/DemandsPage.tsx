@@ -1,7 +1,8 @@
-import { MapPin, Filter, Search, Clock, CheckCircle, AlertTriangle, List, Map as MapIcon, ChevronRight, Camera, User, Plus, Loader2, Mic, Sparkles, Download, Printer, Share2, Image as ImageIcon } from 'lucide-react';
+import { MapPin, Filter, Search, Clock, CheckCircle, AlertTriangle, List, Map as MapIcon, ChevronRight, Camera, User, Plus, Loader2, Mic, Sparkles, Download, Share2, Image as ImageIcon } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useState, useEffect, useRef } from 'react';
 import { Drawer, Modal } from '../components/UIComponents';
+import { DocumentGeneratorModal } from '../components/DocumentGeneratorModal';
 import { supabase } from '../lib/supabase';
 import { useTenant } from '../context/TenantContext';
 
@@ -109,83 +110,13 @@ const DemandsPage = () => {
     const [isProcessingIA, setIsProcessingIA] = useState(false);
     const [isDocModalOpen, setIsDocModalOpen] = useState(false);
     const [isArtGeneratorOpen, setIsArtGeneratorOpen] = useState(false);
-    const docRef = useRef<HTMLDivElement>(null);
     const artRef = useRef<HTMLDivElement>(null);
 
     const handleCreateIndication = () => {
         setIsDocModalOpen(true);
     };
 
-    const handlePrintDoc = async () => {
-        const content = docRef.current;
-        if (!content) return;
-
-        // Dynamic import to avoid SSR issues if any, though here it's SPA
-        const { jsPDF } = await import('jspdf');
-
-        const doc = new jsPDF();
-
-        // Add fonts and styling (simplified for MVP)
-        doc.setFont("times", "roman");
-
-        // Header
-        doc.setFontSize(12);
-        doc.text("CÂMARA MUNICIPAL", 105, 20, { align: "center" });
-        doc.setFont("times", "bold");
-        doc.text(`Gabinete do Vereador ${tenant.name}`, 105, 26, { align: "center" });
-        doc.setFont("times", "normal");
-        doc.setFontSize(10);
-        doc.text("Rua Legislativa, 123 - Centro", 105, 32, { align: "center" });
-
-        // Date
-        const dateStr = new Date().toLocaleDateString('pt-BR', { day: 'numeric', month: 'long', year: 'numeric' });
-        doc.setFontSize(11);
-        doc.text(`Cidade/UF, ${dateStr}`, 180, 50, { align: "right" });
-
-        // Subject
-        doc.setFont("times", "bold");
-        doc.text("OFÍCIO Nº ____ / 2026", 20, 70);
-        doc.text(`Assunto: Indicação de ${selectedDemand?.category} - ${selectedDemand?.title}`, 20, 76);
-
-        // Body
-        doc.setFont("times", "normal");
-        doc.text("Excelentíssimo Senhor Prefeito,", 20, 95);
-
-        const bodyText = `Venho, por meio deste, indicar ao Poder Executivo Municipal a necessidade de intervenção urgente em: ${selectedDemand?.local}.\n\nA demanda, classificada como ${selectedDemand?.category}, refere-se a: "${selectedDemand?.title}". Tal solicitação fundamenta-se na fiscalização realizada por este gabinete, onde constatamos o anseio da comunidade local por melhorias imediatas.`;
-
-        const splitText = doc.splitTextToSize(bodyText, 170);
-        doc.text(splitText, 20, 105);
-
-        // Visits/Evidence
-        let yPos = 105 + (splitText.length * 7) + 10;
-
-        if (selectedDemand?.visits && selectedDemand.visits.length > 0) {
-            doc.setFont("times", "bold");
-            doc.text("Evidências da Fiscalização:", 20, yPos);
-            yPos += 7;
-            doc.setFont("times", "italic");
-            selectedDemand.visits.slice(0, 2).forEach(v => {
-                doc.text(`- "${v.notes}" (Visita em ${new Date(v.date).toLocaleDateString()})`, 25, yPos);
-                yPos += 7;
-            });
-        }
-
-        // Footer Signature
-        yPos += 30;
-        doc.setFont("times", "normal");
-        doc.text("Atenciosamente,", 105, yPos, { align: "center" });
-        yPos += 20;
-        doc.line(65, yPos, 145, yPos); // Line for signature
-        yPos += 5;
-        doc.setFont("times", "bold");
-        doc.text(`VEREADOR ${tenant.name?.toUpperCase()}`, 105, yPos, { align: "center" });
-        yPos += 5;
-        doc.setFont("times", "normal");
-        doc.text("Legislatura 2025-2028", 105, yPos, { align: "center" });
-
-        // Save
-        doc.save(`Oficio_${selectedDemand?.id}_${selectedDemand?.category}.pdf`);
-    };
+    // handlePrintDoc removed - functionality moved to DocumentGeneratorModal
 
     const handleRegisterVisit = async (visitData: any) => {
         if (!selectedDemand || !tenant.id) return;
@@ -858,79 +789,12 @@ const DemandsPage = () => {
                 )}
             </Drawer>
 
-            {/* Document Preview Modal - Roadmap Implementation #3 */}
-            <Modal isOpen={isDocModalOpen} onClose={() => setIsDocModalOpen(false)} title="Gerador de Documento Oficial">
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-                    <div ref={docRef} style={{
-                        background: 'white',
-                        padding: '2rem',
-                        borderRadius: '8px',
-                        border: '1px solid #ccc',
-                        color: 'black',
-                        fontFamily: 'serif',
-                        fontSize: '0.9rem'
-                    }}>
-                        <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
-                            <h3 style={{ margin: 0 }}>CÂMARA MUNICIPAL</h3>
-                            <p style={{ margin: 0, fontWeight: 700 }}>Gabinete do Vereador {tenant.name}</p>
-                            <p style={{ margin: 0, fontSize: '0.8rem' }}>Rua Legislativa, 123 - Centro</p>
-                        </div>
-
-                        <div style={{ textAlign: 'right', marginBottom: '2rem' }}>
-                            Cidade/UF, {new Date().toLocaleDateString('pt-BR', { day: 'numeric', month: 'long', year: 'numeric' })}
-                        </div>
-
-                        <div style={{ marginBottom: '2rem' }}>
-                            <strong>OFÍCIO Nº ____ / 2026</strong><br />
-                            <strong>Assunto:</strong> Indicação de {selectedDemand?.category} - {selectedDemand?.title}
-                        </div>
-
-                        <div style={{ marginBottom: '2rem' }}>
-                            Excelentíssimo Senhor Prefeito,
-                        </div>
-
-                        <div style={{ textAlign: 'justify', marginBottom: '2rem' }}>
-                            Venho, por meio deste, indicar ao Poder Executivo Municipal a necessidade de intervenção urgente em:
-                            <strong> {selectedDemand?.local}</strong>.
-                        </div>
-
-                        <div style={{ textAlign: 'justify', marginBottom: '2rem' }}>
-                            A demanda, classificada como {selectedDemand?.category}, refere-se a: "{selectedDemand?.title}".
-                            Tal solicitação fundamenta-se na fiscalização realizada por este gabinete, onde constatamos o anseio da comunidade local por melhorias imediatas.
-                        </div>
-
-                        {selectedDemand?.visits && selectedDemand.visits.length > 0 && (
-                            <div style={{ marginBottom: '2rem' }}>
-                                <strong>Evidências da Fiscalização:</strong>
-                                <ul style={{ listStyle: 'none', padding: 0, marginTop: '10px' }}>
-                                    {selectedDemand.visits.slice(0, 2).map((v, idx) => (
-                                        <li key={idx} style={{ marginBottom: '10px', fontSize: '0.8rem', borderLeft: '2px solid #ccc', paddingLeft: '10px' }}>
-                                            <em>"{v.notes}"</em> - Visita em {new Date(v.date).toLocaleDateString()}
-                                        </li>
-                                    ))}
-                                </ul>
-                            </div>
-                        )}
-
-                        <div style={{ textAlign: 'center', marginTop: '4rem' }}>
-                            Atenciosamente,<br /><br />
-                            <div style={{ borderTop: '1px solid black', display: 'inline-block', padding: '10px 40px' }}>
-                                <strong>VEREADOR {tenant.name?.toUpperCase()}</strong><br />
-                                Legislatura 2025-2028
-                            </div>
-                        </div>
-                    </div>
-
-                    <div style={{ display: 'flex', gap: '1rem' }}>
-                        <button onClick={handlePrintDoc} className="btn-gold" style={{ flex: 1, borderRadius: '12px' }}>
-                            <Printer size={18} /> Imprimir / PDF
-                        </button>
-                        <button className="btn-primary" style={{ flex: 1, borderRadius: '12px', background: 'var(--bg-color)', border: '1px solid var(--border)', color: 'var(--text)' }}>
-                            <Download size={18} /> Enviar via Zap
-                        </button>
-                    </div>
-                </div>
-            </Modal>
+            {/* Document Generator Modal - Roadmap Implementation #3 */}
+            <DocumentGeneratorModal
+                isOpen={isDocModalOpen}
+                onClose={() => setIsDocModalOpen(false)}
+                demand={selectedDemand}
+            />
 
             {/* Art Generator for Social Media - Roadmap Item #3 */}
             <Modal isOpen={isArtGeneratorOpen} onClose={() => setIsArtGeneratorOpen(false)} title="Gerador Automático de Artes">

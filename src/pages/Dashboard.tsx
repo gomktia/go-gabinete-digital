@@ -1,9 +1,10 @@
-import { Users, TrendingUp, Calendar, DollarSign, Share2, Loader2, Award, Zap, Bell } from 'lucide-react';
+import { Users, TrendingUp, Calendar, DollarSign, Share2, Loader2, Award, Zap, Bell, Sparkles } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useTenant } from '../context/TenantContext';
 import { useNavigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { supabase } from '../lib/supabase';
+import { MandateIntelligence } from '../components/MandateIntelligence';
 
 const Dashboard = () => {
     const { tenant } = useTenant();
@@ -133,6 +134,15 @@ const Dashboard = () => {
                     </span>
                 </motion.div>
             </header>
+
+            {/* Smart Intelligence Section - Roadmap Element */}
+            <div style={{ marginBottom: '2.5rem' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '1rem' }}>
+                    <Sparkles className="text-gold" size={20} />
+                    <h3 style={{ margin: 0, fontSize: '1.2rem', fontWeight: 800 }}>Inteligência do Mandato</h3>
+                </div>
+                <MandateIntelligence />
+            </div>
 
             <div className="responsive-grid" style={{ marginBottom: '3rem' }}>
                 {dashboardStats.map((stat, index) => {

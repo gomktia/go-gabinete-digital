@@ -21,6 +21,7 @@ import DocumentTracking from './pages/DocumentTracking';
 import VoterCrm from './pages/VoterCrm';
 import TeamManagement from './pages/TeamManagement';
 import VoterMap from './pages/VoterMap';
+import VoteGenealogy from './pages/VoteGenealogy';
 import { TenantProvider, useTenant } from './context/TenantContext';
 
 function AppContent() {
@@ -132,6 +133,7 @@ function AppContent() {
           <Route path="/finance" element={<CampaignFinance />} />
           <Route path="/team" element={<TeamManagement />} />
           <Route path="/voters" element={<VoterCrm />} />
+          <Route path="/genealogy" element={<VoteGenealogy />} />
           <Route path="/map" element={<VoterMap />} />
           <Route path="/messages" element={<WhatsAppIntegration />} />
           <Route path="/settings" element={<SettingsPage />} />

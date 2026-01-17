@@ -3,11 +3,12 @@ import { motion } from 'framer-motion';
 import {
     Users, UserPlus, Filter, Search, Phone,
     MapPin, Star, ThumbsUp, ThumbsDown, MessageCircle,
-    MoreHorizontal, TrendingUp, Award, Loader2, Save
+    MoreHorizontal, TrendingUp, Award, Loader2, Save, Network
 } from 'lucide-react';
 import { Modal, Drawer } from '../components/UIComponents';
 import { supabase } from '../lib/supabase';
 import { useTenant } from '../context/TenantContext';
+import { useNavigate } from 'react-router-dom';
 
 // Interface matching Supabase table
 interface Voter {
@@ -21,10 +22,12 @@ interface Voter {
     last_contact: string | null;
     notes: string;
     birth_date?: string;
+    referrer_id?: string;
 }
 
 const VoterCrm = () => {
     const { tenant } = useTenant();
+    const navigate = useNavigate();
     const [voters, setVoters] = useState<Voter[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [isAddModalOpen, setIsAddModalOpen] = useState(false);
@@ -35,6 +38,7 @@ const VoterCrm = () => {
     const [newVoterName, setNewVoterName] = useState('');
     const [newVoterPhone, setNewVoterPhone] = useState('');
     const [newVoterNeighborhood, setNewVoterNeighborhood] = useState('Centro');
+    const [newVoterReferrer, setNewVoterReferrer] = useState('');
 
     // Notes state
     const [notesBuffer, setNotesBuffer] = useState('');
@@ -81,8 +85,9 @@ const VoterCrm = () => {
             phone: newVoterPhone,
             neighborhood: newVoterNeighborhood,
             status: 'pendente',
-            leader: 'Vereador', // Default for now
-            tenant_id: tenant.id
+            leader: 'Vereador', // Default for now, could be dynamic based on referrer
+            tenant_id: tenant.id,
+            referrer_id: newVoterReferrer || null
         };
 
         const { data, error } = await supabase
@@ -98,6 +103,7 @@ const VoterCrm = () => {
             setIsAddModalOpen(false);
             setNewVoterName('');
             setNewVoterPhone('');
+            setNewVoterReferrer('');
             // Show success feedback if needed
         }
     };
@@ -218,6 +224,9 @@ const VoterCrm = () => {
                 <div style={{ display: 'flex', gap: '1rem' }} className="flex-col-mobile">
                     <button className="btn-gold outline" style={{ borderRadius: '14px' }}>
                         <Filter size={18} /> Filtrar Base
+                    </button>
+                    <button className="btn-gold outline" onClick={() => navigate('/genealogy')} style={{ borderRadius: '14px' }}>
+                        <Network size={18} /> Árvore
                     </button>
                     <button
                         className="btn-gold"
@@ -713,13 +722,27 @@ const VoterCrm = () => {
                             <option>Rural</option>
                         </select>
                     </div>
+                    <div>
+                        <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.9rem' }}>Quem indicou? (Opcional)</label>
+                        <select
+                            className="form-input"
+                            style={{ width: '100%' }}
+                            value={newVoterReferrer}
+                            onChange={(e) => setNewVoterReferrer(e.target.value)}
+                        >
+                            <option value="">-- Selecione ou deixe em branco --</option>
+                            {voters.map(v => (
+                                <option key={v.id} value={v.id}>{v.name} ({v.neighborhood})</option>
+                            ))}
+                        </select>
+                    </div>
 
                     <button type="submit" className="btn-gold" style={{ marginTop: '1rem' }}>
                         Cadastrar Eleitor
                     </button>
                 </form>
             </Modal>
-        </motion.div>
+        </motion.div >
     );
 };
 
