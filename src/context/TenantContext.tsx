@@ -50,24 +50,46 @@ export const TenantProvider: React.FC<{ children: React.ReactNode }> = ({ childr
 
     // Initial Session Check
     useEffect(() => {
-        checkSession();
+        let mounted = true;
+
+        // Safety timeout to prevent infinite loading
+        const safetyTimeout = setTimeout(() => {
+            if (mounted) setLoading(false);
+        }, 8000);
+
+        checkSession().then(() => {
+            if (mounted) clearTimeout(safetyTimeout);
+        });
 
         const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
             if (event === 'SIGNED_IN' && session) {
                 await fetchProfileAndTenant(session.user.id);
             } else if (event === 'SIGNED_OUT') {
                 setTenant(defaultSettings);
+                // Ensure loading is false on sign out
+                setLoading(false);
             }
         });
 
-        return () => subscription.unsubscribe();
+        return () => {
+            mounted = false;
+            clearTimeout(safetyTimeout);
+            subscription.unsubscribe();
+        };
     }, []);
 
     const checkSession = async () => {
-        const { data: { session } } = await supabase.auth.getSession();
-        if (session) {
-            await fetchProfileAndTenant(session.user.id);
-        } else {
+        try {
+            const { data: { session }, error } = await supabase.auth.getSession();
+            if (error) throw error;
+
+            if (session) {
+                await fetchProfileAndTenant(session.user.id);
+            } else {
+                setLoading(false);
+            }
+        } catch (error) {
+            console.error('Session check failed:', error);
             setLoading(false);
         }
     };
