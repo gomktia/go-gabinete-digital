@@ -116,32 +116,75 @@ const DemandsPage = () => {
         setIsDocModalOpen(true);
     };
 
-    const handlePrintDoc = () => {
+    const handlePrintDoc = async () => {
         const content = docRef.current;
         if (!content) return;
 
-        const printWindow = window.open('', '_blank');
-        if (!printWindow) return;
+        // Dynamic import to avoid SSR issues if any, though here it's SPA
+        const { jsPDF } = await import('jspdf');
 
-        printWindow.document.write(`
-            <html>
-                <head>
-                    <title>Ofício - ${selectedDemand?.title}</title>
-                    <style>
-                        body { font-family: 'Times New Roman', serif; padding: 40px; line-height: 1.6; }
-                        .header { text-align: center; border-bottom: 2px solid black; padding-bottom: 20px; margin-bottom: 30px; }
-                        .content { text-align: justify; }
-                        .footer { margin-top: 100px; text-align: center; }
-                        .signature { border-top: 1px solid black; display: inline-block; padding: 10px 40px; margin-top: 20px; }
-                    </style>
-                </head>
-                <body>
-                    ${content.innerHTML}
-                </body>
-            </html>
-        `);
-        printWindow.document.close();
-        printWindow.print();
+        const doc = new jsPDF();
+
+        // Add fonts and styling (simplified for MVP)
+        doc.setFont("times", "roman");
+
+        // Header
+        doc.setFontSize(12);
+        doc.text("CÂMARA MUNICIPAL", 105, 20, { align: "center" });
+        doc.setFont("times", "bold");
+        doc.text(`Gabinete do Vereador ${tenant.name}`, 105, 26, { align: "center" });
+        doc.setFont("times", "normal");
+        doc.setFontSize(10);
+        doc.text("Rua Legislativa, 123 - Centro", 105, 32, { align: "center" });
+
+        // Date
+        const dateStr = new Date().toLocaleDateString('pt-BR', { day: 'numeric', month: 'long', year: 'numeric' });
+        doc.setFontSize(11);
+        doc.text(`Cidade/UF, ${dateStr}`, 180, 50, { align: "right" });
+
+        // Subject
+        doc.setFont("times", "bold");
+        doc.text("OFÍCIO Nº ____ / 2026", 20, 70);
+        doc.text(`Assunto: Indicação de ${selectedDemand?.category} - ${selectedDemand?.title}`, 20, 76);
+
+        // Body
+        doc.setFont("times", "normal");
+        doc.text("Excelentíssimo Senhor Prefeito,", 20, 95);
+
+        const bodyText = `Venho, por meio deste, indicar ao Poder Executivo Municipal a necessidade de intervenção urgente em: ${selectedDemand?.local}.\n\nA demanda, classificada como ${selectedDemand?.category}, refere-se a: "${selectedDemand?.title}". Tal solicitação fundamenta-se na fiscalização realizada por este gabinete, onde constatamos o anseio da comunidade local por melhorias imediatas.`;
+
+        const splitText = doc.splitTextToSize(bodyText, 170);
+        doc.text(splitText, 20, 105);
+
+        // Visits/Evidence
+        let yPos = 105 + (splitText.length * 7) + 10;
+
+        if (selectedDemand?.visits && selectedDemand.visits.length > 0) {
+            doc.setFont("times", "bold");
+            doc.text("Evidências da Fiscalização:", 20, yPos);
+            yPos += 7;
+            doc.setFont("times", "italic");
+            selectedDemand.visits.slice(0, 2).forEach(v => {
+                doc.text(`- "${v.notes}" (Visita em ${new Date(v.date).toLocaleDateString()})`, 25, yPos);
+                yPos += 7;
+            });
+        }
+
+        // Footer Signature
+        yPos += 30;
+        doc.setFont("times", "normal");
+        doc.text("Atenciosamente,", 105, yPos, { align: "center" });
+        yPos += 20;
+        doc.line(65, yPos, 145, yPos); // Line for signature
+        yPos += 5;
+        doc.setFont("times", "bold");
+        doc.text(`VEREADOR ${tenant.name?.toUpperCase()}`, 105, yPos, { align: "center" });
+        yPos += 5;
+        doc.setFont("times", "normal");
+        doc.text("Legislatura 2025-2028", 105, yPos, { align: "center" });
+
+        // Save
+        doc.save(`Oficio_${selectedDemand?.id}_${selectedDemand?.category}.pdf`);
     };
 
     const handleRegisterVisit = async (visitData: any) => {
