@@ -257,7 +257,7 @@ const VoterCrm = () => {
                         </div>
                     </div>
                     <div style={{ display: 'flex', gap: '0.5rem' }}>
-                        {birthdayVoters.map((v, i) => (
+                        {birthdayVoters.map((v) => (
                             <motion.div
                                 key={v.id}
                                 whileHover={{ scale: 1.1 }}

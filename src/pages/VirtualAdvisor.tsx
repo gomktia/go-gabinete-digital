@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Bot, Sparkles, TrendingUp, Map as MapIcon, Users, MessageSquare, RefreshCw, ChevronRight } from 'lucide-react';
+import { Bot, Sparkles, TrendingUp, Map as MapIcon, Users, MessageSquare, ChevronRight } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { Modal } from '../components/UIComponents';
 import { supabase } from '../lib/supabase';
@@ -10,7 +10,6 @@ const VirtualAdvisor = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedRec, setSelectedRec] = useState<any>(null);
     const [stats, setStats] = useState({ demands: 0, voters: 0, sentiment: 74 });
-    const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
         if (tenant.id) {
@@ -19,7 +18,6 @@ const VirtualAdvisor = () => {
     }, [tenant.id]);
 
     const fetchStats = async () => {
-        setIsLoading(true);
         const [demandsRes, votersRes] = await Promise.all([
             supabase.from('demands').select('id', { count: 'exact' }).eq('tenant_id', tenant.id),
             supabase.from('voters').select('id', { count: 'exact' }).eq('tenant_id', tenant.id)
@@ -30,7 +28,6 @@ const VirtualAdvisor = () => {
             voters: votersRes.count || 0,
             sentiment: 70 + Math.floor(Math.random() * 15) // Simulation of AI sentiment
         });
-        setIsLoading(false);
     };
 
     const recommendations = [

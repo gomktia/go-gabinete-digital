@@ -1,4 +1,4 @@
-import { MapPin, Filter, Search, Clock, CheckCircle, AlertTriangle, List, Map as MapIcon, ChevronRight, Camera, User, Plus, Loader2, Mic, Sparkles, FileText, Download, Printer } from 'lucide-react';
+import { MapPin, Filter, Search, Clock, CheckCircle, AlertTriangle, List, Map as MapIcon, ChevronRight, Camera, User, Plus, Loader2, Mic, Sparkles, Download, Printer } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useState, useEffect, useRef } from 'react';
 import { Drawer, Modal } from '../components/UIComponents';

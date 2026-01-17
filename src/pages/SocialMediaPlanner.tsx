@@ -2,8 +2,8 @@ import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
     Upload, Sparkles, Calendar as CalendarIcon,
-    Instagram, Facebook, Video, Clock, CheckCircle,
-    Share2, Plus, Image as ImageIcon, Wand2,
+    Instagram, Facebook, Clock, CheckCircle,
+    Share2, Image as ImageIcon, Wand2,
     RefreshCw, Trash2, Send, Check
 } from 'lucide-react';
 import { supabase } from '../lib/supabase';

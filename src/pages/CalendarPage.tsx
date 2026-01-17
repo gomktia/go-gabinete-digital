@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Clock, MapPin, Plus, ChevronLeft, ChevronRight, Save, Calendar as CalendarIcon, Briefcase, Camera, X } from 'lucide-react';
+import { Clock, MapPin, Plus, ChevronLeft, ChevronRight, Save, Calendar as CalendarIcon } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { Modal } from '../components/UIComponents';
 import { supabase } from '../lib/supabase';
@@ -19,7 +19,6 @@ const CalendarPage = () => {
     const { tenant } = useTenant();
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [events, setEvents] = useState<CalendarEvent[]>([]);
-    const [isLoading, setIsLoading] = useState(true);
 
     // Form states
     const [title, setTitle] = useState('');
@@ -36,7 +35,6 @@ const CalendarPage = () => {
     }, [tenant.id]);
 
     const fetchEvents = async () => {
-        setIsLoading(true);
         const { data, error } = await supabase
             .from('calendar_events')
             .select('*')
@@ -49,7 +47,6 @@ const CalendarPage = () => {
         } else {
             setEvents(data || []);
         }
-        setIsLoading(false);
     };
 
     const handleAddEvent = async (e: React.FormEvent) => {

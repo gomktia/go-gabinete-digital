@@ -21,10 +21,8 @@ interface Transaction {
 const CampaignFinance = () => {
     const { tenant } = useTenant();
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const [isImportModalOpen, setIsImportModalOpen] = useState(false);
     const [transactions, setTransactions] = useState<Transaction[]>([]);
     const [isLoading, setIsLoading] = useState(true);
-    const [uploadStep, setUploadStep] = useState(0); // 0: Upload, 1: Processing, 2: Review
 
     // Form states
     const [type, setType] = useState<'income' | 'expense'>('expense');
@@ -123,7 +121,7 @@ const CampaignFinance = () => {
                 <div style={{ display: 'flex', gap: '1rem' }} className="flex-col-mobile">
                     <button
                         className="btn-gold outline"
-                        onClick={() => setIsImportModalOpen(true)}
+                        onClick={() => alert('Módulo de importação automática de extratos disponível na versão PRO.')}
                         style={{ borderRadius: '14px' }}
                     >
                         <Upload size={18} /> Importar Extrato
