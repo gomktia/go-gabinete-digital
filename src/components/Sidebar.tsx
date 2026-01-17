@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import {
     LayoutDashboard, Map, FileText, Bot, Share2, DollarSign, Users,
-    Settings, LogOut, MessageSquare, ChevronLeft, ChevronRight, Menu, X, Calendar, Sun, Moon, User, Shield, Zap, Globe, Briefcase, ChevronDown
+    Settings, LogOut, MessageSquare, ChevronLeft, ChevronRight, Menu, X, Calendar, Sun, Moon, User, Shield, Zap, Globe, Briefcase, ChevronDown, List
 } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
 import { useTenant } from '../context/TenantContext';
@@ -47,7 +47,7 @@ const Sidebar = () => {
             items: [
                 { id: 'docs', label: 'Tramitação', icon: FileText, path: '/documents', roles: ['SUPER_ADMIN', 'VEREADOR', 'ASSESSOR'] },
                 { id: 'proposals', label: 'Proposições', icon: FileText, path: '/proposals', roles: ['SUPER_ADMIN', 'VEREADOR', 'ASSESSOR'] },
-                { id: 'demands', label: 'Demandas', icon: Map, path: '/demands', roles: ['SUPER_ADMIN', 'VEREADOR', 'ASSESSOR'] },
+                { id: 'demands', label: 'Demandas', icon: List, path: '/demands', roles: ['SUPER_ADMIN', 'VEREADOR', 'ASSESSOR'] },
             ]
         },
         {
@@ -68,6 +68,7 @@ const Sidebar = () => {
             icon: Bot,
             items: [
                 { id: 'ai-advisor', label: 'Estratégia IA', icon: Bot, path: '/advisor', roles: ['SUPER_ADMIN', 'VEREADOR', 'ASSESSOR'] },
+                { id: 'map', label: 'Mapa da Mina', icon: Map, path: '/map', roles: ['SUPER_ADMIN', 'VEREADOR', 'ASSESSOR'] },
             ]
         }
     ];
