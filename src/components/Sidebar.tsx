@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import {
     LayoutDashboard, Map, FileText, Bot, Share2, DollarSign, Users,
-    Settings, LogOut, MessageSquare, ChevronLeft, ChevronRight, Menu, X, Calendar, Sun, Moon, User, Shield, Zap, Globe, Briefcase, ChevronDown, List
+    Settings, LogOut, MessageSquare, ChevronLeft, ChevronRight, Menu, X, Calendar, Sun, Moon, User, Shield, Zap, Globe, Briefcase, ChevronDown, List, Radar
 } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
 import { useTenant } from '../context/TenantContext';
@@ -69,6 +69,7 @@ const Sidebar = () => {
             items: [
                 { id: 'ai-advisor', label: 'Estratégia IA', icon: Bot, path: '/advisor', roles: ['SUPER_ADMIN', 'VEREADOR', 'ASSESSOR'] },
                 { id: 'map', label: 'Mapa da Mina', icon: Map, path: '/map', roles: ['SUPER_ADMIN', 'VEREADOR', 'ASSESSOR'] },
+                { id: 'radar', label: 'Radar de Verbas', icon: Radar, path: '/radar', roles: ['SUPER_ADMIN', 'VEREADOR', 'ASSESSOR'] },
             ]
         }
     ];

@@ -22,6 +22,9 @@ import VoterCrm from './pages/VoterCrm';
 import TeamManagement from './pages/TeamManagement';
 import VoterMap from './pages/VoterMap';
 import VoteGenealogy from './pages/VoteGenealogy';
+import VerbasRadar from './pages/VerbasRadar';
+import SubscriptionPage from './pages/SubscriptionPage';
+import OnboardingSetup from './components/OnboardingSetup';
 import { TenantProvider, useTenant } from './context/TenantContext';
 
 function AppContent() {
@@ -132,13 +135,17 @@ function AppContent() {
           <Route path="/social-media" element={<SocialMediaPlanner />} />
           <Route path="/finance" element={<CampaignFinance />} />
           <Route path="/team" element={<TeamManagement />} />
+          <Route path="/radar" element={<VerbasRadar />} />
           <Route path="/voters" element={<VoterCrm />} />
           <Route path="/genealogy" element={<VoteGenealogy />} />
           <Route path="/map" element={<VoterMap />} />
           <Route path="/messages" element={<WhatsAppIntegration />} />
           <Route path="/settings" element={<SettingsPage />} />
           <Route path="/wa-config" element={<WhatsAppConfig />} />
+          <Route path="/wa-config" element={<WhatsAppConfig />} />
           <Route path="/super-admin" element={<SuperAdmin />} />
+          <Route path="/subscription" element={<SubscriptionPage />} />
+          <Route path="/setup" element={<OnboardingSetup />} />
           <Route path="*" element={<Navigate to="/" />} />
         </Routes>
       </main>

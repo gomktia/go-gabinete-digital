@@ -1,3 +1,4 @@
+
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
 
@@ -12,6 +13,9 @@ export interface TenantSettings {
     email: string;
     theme: 'light' | 'dark';
     role: 'SUPER_ADMIN' | 'VEREADOR' | 'ASSESSOR';
+    plan: 'free' | 'starter' | 'pro' | 'enterprise';
+    officeType: 'city_councilor' | 'mayor' | 'state_deputy' | 'governor' | 'federal_deputy' | 'senator';
+    partyName?: string;
     isLoggedIn: boolean;
     photoUrl?: string;
     userId?: string;
@@ -27,6 +31,7 @@ interface TenantContextType {
     login: (email: string, pass: string) => Promise<{ success: boolean; error?: string }>;
     signUp: (email: string, pass: string, fullName: string, role: string) => Promise<{ success: boolean; error?: string }>;
     logout: () => void;
+    checkAccess: (feature: 'docs' | 'ai' | 'radar' | 'genealogy' | 'map' | 'site_pro') => boolean;
 }
 
 const defaultSettings: TenantSettings = {
@@ -40,6 +45,9 @@ const defaultSettings: TenantSettings = {
     email: '',
     theme: 'dark', // Default dark
     role: 'VEREADOR',
+
+    plan: 'free',
+    officeType: 'city_councilor',
     isLoggedIn: false,
     photoUrl: undefined
 };
@@ -62,6 +70,31 @@ export const TenantProvider: React.FC<{ children: React.ReactNode }> = ({ childr
         }
         return true;
     });
+
+    // Helper to check Feature Flags based on Plan
+    const checkAccess = (feature: 'docs' | 'ai' | 'radar' | 'genealogy' | 'map' | 'site_pro') => {
+        const { plan } = tenant;
+
+        // Super Admin has access to everything for debugging
+        if (tenant.role === 'SUPER_ADMIN') return true;
+
+        switch (feature) {
+            case 'docs': // PDF Generation
+                return plan === 'starter' || plan === 'pro' || plan === 'enterprise';
+            case 'ai':   // Basic AI
+                return plan === 'starter' || plan === 'pro' || plan === 'enterprise';
+            case 'site_pro':
+                return plan === 'starter' || plan === 'pro' || plan === 'enterprise';
+            case 'genealogy':
+                return plan === 'pro' || plan === 'enterprise';
+            case 'radar': // Money features
+                return plan === 'pro' || plan === 'enterprise'; // Actually sticking to Elite/Enterprise for Radar
+            case 'map':
+                return plan === 'enterprise';
+            default:
+                return false;
+        }
+    };
 
     // Initial Session Check
     useEffect(() => {
@@ -136,6 +169,9 @@ export const TenantProvider: React.FC<{ children: React.ReactNode }> = ({ childr
                     name: tenantData.name || 'Gabinete Digital',
                     email: profileWithTenant.email || 'usuario@sistema.com',
                     role: (profileWithTenant.role?.toUpperCase() as any) || 'VEREADOR',
+                    plan: tenantData.plan || 'free',
+                    officeType: tenantData.office_type || 'city_councilor',
+                    partyName: tenantData.party_name,
                     isLoggedIn: true,
                     userId: userId,
                     primaryColor: tenantData.settings?.primaryColor || prev.primaryColor,
@@ -245,18 +281,6 @@ export const TenantProvider: React.FC<{ children: React.ReactNode }> = ({ childr
 
             // 2. Update Profile Data (Avatar)
             if (photoUrl) {
-                // If it's a data URL (new upload), we should ideally upload it properly in the component
-                // But if it's already a URL, we update the profile
-                // Note: The actual file upload logic should ideally be handled in the component or a separate helper,
-                // and here we just save the final URL. 
-                // For now, let's assume photoUrl is dealing with the 'avatar_url' column.
-                // If the user uploaded a blob locally, we rely on the component to have uploaded it first.
-                // However, the current SettingsPage logic puts a base64 string in photoUrl for preview.
-                // We should handle that base64 upload if possible, or expect the component to do it.
-                // Let's assume the component will handle the upload to storage and give us a public URL if it's a real file,
-                // or we might need to implement the upload here. 
-                // Given the context 'updateTenant' takes partial settings, let's just save valid URLs.
-
                 if (!photoUrl.startsWith('data:')) {
                     const { error: profileError } = await supabase
                         .from('profiles')
@@ -281,7 +305,7 @@ export const TenantProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     };
 
     return (
-        <TenantContext.Provider value={{ tenant, loading, updateTenant, toggleTheme, switchRole, login, signUp, logout, saveSettings }}>
+        <TenantContext.Provider value={{ tenant, loading, updateTenant, toggleTheme, switchRole, login, signUp, logout, saveSettings, checkAccess }}>
             {children}
         </TenantContext.Provider>
     );

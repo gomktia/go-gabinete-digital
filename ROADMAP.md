@@ -57,14 +57,22 @@ Este documento consolida as ideias e funcionalidades planejadas para transformar
 - Identificação visual de "Cabos Eleitorais" influentes.
 - Navegação recursiva por nós da rede.
 
+### 11. Radar de Verbas e Diário Oficial
+- **Status:** [Implementado v1] (`VerbasRadar.tsx`)
+- Monitoramento de editais, emendas e verbas estaduais/federais.
+- Filtros por tipo de oportunidade (Edital, Verba, Emenda).
+- Interface de busca rápida com alertas de "Novo".
+
+### 12. Módulo Financeiro Avançado (SaaS)
+- **Status:** [Implementado v1] (`SubscriptionPage.tsx` e `SuperAdmin.tsx`)
+- Estrutura multi-tenant com gerenciamento de planos (Free, Pro, Enterprise).
+- Página de assinatura para vereadores (Upgrade de plano).
+- Painel Super Admin para controle de receita e status dos clientes.
+- Preparado para integração com Gateways (Stripe, Asaas, Kiwify).
+
 ---
 
 ## 🚀 Próximos Passos (O que falta)
 
-### 1. Radar de Verbas e Diário Oficial
-**Objetivo:** Monitoramento automático de oportunidades de recursos.
-- Scraper de editais.
-
-### 2. Módulo Financeiro Avançado (SaaS)
-**Objetivo:** Vender o software para outros vereadores.
+_Roadmap inicial completo! O sistema está pronto para ser comercializado._
 
