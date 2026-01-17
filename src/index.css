@@ -397,6 +397,13 @@ textarea:focus {
     align-items: stretch;
     margin-bottom: 2rem;
   }
+
+  .flex-col-mobile {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 1.5rem !important;
+    height: auto !important;
+  }
 }
 
 @media (max-width: 768px) {

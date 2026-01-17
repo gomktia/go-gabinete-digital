@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import {
     Save, MessageCircle, RefreshCw,
-    Palette
+    Palette, Video, Image as ImageIcon, Newspaper, Plus, Trash2, ExternalLink
 } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { useTenant } from '../context/TenantContext';
@@ -15,7 +15,7 @@ const MandateSiteBuilder = () => {
     const [previewMode, setPreviewMode] = useState<'desktop' | 'mobile'>('desktop');
     const [activeTab, setActiveTab] = useState<'content' | 'style'>('content');
 
-    // Default configuration with Granular Control
+    // Default configuration with Full Features
     const defaultConfig = {
         meta: {
             title: `Vereador ${tenant.name || 'Nome'}`,
@@ -56,13 +56,41 @@ const MandateSiteBuilder = () => {
                 bgColor: '#f1f5f9',
                 textColor: '#1e293b'
             },
+            video: {
+                enabled: true,
+                title: 'Destaque da Semana',
+                url: 'https://www.youtube.com/embed/dQw4w9WgXcQ', // Default embed URL
+                bgColor: '#f1f5f9',
+                textColor: '#1e293b'
+            },
+            gallery: {
+                enabled: true,
+                title: 'Nossas Ações',
+                images: [
+                    'https://images.unsplash.com/photo-1577962917302-cd874c4e31d2?auto=format&fit=crop&q=80&w=800',
+                    'https://images.unsplash.com/photo-1555848962-6e79363ec58f?auto=format&fit=crop&q=80&w=800'
+                ],
+                bgColor: '#ffffff',
+                textColor: '#1e293b'
+            },
+            news: {
+                enabled: true,
+                title: 'Últimas Notícias',
+                posts: [
+                    { title: 'Aprovado Projeto de Lei 123', date: '12/10/2026', snippet: 'Grande vitória para a educação municipal.' },
+                    { title: 'Visita ao Bairro Centro', date: '05/10/2026', snippet: 'Ouvindo as demandas da população.' }
+                ],
+                bgColor: '#f8fafc',
+                textColor: '#1e293b'
+            },
             whatsapp: {
                 enabled: true,
                 title: 'Participe do Mandato',
                 description: 'Entre no nosso grupo exclusivo e receba atualizações.',
                 link: 'https://wa.me/',
                 bgColor: '#25D366',
-                textColor: '#ffffff'
+                textColor: '#ffffff',
+                showFloating: true
             }
         }
     };
@@ -84,8 +112,14 @@ const MandateSiteBuilder = () => {
         if (error || !data.site_config) {
             setSiteConfig(defaultConfig);
         } else {
-            // Merge deeper to avoid missing keys on legacy configs
-            setSiteConfig({ ...defaultConfig, ...data.site_config, sections: { ...defaultConfig.sections, ...data.site_config.sections } });
+            // Merge deeper to ensure new sections exist
+            const merged = { ...defaultConfig, ...data.site_config };
+            merged.sections = { ...defaultConfig.sections, ...data.site_config.sections };
+            // Ensure nested arrays exist
+            if (!merged.sections.news.posts) merged.sections.news.posts = defaultConfig.sections.news.posts;
+            if (!merged.sections.gallery.images) merged.sections.sections.gallery.images = defaultConfig.sections.gallery.images;
+
+            setSiteConfig(merged);
         }
         setIsLoading(false);
     };
@@ -103,6 +137,17 @@ const MandateSiteBuilder = () => {
             alert("Site atualizado com sucesso!");
         }
         setIsPublishing(false);
+    };
+
+    const addNewsPost = () => {
+        const newPost = { title: 'Nova Notícia', date: new Date().toLocaleDateString('pt-BR'), snippet: 'Resumo da notícia...' };
+        const updatedPosts = [...siteConfig.sections.news.posts, newPost];
+        setSiteConfig({ ...siteConfig, sections: { ...siteConfig.sections, news: { ...siteConfig.sections.news, posts: updatedPosts } } });
+    };
+
+    const removeNewsPost = (index: number) => {
+        const updatedPosts = siteConfig.sections.news.posts.filter((_: any, i: number) => i !== index);
+        setSiteConfig({ ...siteConfig, sections: { ...siteConfig.sections, news: { ...siteConfig.sections.news, posts: updatedPosts } } });
     };
 
     if (isLoading || !siteConfig) return <div className="flex-center p-5"><RefreshCw className="spin" /></div>;
@@ -202,7 +247,90 @@ const MandateSiteBuilder = () => {
                                 <textarea className="form-input" rows={4} value={siteConfig.sections.bio.content} onChange={e => setSiteConfig({ ...siteConfig, sections: { ...siteConfig.sections, bio: { ...siteConfig.sections.bio, content: e.target.value } } })} />
                                 <div style={{ marginTop: '1rem', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
                                     <ColorPicker label="Fundo" value={siteConfig.sections.bio.bgColor} onChange={(v: string) => setSiteConfig({ ...siteConfig, sections: { ...siteConfig.sections, bio: { ...siteConfig.sections.bio, bgColor: v } } })} />
-                                    <ColorPicker label="Texto" value={siteConfig.sections.bio.textColor} onChange={(v: string) => setSiteConfig({ ...siteConfig, sections: { ...siteConfig.sections, bio: { ...siteConfig.sections.bio, textColor: v } } })} />
+                                </div>
+                            </section>
+
+                            {/* Video Config */}
+                            <section style={{ padding: '1rem', border: '1px solid var(--border)', borderRadius: '12px' }}>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '1rem' }}>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                        <Video size={16} />
+                                        <h4 style={{ margin: 0, fontWeight: 800 }}>Vídeo</h4>
+                                    </div>
+                                    <input type="checkbox" checked={siteConfig.sections.video.enabled} onChange={e => setSiteConfig({ ...siteConfig, sections: { ...siteConfig.sections, video: { ...siteConfig.sections.video, enabled: e.target.checked } } })} />
+                                </div>
+                                <input className="form-input mb-2" placeholder="Título da Seção" value={siteConfig.sections.video.title} onChange={e => setSiteConfig({ ...siteConfig, sections: { ...siteConfig.sections, video: { ...siteConfig.sections.video, title: e.target.value } } })} />
+                                <input className="form-input" placeholder="Link Embed (YouTube/Vimeo)" value={siteConfig.sections.video.url} onChange={e => setSiteConfig({ ...siteConfig, sections: { ...siteConfig.sections, video: { ...siteConfig.sections.video, url: e.target.value } } })} />
+                                <div className="mt-2">
+                                    <ColorPicker label="Fundo" value={siteConfig.sections.video.bgColor} onChange={(v: string) => setSiteConfig({ ...siteConfig, sections: { ...siteConfig.sections, video: { ...siteConfig.sections.video, bgColor: v } } })} />
+                                </div>
+                            </section>
+
+                            {/* Gallery Config */}
+                            <section style={{ padding: '1rem', border: '1px solid var(--border)', borderRadius: '12px' }}>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '1rem' }}>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                        <ImageIcon size={16} />
+                                        <h4 style={{ margin: 0, fontWeight: 800 }}>Galeria de Fotos</h4>
+                                    </div>
+                                    <input type="checkbox" checked={siteConfig.sections.gallery.enabled} onChange={e => setSiteConfig({ ...siteConfig, sections: { ...siteConfig.sections, gallery: { ...siteConfig.sections, gallery: { ...siteConfig.sections.gallery, enabled: e.target.checked } } } })} />
+                                </div>
+                                <input className="form-input mb-2" placeholder="Título da Galeria" value={siteConfig.sections.gallery.title} onChange={e => setSiteConfig({ ...siteConfig, sections: { ...siteConfig.sections, gallery: { ...siteConfig.sections.gallery, title: e.target.value } } })} />
+                                <div className="mt-2">
+                                    <ColorPicker label="Fundo" value={siteConfig.sections.gallery.bgColor} onChange={(v: string) => setSiteConfig({ ...siteConfig, sections: { ...siteConfig.sections, gallery: { ...siteConfig.sections.gallery, bgColor: v } } })} />
+                                </div>
+                            </section>
+
+                            {/* News Config */}
+                            <section style={{ padding: '1rem', border: '1px solid var(--border)', borderRadius: '12px' }}>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '1rem' }}>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                        <Newspaper size={16} />
+                                        <h4 style={{ margin: 0, fontWeight: 800 }}>Notícias</h4>
+                                    </div>
+                                    <input type="checkbox" checked={siteConfig.sections.news.enabled} onChange={e => setSiteConfig({ ...siteConfig, sections: { ...siteConfig.sections, news: { ...siteConfig.sections.news, enabled: e.target.checked } } })} />
+                                </div>
+                                <input className="form-input mb-2" placeholder="Título da Seção de Notícias" value={siteConfig.sections.news.title} onChange={e => setSiteConfig({ ...siteConfig, sections: { ...siteConfig.sections, news: { ...siteConfig.sections.news, title: e.target.value } } })} />
+
+                                <div className="flex flex-col gap-2 mt-4">
+                                    <label className="text-xs font-bold opacity-70">POSTAGENS</label>
+                                    {siteConfig.sections.news.posts.map((post: any, index: number) => (
+                                        <div key={index} className="p-3 bg-white/5 border border-white/10 rounded-lg flex flex-col gap-2">
+                                            <input
+                                                className="form-input text-sm p-2"
+                                                value={post.title}
+                                                onChange={(e) => {
+                                                    const updated = [...siteConfig.sections.news.posts];
+                                                    updated[index].title = e.target.value;
+                                                    setSiteConfig({ ...siteConfig, sections: { ...siteConfig.sections, news: { ...siteConfig.sections.news, posts: updated } } });
+                                                }}
+                                                placeholder="Título da Notícia"
+                                            />
+                                            <textarea
+                                                className="form-input text-sm p-2"
+                                                value={post.snippet}
+                                                rows={2}
+                                                onChange={(e) => {
+                                                    const updated = [...siteConfig.sections.news.posts];
+                                                    updated[index].snippet = e.target.value;
+                                                    setSiteConfig({ ...siteConfig, sections: { ...siteConfig.sections, news: { ...siteConfig.sections.news, posts: updated } } });
+                                                }}
+                                                placeholder="Resumo..."
+                                            />
+                                            <div className="flex justify-end">
+                                                <button onClick={() => removeNewsPost(index)} className="text-red-400 text-xs flex items-center gap-1 hover:text-red-300">
+                                                    <Trash2 size={12} /> Remover
+                                                </button>
+                                            </div>
+                                        </div>
+                                    ))}
+                                    <button onClick={addNewsPost} className="btn-ghost text-sm w-full py-2 flex items-center justify-center gap-2 border-dashed border border-white/20">
+                                        <Plus size={14} /> Adicionar Postagem
+                                    </button>
+                                </div>
+
+                                <div className="mt-4">
+                                    <ColorPicker label="Fundo" value={siteConfig.sections.news.bgColor} onChange={(v: string) => setSiteConfig({ ...siteConfig, sections: { ...siteConfig.sections, news: { ...siteConfig.sections.news, bgColor: v } } })} />
                                 </div>
                             </section>
 
@@ -214,6 +342,17 @@ const MandateSiteBuilder = () => {
                                 </div>
                                 <input className="form-input mb-2" placeholder="Título" value={siteConfig.sections.whatsapp.title} onChange={e => setSiteConfig({ ...siteConfig, sections: { ...siteConfig.sections, whatsapp: { ...siteConfig.sections.whatsapp, title: e.target.value } } })} />
                                 <ColorPicker label="Cor do Banner" value={siteConfig.sections.whatsapp.bgColor} onChange={(v: string) => setSiteConfig({ ...siteConfig, sections: { ...siteConfig.sections, whatsapp: { ...siteConfig.sections.whatsapp, bgColor: v } } })} />
+
+                                <div className="mt-2 pt-2 border-t border-white/5">
+                                    <label style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.85rem', fontWeight: 600, cursor: 'pointer' }}>
+                                        <input
+                                            type="checkbox"
+                                            checked={siteConfig.sections.whatsapp.showFloating}
+                                            onChange={(e) => setSiteConfig({ ...siteConfig, sections: { ...siteConfig.sections, whatsapp: { ...siteConfig.sections.whatsapp, showFloating: e.target.checked } } })}
+                                        />
+                                        Mostrar Ícone Flutuante (Canto Inferior)
+                                    </label>
+                                </div>
                             </section>
                         </div>
                     )}
@@ -296,7 +435,7 @@ const MandateSiteBuilder = () => {
                         )}
 
                         <div style={{
-                            padding: previewMode === 'mobile' ? '2rem 1.5rem' : '3rem 4rem',
+                            padding: previewMode === 'mobile' ? '1.5rem' : '3rem 4rem',
                             display: 'flex',
                             flexDirection: 'column',
                             gap: '3rem' // BREATHING ROOM
@@ -317,6 +456,82 @@ const MandateSiteBuilder = () => {
                                     </div>
                                 ))}
                             </div>
+
+                            {/* VIDEO SECTION */}
+                            {siteConfig.sections.video.enabled && (
+                                <section style={{
+                                    background: siteConfig.sections.video.bgColor,
+                                    color: siteConfig.sections.video.textColor,
+                                    padding: '2rem',
+                                    borderRadius: '24px'
+                                }}>
+                                    <h2 style={{ fontSize: '2rem', fontWeight: 800, marginBottom: '1.5rem', textAlign: 'center', color: siteConfig.theme.secondary }}>{siteConfig.sections.video.title}</h2>
+                                    <div style={{ position: 'relative', paddingBottom: '56.25%', height: 0, overflow: 'hidden', borderRadius: '16px', background: '#000' }}>
+                                        <iframe
+                                            style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%' }}
+                                            src={siteConfig.sections.video.url}
+                                            title="YouTube video player"
+                                            frameBorder="0"
+                                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                            allowFullScreen
+                                        ></iframe>
+                                    </div>
+                                </section>
+                            )}
+
+                            {/* GALLERY SECTION (Carousel Simulation) */}
+                            {siteConfig.sections.gallery.enabled && (
+                                <section style={{
+                                    background: siteConfig.sections.gallery.bgColor,
+                                    color: siteConfig.sections.gallery.textColor,
+                                    padding: '2rem',
+                                    borderRadius: '24px'
+                                }}>
+                                    <h2 style={{ fontSize: '2rem', fontWeight: 800, marginBottom: '1.5rem', textAlign: 'center', color: siteConfig.theme.secondary }}>{siteConfig.sections.gallery.title}</h2>
+                                    <div style={{
+                                        display: 'flex',
+                                        gap: '1rem',
+                                        overflowX: 'auto',
+                                        paddingBottom: '1rem',
+                                        scrollbarWidth: 'none',
+                                    }}>
+                                        {siteConfig.sections.gallery.images.map((img: string, i: number) => (
+                                            <img key={i} src={img} style={{
+                                                height: '250px',
+                                                aspectRatio: '3/4',
+                                                borderRadius: '12px',
+                                                objectFit: 'cover',
+                                                flexShrink: 0,
+                                                boxShadow: '0 4px 6px rgba(0,0,0,0.1)'
+                                            }} />
+                                        ))}
+                                    </div>
+                                </section>
+                            )}
+
+                            {/* NEWS SECTION */}
+                            {siteConfig.sections.news.enabled && (
+                                <section style={{
+                                    background: siteConfig.sections.news.bgColor,
+                                    color: siteConfig.sections.news.textColor,
+                                    padding: '2rem',
+                                    borderRadius: '24px'
+                                }}>
+                                    <h2 style={{ fontSize: '2rem', fontWeight: 800, marginBottom: '1.5rem', textAlign: 'center', color: siteConfig.theme.primary }}>{siteConfig.sections.news.title}</h2>
+                                    <div style={{ display: 'grid', gridTemplateColumns: previewMode === 'mobile' ? '1fr' : 'repeat(auto-fit, minmax(250px, 1fr))', gap: '1.5rem' }}>
+                                        {siteConfig.sections.news.posts.map((post: any, i: number) => (
+                                            <div key={i} style={{ background: 'white', padding: '1.5rem', borderRadius: '16px', boxShadow: '0 4px 6px rgba(0,0,0,0.05)', borderLeft: `4px solid ${siteConfig.theme.secondary}` }}>
+                                                <span style={{ fontSize: '0.8rem', fontWeight: 700, color: '#94a3b8' }}>{post.date}</span>
+                                                <h3 style={{ margin: '0.5rem 0', fontSize: '1.2rem', fontWeight: 800, color: siteConfig.theme.primary }}>{post.title}</h3>
+                                                <p style={{ margin: 0, opacity: 0.8, fontSize: '0.95rem' }}>{post.snippet}</p>
+                                                <a href="#" style={{ display: 'inline-flex', alignItems: 'center', marginTop: '1rem', fontSize: '0.9rem', fontWeight: 700, color: siteConfig.theme.primary, textDecoration: 'none' }}>
+                                                    Ler mais <ExternalLink size={14} style={{ marginLeft: '4px' }} />
+                                                </a>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </section>
+                            )}
 
                             {/* BIO SECTION */}
                             {siteConfig.sections.bio.enabled && (
@@ -381,6 +596,27 @@ const MandateSiteBuilder = () => {
                                 © 2026 Gabinete Digital
                             </div>
                         </footer>
+
+                        {/* FLOATING WHATSAPP */}
+                        {siteConfig.sections.whatsapp.enabled && siteConfig.sections.whatsapp.showFloating && (
+                            <div style={{
+                                position: 'absolute',
+                                bottom: '20px',
+                                right: '20px',
+                                width: '60px',
+                                height: '60px',
+                                background: '#25D366',
+                                borderRadius: '50%',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                boxShadow: '0 4px 10px rgba(37, 211, 102, 0.4)',
+                                cursor: 'pointer',
+                                zIndex: 100
+                            }}>
+                                <MessageCircle color="white" size={32} />
+                            </div>
+                        )}
                     </div>
                 </div>
             </div>
