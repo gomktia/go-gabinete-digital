@@ -1,16 +1,16 @@
 
-import { motion, useScroll, useTransform } from 'framer-motion';
+import { motion, useScroll, useTransform, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import {
-    CheckCircle, Shield, Users, Building2,
+    CheckCircle, Users, Building2,
     ArrowRight, Map, Radar, Brain, DollarSign,
-    Target, LineChart, Globe, Layout, ChevronDown,
-    Lock, Star, Award
+    Target, Layout, Star, Menu, X
 } from 'lucide-react';
-import { useRef } from 'react';
+import { useRef, useState } from 'react';
 
 const LandingPage = () => {
     const navigate = useNavigate();
+    const [isMenuOpen, setIsMenuOpen] = useState(false);
     const targetRef = useRef(null);
     const { scrollYProgress } = useScroll({
         target: targetRef,
@@ -18,303 +18,351 @@ const LandingPage = () => {
     });
 
     const opacity = useTransform(scrollYProgress, [0, 0.5], [1, 0]);
-    const scale = useTransform(scrollYProgress, [0, 0.5], [1, 0.8]);
+    const scale = useTransform(scrollYProgress, [0, 0.5], [1, 0.95]);
 
     const features = [
         {
             icon: Users,
-            title: "CRM Estratégico de Eleitores",
-            desc: "Mais que uma lista de nomes, uma base de dados segmentada por bairro, interesse e nível de fidelidade. Saiba quem são seus líderes de opinião.",
-            page: "Controle de Votos"
+            title: "CRM Estratégico",
+            desc: "Base de dados segmentada por bairro, interesse e nível de fidelidade.",
         },
         {
             icon: Radar,
-            title: "Radar de Verbas Públicas",
-            desc: "Nosso motor de busca varre editais e diários oficiais em busca de recursos federais e estaduais para o seu município automaticamente.",
-            page: "Captação de Recursos"
+            title: "Radar de Verbas",
+            desc: "Motor de busca que varre editais em busca de recursos federais.",
         },
         {
             icon: Brain,
             title: "Assessoria por I.A.",
-            desc: "Redação de discursos, análise de tendências e criação de conteúdo para redes sociais treinado especificamente para o tom político.",
-            page: "Inteligência Artificial"
+            desc: "Redação de discursos e conteúdo político treinado especificamente.",
         },
         {
             icon: Map,
-            title: "Geolocalização de Apoios",
-            desc: "Visualize em um mapa de calor onde está sua força e onde você precisa intensificar sua presença. Tome decisões baseadas em mapas, não em achismo.",
-            page: "Cartografia Eleitoral"
+            title: "Mapa de Calor",
+            desc: "Visualize onde está sua força e onde precisa intensificar presença.",
         }
     ];
 
     const modules = [
         {
-            title: "Dashboard de Comando",
+            title: "Comando Central",
             icon: Layout,
-            details: "Visão 360º do mandato. Gráficos de desempenho, quociente eleitoral e alertas de urgência em uma única tela.",
+            details: "Visão 360º do mandato. Gráficos de desempenho e alertas de urgência.",
             color: "#d4af37"
         },
         {
-            title: "Gestão de Demandas",
+            title: "Demandas",
             icon: Target,
-            details: "Centralize pedidos de eleitores, ofícios e indicações. Rastreabilidade total para que nada 'caia no esquecimento'.",
+            details: "Centralize pedidos e indicações com rastreabilidade total.",
             color: "#3182ce"
         },
         {
-            title: "Financeiro Compliance",
+            title: "Financeiro",
             icon: DollarSign,
-            details: "Controle de gastos de campanha rigoroso com alertas de limites do TSE para evitar impugnações e problemas jurídicos.",
+            details: "Controle de gastos rigoroso com alertas de limites do TSE.",
             color: "#38a169"
         },
         {
-            title: "Genealogia do Voto",
+            title: "Genealogia",
             icon: Star,
-            details: "Mapeie quem indicou quem e entenda a ramificação do seu poder político e a eficiência de cada assessor em campo.",
+            details: "Entenda a ramificação do seu poder e a eficiência da sua equipe.",
             color: "#805ad5"
         }
     ];
 
     return (
-        <div style={{ background: '#020617', minHeight: '100vh', color: '#f8fafc', overflowX: 'hidden', fontFamily: "'Outfit', 'Inter', sans-serif" }}>
+        <div style={{ background: '#ffffff', minHeight: '100vh', color: '#1e293b', overflowX: 'hidden', fontFamily: "'Outfit', 'Inter', sans-serif" }}>
 
             <style>{`
                 @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap');
                 
+                :root {
+                    --primary: #0f172a;
+                    --secondary: #d4af37;
+                    --text: #1e293b;
+                    --text-light: #64748b;
+                    --surface: #f8fafc;
+                    --border: rgba(15, 23, 42, 0.08);
+                }
+
                 .glass-nav {
-                    background: rgba(2, 6, 23, 0.7);
+                    background: rgba(255, 255, 255, 0.8);
                     backdrop-filter: blur(20px);
-                    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+                    border-bottom: 1px solid var(--border);
                 }
 
                 .gold-text {
-                    background: linear-gradient(135deg, #fef08a 0%, #d4af37 50%, #854d0e 100%);
+                    background: linear-gradient(135deg, #b8860b 0%, #d4af37 50%, #854d0e 100%);
                     -webkit-background-clip: text;
                     -webkit-text-fill-color: transparent;
                 }
 
                 .hero-gradient {
-                    background: radial-gradient(circle at top right, rgba(212, 175, 55, 0.15) 0%, transparent 50%),
-                                radial-gradient(circle at bottom left, rgba(49, 130, 206, 0.1) 0%, transparent 50%);
+                    background: radial-gradient(circle at top right, rgba(212, 175, 55, 0.08) 0%, transparent 40%),
+                                radial-gradient(circle at bottom left, rgba(49, 130, 206, 0.05) 0%, transparent 40%);
                 }
 
                 .feature-card {
-                    background: rgba(255, 255, 255, 0.02);
-                    border: 1px solid rgba(255, 255, 255, 0.05);
-                    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+                    background: white;
+                    border: 1px solid var(--border);
+                    transition: all 0.3s ease;
                 }
 
                 .feature-card:hover {
-                    background: rgba(255, 255, 255, 0.05);
-                    border-color: rgba(212, 175, 55, 0.3);
-                    transform: translateY(-12px);
-                    box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+                    border-color: var(--secondary);
+                    transform: translateY(-8px);
+                    box-shadow: 0 20px 40px rgba(15, 23, 42, 0.05);
                 }
 
                 .gold-button {
-                    background: linear-gradient(135deg, #fef08a 0%, #d4af37 100%);
-                    color: #020617;
-                    box-shadow: 0 10px 20px rgba(212, 175, 55, 0.2);
+                    background: var(--primary);
+                    color: white;
                     transition: all 0.3s ease;
                 }
 
                 .gold-button:hover {
-                    transform: scale(1.05);
-                    box-shadow: 0 15px 30px rgba(212, 175, 55, 0.4);
+                    transform: translateY(-2px);
+                    background: #1e293b;
+                    box-shadow: 0 10px 20px rgba(15, 23, 42, 0.1);
                 }
 
-                .price-card.featured {
-                    background: linear-gradient(180deg, rgba(212, 175, 55, 0.1) 0%, rgba(2, 6, 23, 0.4) 100%);
-                    border: 2px solid #d4af37;
+                .nav-link {
+                    color: var(--text-light);
+                    font-weight: 600;
+                    text-decoration: none;
+                    font-size: 0.9rem;
+                    transition: color 0.2s;
                 }
 
-                .scroll-indicator {
-                    animation: bounce 2s infinite;
+                .nav-link:hover {
+                    color: var(--primary);
                 }
 
-                @keyframes bounce {
-                    0%, 20%, 50%, 80%, 100% {transform: translateY(0);}
-                    40% {transform: translateY(-10px);}
-                    60% {transform: translateY(-5px);}
+                @media (max-width: 768px) {
+                    .mobile-hide { display: none !important; }
+                    .mobile-show { display: flex !important; }
+                    .grid-mobile-1 { grid-template-columns: 1fr !important; }
+                    .hero-text { font-size: 2.8rem !important; }
+                    .section-padding { padding: 60px 20px !important; }
+                }
+
+                .mobile-menu {
+                    position: fixed;
+                    top: 0;
+                    left: 0;
+                    right: 0;
+                    bottom: 0;
+                    background: white;
+                    z-index: 2000;
+                    display: flex;
+                    flex-direction: column;
+                    padding: 40px;
+                    gap: 2rem;
                 }
             `}</style>
 
             {/* Navigation */}
-            <nav className="glass-nav" style={{ position: 'fixed', top: 0, left: 0, right: 0, zIndex: 1000, padding: '1rem 2rem' }}>
+            <nav className="glass-nav" style={{ position: 'fixed', top: 0, left: 0, right: 0, zIndex: 1000, padding: '0.8rem 1.5rem' }}>
                 <div style={{ maxWidth: '1200px', margin: '0 auto', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                         <div style={{
-                            width: '40px', height: '40px', background: 'var(--primary)',
-                            borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center'
+                            width: '36px', height: '36px', background: 'var(--primary)',
+                            borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center'
                         }}>
-                            <Building2 color="var(--secondary)" size={24} />
+                            <Building2 color="#d4af37" size={20} />
                         </div>
-                        <span style={{ fontWeight: 800, fontSize: '1.4rem', letterSpacing: '-1px' }}>
+                        <span style={{ fontWeight: 800, fontSize: '1.25rem', letterSpacing: '-0.5px', color: 'var(--primary)' }}>
                             Gabinete<span className="gold-text">Digital</span>
                         </span>
                     </div>
+
                     <div className="mobile-hide" style={{ display: 'flex', gap: '2rem', alignItems: 'center' }}>
-                        <a href="#solucao" style={{ color: '#94a3b8', fontWeight: 600, textDecoration: 'none', fontSize: '0.9rem' }}>Solução</a>
-                        <a href="#modulos" style={{ color: '#94a3b8', fontWeight: 600, textDecoration: 'none', fontSize: '0.9rem' }}>Módulos</a>
-                        <a href="#precos" style={{ color: '#94a3b8', fontWeight: 600, textDecoration: 'none', fontSize: '0.9rem' }}>Planos</a>
+                        <a href="#solucao" className="nav-link">Solução</a>
+                        <a href="#modulos" className="nav-link">Módulos</a>
+                        <a href="#precos" className="nav-link">Planos</a>
                         <button
                             onClick={() => navigate('/login')}
                             className="gold-button"
                             style={{
-                                padding: '0.6rem 1.5rem', borderRadius: '12px', border: 'none',
-                                fontWeight: 800, cursor: 'pointer', fontSize: '0.9rem'
+                                padding: '0.6rem 1.2rem', borderRadius: '10px', border: 'none',
+                                fontWeight: 700, cursor: 'pointer', fontSize: '0.85rem'
                             }}
                         >
-                            Área Restrita
+                            Área do Cliente
                         </button>
                     </div>
+
+                    <button
+                        className="mobile-show"
+                        style={{ display: 'none', background: 'none', border: 'none', color: 'var(--primary)', cursor: 'pointer' }}
+                        onClick={() => setIsMenuOpen(true)}
+                    >
+                        <Menu size={28} />
+                    </button>
                 </div>
             </nav>
 
+            {/* Mobile Menu */}
+            <AnimatePresence>
+                {isMenuOpen && (
+                    <motion.div
+                        className="mobile-menu"
+                        initial={{ x: '100%' }}
+                        animate={{ x: 0 }}
+                        exit={{ x: '100%' }}
+                        transition={{ type: 'spring', damping: 25, stiffness: 200 }}
+                    >
+                        <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+                            <button onClick={() => setIsMenuOpen(false)} style={{ background: 'none', border: 'none', color: 'var(--primary)' }}>
+                                <X size={32} />
+                            </button>
+                        </div>
+                        <a href="#solucao" onClick={() => setIsMenuOpen(false)} style={{ fontSize: '2rem', fontWeight: 800, textDecoration: 'none', color: 'var(--primary)' }}>Solução</a>
+                        <a href="#modulos" onClick={() => setIsMenuOpen(false)} style={{ fontSize: '2rem', fontWeight: 800, textDecoration: 'none', color: 'var(--primary)' }}>Módulos</a>
+                        <a href="#precos" onClick={() => setIsMenuOpen(false)} style={{ fontSize: '2rem', fontWeight: 800, textDecoration: 'none', color: 'var(--primary)' }}>Planos</a>
+                        <button
+                            onClick={() => navigate('/login')}
+                            className="gold-button"
+                            style={{ padding: '1.2rem', borderRadius: '14px', fontSize: '1.2rem', fontWeight: 800 }}
+                        >
+                            Entrar no Sistema
+                        </button>
+                    </motion.div>
+                )}
+            </AnimatePresence>
+
             {/* Hero Section */}
-            <section ref={targetRef} className="hero-gradient" style={{
-                padding: '160px 20px 100px',
-                position: 'relative',
-                overflow: 'hidden',
+            <section ref={targetRef} className="hero-gradient section-padding" style={{
+                padding: '140px 20px 80px',
                 textAlign: 'center'
             }}>
                 <motion.div style={{ opacity, scale }}>
-                    <div style={{ maxWidth: '900px', margin: '0 auto', position: 'relative', zIndex: 10 }}>
+                    <div style={{ maxWidth: '1000px', margin: '0 auto' }}>
                         <motion.span
-                            initial={{ opacity: 0, y: 20 }}
+                            initial={{ opacity: 0, y: 10 }}
                             animate={{ opacity: 1, y: 0 }}
                             style={{
                                 display: 'inline-block',
                                 marginBottom: '1.5rem',
-                                padding: '6px 16px',
+                                padding: '6px 14px',
                                 borderRadius: '30px',
-                                background: 'rgba(212, 175, 55, 0.1)',
+                                background: 'white',
                                 color: '#d4af37',
-                                fontSize: '0.8rem',
+                                fontSize: '0.75rem',
                                 fontWeight: 800,
-                                letterSpacing: '2px',
+                                letterSpacing: '1.5px',
                                 textTransform: 'uppercase',
-                                border: '1px solid rgba(212, 175, 55, 0.2)'
+                                border: '1px solid var(--border)',
+                                boxShadow: '0 4px 10px rgba(0,0,0,0.03)'
                             }}
                         >
-                            💎 O Futuro da Gestão Política
+                            🏛️ Líder em Inteligência Política
                         </motion.span>
 
-                        <h1 style={{
-                            fontSize: 'clamp(3rem, 7vw, 5.5rem)',
+                        <h1 className="hero-text" style={{
+                            fontSize: 'clamp(2.8rem, 8vw, 5rem)',
                             fontWeight: 800,
-                            lineHeight: 1,
-                            marginBottom: '2rem',
-                            letterSpacing: '-2px'
+                            lineHeight: 1.1,
+                            marginBottom: '1.5rem',
+                            letterSpacing: '-1.5px',
+                            color: 'var(--primary)'
                         }}>
-                            Não Apenas Gerencie.<br />
-                            <span className="gold-text">Domine o Jogo Político.</span>
+                            Governe com a Força da<br />
+                            <span className="gold-text">Tecnologia de Ponta.</span>
                         </h1>
 
                         <p style={{
-                            fontSize: 'clamp(1.2rem, 2.5vw, 1.5rem)',
-                            color: '#94a3b8',
+                            fontSize: 'clamp(1.1rem, 2vw, 1.4rem)',
+                            color: 'var(--text-light)',
                             lineHeight: 1.6,
-                            marginBottom: '3.5rem',
-                            maxWidth: '800px',
-                            margin: '0 auto 3.5rem'
+                            marginBottom: '3rem',
+                            maxWidth: '850px',
+                            margin: '0 auto 3rem'
                         }}>
-                            O ecossistema definitivo para transformar dados em votos, centralizar seu gabinete e captar recursos de forma estratégica.
+                            A plataforma definitiva para digitalizar seu gabinete, transformar apoiadores em votos fiéis e captar recursos de forma estratégica.
                         </p>
 
-                        <div style={{ display: 'flex', gap: '1.5rem', justifyContent: 'center', flexWrap: 'wrap' }}>
+                        <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center', flexWrap: 'wrap' }}>
                             <button
                                 onClick={() => navigate('/login')}
                                 className="gold-button"
                                 style={{
-                                    padding: '1.4rem 3rem', fontSize: '1.2rem', fontWeight: 800,
-                                    borderRadius: '18px', border: 'none', cursor: 'pointer',
-                                    display: 'flex', alignItems: 'center', gap: '12px'
+                                    padding: '1.2rem 2.8rem', fontSize: '1.1rem', fontWeight: 800,
+                                    borderRadius: '16px', border: 'none', cursor: 'pointer',
+                                    display: 'flex', alignItems: 'center', gap: '10px'
                                 }}
                             >
-                                Iniciar Transformação <ArrowRight size={22} />
+                                Começar Trial Grátis <ArrowRight size={20} />
                             </button>
                             <button
                                 onClick={() => document.getElementById('precos')?.scrollIntoView({ behavior: 'smooth' })}
                                 style={{
-                                    padding: '1.4rem 3rem', fontSize: '1.2rem', fontWeight: 800,
-                                    borderRadius: '18px', border: '1px solid rgba(255,255,255,0.1)',
-                                    background: 'rgba(255,255,255,0.03)', color: 'white', cursor: 'pointer',
-                                    backdropFilter: 'blur(10px)'
+                                    padding: '1.2rem 2.8rem', fontSize: '1.1rem', fontWeight: 800,
+                                    borderRadius: '16px', border: '1px solid var(--border)',
+                                    background: 'white', color: 'var(--primary)', cursor: 'pointer',
+                                    boxShadow: '0 10px 20px rgba(0,0,0,0.03)'
                                 }}
                             >
-                                Ver Demonstração
+                                Ver Planos
                             </button>
                         </div>
                     </div>
                 </motion.div>
 
-                {/* Dashboard Preview Overlay */}
+                {/* Simplified System Preview */}
                 <motion.div
-                    initial={{ opacity: 0, y: 100 }}
+                    initial={{ opacity: 0, y: 40 }}
                     animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.5, duration: 1 }}
+                    transition={{ delay: 0.3, duration: 0.8 }}
                     style={{
-                        marginTop: '80px',
-                        maxWidth: '1200px',
-                        margin: '80px auto 0',
-                        position: 'relative'
+                        marginTop: '60px',
+                        maxWidth: '1100px',
+                        margin: '60px auto 0',
+                        position: 'relative',
+                        padding: '0 10px'
                     }}
                 >
-                    <div style={{
-                        position: 'absolute', top: 0, left: 0, right: 0, bottom: 0,
-                        background: 'radial-gradient(ellipse at center, transparent 0%, #020617 100%)',
-                        zIndex: 5
-                    }}></div>
                     <img
-                        src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&q=80&w=1600"
-                        alt="Painel do Sistema"
+                        src="https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&q=80&w=1200"
+                        alt="Interface do Sistema"
                         style={{
                             width: '100%',
-                            borderRadius: '30px 30px 0 0',
-                            boxShadow: '0 -50px 100px rgba(212, 175, 55, 0.1)',
-                            border: '1px solid rgba(255, 255, 255, 0.05)',
+                            borderRadius: '20px',
+                            boxShadow: '0 40px 80px rgba(15, 23, 42, 0.08)',
+                            border: '1px solid var(--border)',
                             display: 'block'
                         }}
                     />
                 </motion.div>
-
-                <div className="scroll-indicator" style={{ marginTop: '50px', color: '#64748b' }}>
-                    <ChevronDown size={32} />
-                </div>
             </section>
 
-            {/* Why section */}
-            <section id="solucao" style={{ padding: '100px 20px', position: 'relative' }}>
+            {/* Features (Grid Responsive) */}
+            <section id="solucao" className="section-padding" style={{ padding: '100px 20px' }}>
                 <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
-                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '2rem' }}>
+                    <div className="grid-mobile-1" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '3rem', alignItems: 'center' }}>
                         <div>
-                            <h2 style={{ fontSize: '3rem', fontWeight: 800, marginBottom: '2rem', lineHeight: 1.1 }}>
-                                Planilhas não <br /> Elegem Ninguém.
+                            <h2 style={{ fontSize: 'clamp(2rem, 5vw, 2.5rem)', fontWeight: 800, marginBottom: '1.5rem', color: 'var(--primary)' }}>
+                                Gestão Profissional para Mandatos Modernos.
                             </h2>
-                            <p style={{ fontSize: '1.2rem', color: '#94a3b8', lineHeight: 1.7, marginBottom: '2rem' }}>
-                                A política moderna é feita de **dados**. O Gabinete Digital substitui o caos de papéis e planilhas por um cérebro digital que trabalha 24h por você.
+                            <p style={{ fontSize: '1.1rem', color: 'var(--text-light)', lineHeight: 1.7, marginBottom: '2rem' }}>
+                                O Gabinete Digital centraliza toda a operação em um único lugar, permitindo que você foque no que realmente importa: o eleitor.
                             </p>
-                            <ul style={{ listStyle: 'none', padding: 0, display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                                {[
-                                    "Centralização absoluta de informações",
-                                    "Blindagem jurídica contra erros de gastos",
-                                    "Aumento comprovado na velocidade de resposta ao eleitor",
-                                    "Captação proativa de recursos através da I.A."
-                                ].map((item, i) => (
-                                    <li key={i} style={{ display: 'flex', alignItems: 'center', gap: '12px', color: '#cbd5e1', fontWeight: 600 }}>
-                                        <CheckCircle size={20} color="#d4af37" /> {item}
-                                    </li>
-                                ))}
-                            </ul>
-                        </div>
-                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' }}>
-                            {features.map((f, i) => (
-                                <div key={i} className="feature-card" style={{ padding: '2rem', borderRadius: '24px' }}>
-                                    <div style={{ color: '#d4af37', marginBottom: '1.5rem' }}>
-                                        <f.icon size={32} />
+                            <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '1rem' }}>
+                                {["CRM Inteligente de Eleitores", "Controle de Demandas e Ofícios", "Radar de Emendas e Verbas", "Analytics de Reeleição"].map((item, i) => (
+                                    <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '10px', color: 'var(--primary)', fontWeight: 600 }}>
+                                        <CheckCircle size={18} color="#d4af37" /> {item}
                                     </div>
-                                    <h3 style={{ fontSize: '1.2rem', fontWeight: 800, marginBottom: '1rem' }}>{f.title}</h3>
-                                    <p style={{ fontSize: '0.9rem', color: '#94a3b8', lineHeight: 1.6 }}>{f.desc}</p>
+                                ))}
+                            </div>
+                        </div>
+                        <div className="grid-mobile-1" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                            {features.map((f, i) => (
+                                <div key={i} className="feature-card" style={{ padding: '1.8rem', borderRadius: '18px' }}>
+                                    <div style={{ color: '#d4af37', marginBottom: '1rem' }}>
+                                        <f.icon size={28} />
+                                    </div>
+                                    <h3 style={{ fontSize: '1.1rem', fontWeight: 800, marginBottom: '0.5rem', color: 'var(--primary)' }}>{f.title}</h3>
+                                    <p style={{ fontSize: '0.85rem', color: 'var(--text-light)', lineHeight: 1.5 }}>{f.desc}</p>
                                 </div>
                             ))}
                         </div>
@@ -322,173 +370,108 @@ const LandingPage = () => {
                 </div>
             </section>
 
-            {/* Module Showcase (Detailed System Explanation) */}
-            <section id="modulos" style={{ padding: '100px 20px', background: 'rgba(255,255,255,0.01)' }}>
+            {/* Modules (Grid Responsive) */}
+            <section id="modulos" className="section-padding" style={{ padding: '80px 20px', background: 'var(--surface)' }}>
                 <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
-                    <div style={{ textAlign: 'center', marginBottom: '5rem' }}>
-                        <h2 style={{ fontSize: '3.5rem', fontWeight: 800, marginBottom: '1.5rem' }}>Por dentro do Centro de Comando</h2>
-                        <p style={{ fontSize: '1.2rem', color: '#94a3b8', maxWidth: '700px', margin: '0 auto' }}>
-                            Cada ferramenta foi desenhada para uma dor específica da vida pública brasileira.
-                        </p>
+                    <div style={{ textAlign: 'center', marginBottom: '4rem' }}>
+                        <h2 style={{ fontSize: 'clamp(2rem, 5vw, 2.8rem)', fontWeight: 800, color: 'var(--primary)' }}>Centro de Comando Completo</h2>
                     </div>
 
-                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '2rem' }}>
+                    <div className="grid-mobile-1" style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '1.5rem' }}>
                         {modules.map((m, i) => (
                             <div key={i} style={{
-                                padding: '3rem 2rem',
-                                background: 'linear-gradient(135deg, rgba(255,255,255,0.03) 0%, rgba(255,255,255,0.005) 100%)',
-                                borderRadius: '30px',
-                                border: '1px solid rgba(255,255,255,0.05)',
-                                display: 'flex',
-                                flexDirection: 'column',
-                                alignItems: 'center',
+                                padding: '2.5rem 1.5rem',
+                                background: 'white',
+                                borderRadius: '24px',
+                                border: '1px solid var(--border)',
                                 textAlign: 'center'
                             }}>
                                 <div style={{
-                                    padding: '20px',
-                                    borderRadius: '20px',
-                                    background: `${m.color}15`,
-                                    color: m.color,
-                                    marginBottom: '2rem',
-                                    boxShadow: `0 10px 30px ${m.color}10`
+                                    width: '60px', height: '60px', borderRadius: '16px',
+                                    background: `${m.color}08`, color: m.color,
+                                    margin: '0 auto 1.5rem',
+                                    display: 'flex', alignItems: 'center', justifyContent: 'center'
                                 }}>
-                                    <m.icon size={40} />
+                                    <m.icon size={30} />
                                 </div>
-                                <h3 style={{ fontSize: '1.5rem', fontWeight: 800, marginBottom: '1rem' }}>{m.title}</h3>
-                                <p style={{ color: '#94a3b8', lineHeight: 1.7 }}>{m.details}</p>
+                                <h3 style={{ fontSize: '1.2rem', fontWeight: 800, marginBottom: '0.75rem', color: 'var(--primary)' }}>{m.title}</h3>
+                                <p style={{ fontSize: '0.9rem', color: 'var(--text-light)', lineHeight: 1.6 }}>{m.details}</p>
                             </div>
                         ))}
                     </div>
                 </div>
             </section>
 
-            {/* Pricing Section */}
-            <section id="precos" style={{ padding: '120px 20px' }}>
+            {/* Pricing (Grid Responsive) */}
+            <section id="precos" className="section-padding" style={{ padding: '100px 20px' }}>
                 <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
-                    <div style={{ textAlign: 'center', marginBottom: '5rem' }}>
-                        <h2 style={{ fontSize: '3.5rem', fontWeight: 800, marginBottom: '1.5rem' }}>Investimento Estratégico</h2>
-                        <p style={{ fontSize: '1.2rem', color: '#94a3b8' }}>Escolha o nível de blindagem e inteligência que seu gabinete exige.</p>
+                    <div style={{ textAlign: 'center', marginBottom: '4rem' }}>
+                        <h2 style={{ fontSize: 'clamp(2rem, 5vw, 2.8rem)', fontWeight: 800, color: 'var(--primary)' }}>Simples e Transparente</h2>
                     </div>
 
-                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '2rem', alignItems: 'flex-start' }}>
+                    <div className="grid-mobile-1" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '2rem', alignItems: 'flex-start' }}>
 
-                        {/* ESSENTIAL */}
-                        <div className="price-card" style={{ padding: '4rem 3rem', background: '#0f172a', borderRadius: '32px', border: '1px solid rgba(255,255,255,0.05)' }}>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '2rem' }}>
-                                <Award size={20} color="#64748b" />
-                                <span style={{ fontWeight: 800, color: '#64748b', letterSpacing: '2px' }}>ESSENCIAL</span>
+                        {/* BASIC */}
+                        <div style={{ padding: '3rem 2rem', background: 'white', borderRadius: '24px', border: '1px solid var(--border)' }}>
+                            <span style={{ fontWeight: 800, color: 'var(--text-light)', fontSize: '0.8rem', letterSpacing: '1px' }}>ESSENCIAL</span>
+                            <h4 style={{ fontSize: '2.8rem', fontWeight: 800, margin: '1rem 0' }}>R$ 197<span style={{ fontSize: '1rem', color: 'var(--text-light)' }}>/mês</span></h4>
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', marginBottom: '2.5rem' }}>
+                                <div style={{ display: 'flex', gap: '8px', fontSize: '0.9rem' }}><CheckCircle size={18} color="#d4af37" /> <span>Até 2.000 Contatos</span></div>
+                                <div style={{ display: 'flex', gap: '8px', fontSize: '0.9rem' }}><CheckCircle size={18} color="#d4af37" /> <span>2 Assessores</span></div>
+                                <div style={{ display: 'flex', gap: '8px', fontSize: '0.9rem', color: '#cbd5e1' }}><X size={18} /> <span>Sem I.A.</span></div>
                             </div>
-                            <h4 style={{ fontSize: '3.5rem', fontWeight: 800, marginBottom: '1rem' }}>R$ 197<span style={{ fontSize: '1.2rem', color: '#64748b' }}>/mês</span></h4>
-                            <p style={{ color: '#94a3b8', marginBottom: '3rem' }}>Ideal para vereadores em início de jornada ou cidades pequenas.</p>
-
-                            <div style={{ display: 'flex', flexDirection: 'column', gap: '1.2rem', marginBottom: '4rem' }}>
-                                <div style={{ display: 'flex', gap: '12px' }}><CheckCircle size={18} color="#d4af37" /> <span>Até 2.000 Contatos</span></div>
-                                <div style={{ display: 'flex', gap: '12px' }}><CheckCircle size={18} color="#d4af37" /> <span>2 Assessores</span></div>
-                                <div style={{ display: 'flex', gap: '12px' }}><CheckCircle size={18} color="#d4af37" /> <span>Gestão de Demandas</span></div>
-                                <div style={{ display: 'flex', gap: '12px', opacity: 0.3 }}><Lock size={18} /> <span>Sem Inteligência Artificial</span></div>
-                                <div style={{ display: 'flex', gap: '12px', opacity: 0.3 }}><Lock size={18} /> <span>Sem Radar de Verbas</span></div>
-                            </div>
-
-                            <button onClick={() => navigate('/login')} style={{ width: '100%', padding: '1.2rem', borderRadius: '16px', border: '1px solid rgba(255,255,255,0.1)', background: 'transparent', color: 'white', fontWeight: 800, cursor: 'pointer' }}>
-                                Começar Trial
-                            </button>
+                            <button onClick={() => navigate('/login')} style={{ width: '100%', padding: '1rem', borderRadius: '12px', border: '1px solid var(--border)', background: 'white', fontWeight: 700, cursor: 'pointer' }}>Assinar Essencial</button>
                         </div>
 
-                        {/* PROFESSIONAL */}
-                        <div className="price-card featured" style={{ padding: '5rem 3rem', background: '#020617', borderRadius: '32px', position: 'relative', transform: 'scale(1.05)', zIndex: 10 }}>
-                            <div style={{ position: 'absolute', top: '24px', right: '24px', background: '#d4af37', color: '#020617', padding: '6px 16px', borderRadius: '30px', fontSize: '0.7rem', fontWeight: 900 }}>RECOMENDADO</div>
-
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '2rem' }}>
-                                <Star size={20} color="#d4af37" />
-                                <span style={{ fontWeight: 800, color: '#d4af37', letterSpacing: '2px' }}>PROFISSIONAL</span>
+                        {/* PRO - FOCUS */}
+                        <div style={{
+                            padding: '3.5rem 2.5rem',
+                            background: 'var(--primary)',
+                            color: 'white',
+                            borderRadius: '24px',
+                            transform: 'scale(1.05)',
+                            boxShadow: '0 20px 40px rgba(15, 23, 42, 0.15)',
+                            position: 'relative'
+                        }}>
+                            <div style={{ position: 'absolute', top: '1.5rem', right: '1.5rem', background: '#d4af37', color: 'white', padding: '4px 10px', borderRadius: '20px', fontSize: '0.65rem', fontWeight: 800 }}>POPULAR</div>
+                            <span style={{ fontWeight: 800, color: '#94a3b8', fontSize: '0.8rem', letterSpacing: '1px' }}>PROFISSIONAL</span>
+                            <h4 style={{ fontSize: '3.2rem', fontWeight: 800, margin: '1rem 0' }}>R$ 497<span style={{ fontSize: '1rem', color: '#94a3b8' }}>/mês</span></h4>
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', marginBottom: '2.5rem' }}>
+                                <div style={{ display: 'flex', gap: '8px', fontSize: '0.9rem' }}><CheckCircle size={18} color="#d4af37" /> <span>Até 15.000 Contatos</span></div>
+                                <div style={{ display: 'flex', gap: '8px', fontSize: '0.9rem' }}><CheckCircle size={18} color="#d4af37" /> <span>10 Assessores</span></div>
+                                <div style={{ display: 'flex', gap: '8px', fontSize: '0.9rem' }}><CheckCircle size={18} color="#d4af37" /> <span>Assistente I.A.</span></div>
                             </div>
-                            <h4 style={{ fontSize: '4rem', fontWeight: 900, marginBottom: '1rem' }}>R$ 497<span style={{ fontSize: '1.2rem', color: '#94a3b8' }}>/mês</span></h4>
-                            <p style={{ color: '#94a3b8', marginBottom: '3rem' }}>Para quem precisa de alta produtividade e conteúdo com I.A.</p>
-
-                            <div style={{ display: 'flex', flexDirection: 'column', gap: '1.2rem', marginBottom: '4rem' }}>
-                                <div style={{ display: 'flex', gap: '12px' }}><CheckCircle size={18} color="#d4af37" /> <span>Até 15.000 Contatos</span></div>
-                                <div style={{ display: 'flex', gap: '12px' }}><CheckCircle size={18} color="#d4af37" /> <span>10 Assessores</span></div>
-                                <div style={{ display: 'flex', gap: '12px' }}><CheckCircle size={18} color="#d4af37" /> <span>I.A. Assistente Política</span></div>
-                                <div style={{ display: 'flex', gap: '12px' }}><CheckCircle size={18} color="#d4af37" /> <span>WhatsApp Integrado</span></div>
-                                <div style={{ display: 'flex', gap: '12px', opacity: 0.3 }}><Lock size={18} /> <span>Sem Radar de Verbas VIP</span></div>
-                            </div>
-
-                            <button onClick={() => navigate('/login')} className="gold-button" style={{ width: '100%', padding: '1.4rem', borderRadius: '16px', border: 'none', fontWeight: 900, cursor: 'pointer', fontSize: '1.1rem' }}>
-                                Assinar Agora
-                            </button>
+                            <button onClick={() => navigate('/login')} className="gold-button" style={{ width: '100%', padding: '1.2rem', borderRadius: '14px', border: 'none', background: '#d4af37', fontWeight: 800, cursor: 'pointer' }}>Assinar Profissional</button>
                         </div>
 
                         {/* ELITE */}
-                        <div className="price-card" style={{ padding: '4rem 3rem', background: '#0f172a', borderRadius: '32px', border: '1px solid rgba(255,255,255,0.05)' }}>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '2rem' }}>
-                                <Brain size={20} color="#38a169" />
-                                <span style={{ fontWeight: 800, color: '#38a169', letterSpacing: '2px' }}>POWER ELITE</span>
+                        <div style={{ padding: '3rem 2rem', background: 'white', borderRadius: '24px', border: '1px solid var(--border)' }}>
+                            <span style={{ fontWeight: 800, color: 'var(--text-light)', fontSize: '0.8rem', letterSpacing: '1px' }}>POWER ELITE</span>
+                            <h4 style={{ fontSize: '2.8rem', fontWeight: 800, margin: '1rem 0' }}>R$ 997<span style={{ fontSize: '1rem', color: 'var(--text-light)' }}>/mês</span></h4>
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', marginBottom: '2.5rem' }}>
+                                <div style={{ display: 'flex', gap: '8px', fontSize: '0.9rem' }}><CheckCircle size={18} color="#d4af37" /> <span>Contatos Ilimitados</span></div>
+                                <div style={{ display: 'flex', gap: '8px', fontSize: '0.9rem' }}><CheckCircle size={18} color="#d4af37" /> <span>Radar de Verbas VIP</span></div>
+                                <div style={{ display: 'flex', gap: '8px', fontSize: '0.9rem' }}><CheckCircle size={18} color="#d4af37" /> <span>BI de Reeleição</span></div>
                             </div>
-                            <h4 style={{ fontSize: '3.5rem', fontWeight: 800, marginBottom: '1rem' }}>R$ 997<span style={{ fontSize: '1.2rem', color: '#64748b' }}>/mês</span></h4>
-                            <p style={{ color: '#94a3b8', marginBottom: '3rem' }}>A arma definitiva. Monitoramento de verbas e BI avançado.</p>
-
-                            <div style={{ display: 'flex', flexDirection: 'column', gap: '1.2rem', marginBottom: '4rem' }}>
-                                <div style={{ display: 'flex', gap: '12px' }}><CheckCircle size={18} color="#38a169" /> <span>Contatos ILIMITADOS</span></div>
-                                <div style={{ display: 'flex', gap: '12px' }}><CheckCircle size={18} color="#38a169" /> <span>Radar de Verbas VIP</span></div>
-                                <div style={{ display: 'flex', gap: '12px' }}><CheckCircle size={18} color="#38a169" /> <span>BI de Reeleição</span></div>
-                                <div style={{ display: 'flex', gap: '12px' }}><CheckCircle size={18} color="#38a169" /> <span>Mapa de Calor GIS</span></div>
-                                <div style={{ display: 'flex', gap: '12px' }}><CheckCircle size={18} color="#38a169" /> <span>Suporte 24h Prioritário</span></div>
-                            </div>
-
-                            <button onClick={() => navigate('/login')} style={{ width: '100%', padding: '1.2rem', borderRadius: '16px', border: '1px solid rgba(56, 161, 105, 0.3)', background: 'rgba(56, 161, 105, 0.05)', color: 'white', fontWeight: 800, cursor: 'pointer' }}>
-                                Falar com Diretor
-                            </button>
+                            <button onClick={() => navigate('/login')} style={{ width: '100%', padding: '1rem', borderRadius: '12px', border: '1px solid var(--border)', background: 'white', fontWeight: 700, cursor: 'pointer' }}>Assinar Elite</button>
                         </div>
 
                     </div>
                 </div>
             </section>
 
-            {/* Trusted by Section */}
-            <section style={{ padding: '80px 20px', textAlign: 'center', opacity: 0.6 }}>
-                <p style={{ letterSpacing: '3px', fontWeight: 800, fontSize: '0.8rem', color: '#64748b', marginBottom: '3rem' }}>DOMÍNIO TECNOLÓGICO EM TODAS AS ESFERAS</p>
-                <div style={{ display: 'flex', justifyContent: 'center', gap: '4rem', flexWrap: 'wrap', filter: 'grayscale(100%)' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '1.2rem', fontWeight: 700 }}><Building2 size={24} /> Câmaras Municipais</div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '1.2rem', fontWeight: 700 }}><Globe size={24} /> Assembleias Legislativas</div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '1.2rem', fontWeight: 700 }}><Shield size={24} /> Prefeituras Ativas</div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '1.2rem', fontWeight: 700 }}><LineChart size={24} /> Campanhas Estratégicas</div>
-                </div>
-            </section>
-
-            {/* Footer CTA */}
-            <section style={{
-                padding: '120px 20px',
-                background: 'linear-gradient(to top, rgba(212, 175, 55, 0.1) 0%, transparent 100%)',
-                textAlign: 'center'
-            }}>
+            <footer style={{ padding: '4rem 20px', background: 'var(--primary)', color: 'white', textAlign: 'center' }}>
                 <div style={{ maxWidth: '800px', margin: '0 auto' }}>
-                    <h2 style={{ fontSize: '3.5rem', fontWeight: 800, marginBottom: '2rem' }}>O momento da reeleição começa agora.</h2>
-                    <p style={{ fontSize: '1.3rem', color: '#94a3b8', marginBottom: '3.5rem' }}>
-                        Não deixe sua carreira política ao acaso. Entre para a elite da tecnologia pública brasileira.
-                    </p>
+                    <h2 style={{ fontSize: '2.2rem', fontWeight: 800, marginBottom: '2rem' }}>O momento da sua vitória começa aqui.</h2>
                     <button
                         onClick={() => navigate('/login')}
-                        className="gold-button"
-                        style={{ padding: '1.6rem 4rem', fontSize: '1.4rem', fontWeight: 900, borderRadius: '20px', border: 'none', cursor: 'pointer' }}
+                        style={{ padding: '1.4rem 3.5rem', fontSize: '1.2rem', fontWeight: 800, borderRadius: '16px', background: 'white', color: 'var(--primary)', border: 'none', cursor: 'pointer' }}
                     >
                         Criar Conta do Mandato
                     </button>
-                    <div style={{ marginTop: '2rem', display: 'flex', justifyContent: 'center', gap: '2rem', color: '#64748b', fontWeight: 600 }}>
-                        <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><CheckCircle size={16} /> Trial de 7 dias grátis</span>
-                        <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><CheckCircle size={16} /> Sem contrato de fidelidade</span>
-                    </div>
-                </div>
-            </section>
-
-            <footer style={{ padding: '4rem 2rem', borderTop: '1px solid rgba(255,255,255,0.05)', textAlign: 'center', color: '#475569' }}>
-                <div style={{ marginBottom: '2rem', opacity: 0.5 }}>
-                    <span style={{ fontWeight: 800, fontSize: '1.2rem' }}>Gabinete Digital</span>
-                </div>
-                <p>&copy; 2026 Inteligência Política LTDA. Tecnologia aplicada ao setor público.</p>
-                <div style={{ display: 'flex', justifyContent: 'center', gap: '2rem', marginTop: '1.5rem', fontSize: '0.8rem' }}>
-                    <a href="#" style={{ color: 'inherit', textDecoration: 'none' }}>Termos de Uso</a>
-                    <a href="#" style={{ color: 'inherit', textDecoration: 'none' }}>LGPD Compliance</a>
-                    <a href="#" style={{ color: 'inherit', textDecoration: 'none' }}>Suporte</a>
+                    <p style={{ marginTop: '3rem', opacity: 0.5, fontSize: '0.8rem' }}>
+                        &copy; 2026 Gabinete Digital Inteligência Política. Todos os direitos reservados.
+                    </p>
                 </div>
             </footer>
         </div>
