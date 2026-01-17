@@ -103,21 +103,23 @@ const MandateSiteBuilder = () => {
 
     const fetchConfig = async () => {
         setIsLoading(true);
+        // Fetch from 'settings' column instead of 'site_config' column to avoid 400 error if migration missing
         const { data, error } = await supabase
             .from('tenants')
-            .select('site_config')
+            .select('settings')
             .eq('id', tenant.id)
             .single();
 
-        if (error || !data.site_config) {
+        if (error || !data?.settings?.site_config) {
             setSiteConfig(defaultConfig);
         } else {
+            const loadedConfig = data.settings.site_config;
             // Merge deeper to ensure new sections exist
-            const merged = { ...defaultConfig, ...data.site_config };
-            merged.sections = { ...defaultConfig.sections, ...data.site_config.sections };
+            const merged = { ...defaultConfig, ...loadedConfig };
+            merged.sections = { ...defaultConfig.sections, ...loadedConfig.sections };
             // Ensure nested arrays exist
-            if (!merged.sections.news.posts) merged.sections.news.posts = defaultConfig.sections.news.posts;
-            if (!merged.sections.gallery.images) merged.sections.sections.gallery.images = defaultConfig.sections.gallery.images;
+            if (!merged.sections.news?.posts) merged.sections.news.posts = defaultConfig.sections.news.posts;
+            if (!merged.sections.gallery?.images) merged.sections.gallery.images = defaultConfig.sections.gallery.images;
 
             setSiteConfig(merged);
         }
@@ -126,15 +128,32 @@ const MandateSiteBuilder = () => {
 
     const handlePublish = async () => {
         setIsPublishing(true);
-        const { error } = await supabase
-            .from('tenants')
-            .update({ site_config: siteConfig })
-            .eq('id', tenant.id);
+        try {
+            // First fetch latest settings to preserve other keys (like primaryColor, plan, etc)
+            const { data: current, error: fetchError } = await supabase
+                .from('tenants')
+                .select('settings')
+                .eq('id', tenant.id)
+                .single();
 
-        if (error) {
-            alert('Erro ao publicar site');
-        } else {
+            if (fetchError) throw fetchError;
+
+            const newSettings = {
+                ...(current?.settings || {}),
+                site_config: siteConfig
+            };
+
+            const { error: updateError } = await supabase
+                .from('tenants')
+                .update({ settings: newSettings })
+                .eq('id', tenant.id);
+
+            if (updateError) throw updateError;
+
             alert("Site atualizado com sucesso!");
+        } catch (error) {
+            console.error(error);
+            alert('Erro ao publicar site. Tente novamente.');
         }
         setIsPublishing(false);
     };
