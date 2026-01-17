@@ -44,7 +44,7 @@ const VirtualAdvisor = () => {
         {
             category: 'Infraestrutura',
             title: 'Iluminação LED na Avenida Principal',
-            reason: ' cruzamento de dados de segurança e reclamações de moradores aponta falta de luz como fator crítico.',
+            reason: 'O cruzamento de dados de segurança e reclamações de moradores aponta falta de luz como fator crítico.',
             impact: 'Redução de 15% nas reclamações de segurança',
             complexity: 'Baixa'
         }
@@ -73,6 +73,17 @@ const VirtualAdvisor = () => {
                     <p style={{ color: 'var(--text-light)', fontSize: '1.1rem', fontWeight: 500 }}>
                         Inteligência Artificial analisando tendências e sugerindo as melhores jogadas políticas.
                     </p>
+                </div>
+                <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
+                    <button
+                        className="btn-gold outline"
+                        style={{ borderRadius: '14px', padding: '12px 20px', display: 'flex', alignItems: 'center', gap: '8px' }}
+                        onClick={() => {
+                            alert("IA está processando o Relatório Estratégico Mensal...\n\nSincronizando dados de voters, demands e redes sociais para gerar insights de campanha.");
+                        }}
+                    >
+                        <TrendingUp size={18} /> Relatório de Estratégia
+                    </button>
                 </div>
             </header>
 
@@ -186,25 +197,29 @@ const VirtualAdvisor = () => {
 
             <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title="Análise Profunda de Viabilidade">
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
-                    <div className="glass-card" style={{ background: 'rgba(15,23,42,0.02)', border: '1px dashed var(--border)' }}>
-                        <h4 style={{ marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '8px' }}><Bot size={18} className="text-gold" /> Conclusão do Agente IA</h4>
-                        <p style={{ fontSize: '0.95rem', lineHeight: 1.6 }}>"Este projeto tem alta probabilidade de conversão de apoio neutro em votos consolidados se anunciado via tráfego pago geolocalizado nos bairros afetados."</p>
-                    </div>
+                    {selectedRec && (
+                        <>
+                            <div className="glass-card" style={{ background: 'rgba(15,23,42,0.02)', border: '1px dashed var(--border)' }}>
+                                <h4 style={{ marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '8px' }}><Bot size={18} className="text-gold" /> Conclusão do Agente IA</h4>
+                                <p style={{ fontSize: '0.95rem', lineHeight: 1.6 }}>"Este projeto tem alta probabilidade de conversão de apoio neutro em votos consolidados se anunciado via tráfego pago geolocalizado nos bairros afetados."</p>
+                            </div>
 
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' }}>
-                        <div>
-                            <p style={{ margin: 0, fontSize: '0.75rem', fontWeight: 800, opacity: 0.6 }}>CUSTO POLÍTICO</p>
-                            <h4 style={{ margin: '5px 0 0 0', color: '#38a169' }}>Extremamente Baixo</h4>
-                        </div>
-                        <div>
-                            <p style={{ margin: 0, fontSize: '0.75rem', fontWeight: 800, opacity: 0.6 }}>TEMPO EXECUÇÃO</p>
-                            <h4 style={{ margin: '5px 0 0 0', color: 'var(--secondary)' }}>Imediata (Indicação)</h4>
-                        </div>
-                    </div>
+                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' }}>
+                                <div>
+                                    <p style={{ margin: 0, fontSize: '0.75rem', fontWeight: 800, opacity: 0.6 }}>CUSTO POLÍTICO</p>
+                                    <h4 style={{ margin: '5px 0 0 0', color: '#38a169' }}>Extremamente Baixo</h4>
+                                </div>
+                                <div>
+                                    <p style={{ margin: 0, fontSize: '0.75rem', fontWeight: 800, opacity: 0.6 }}>TEMPO EXECUÇÃO</p>
+                                    <h4 style={{ margin: '5px 0 0 0', color: 'var(--secondary)' }}>Imediata (Indicação)</h4>
+                                </div>
+                            </div>
 
-                    <button className="btn-gold" style={{ padding: '18px', borderRadius: '16px', fontWeight: 800 }}>
-                        Converter em Projeto / Indicação
-                    </button>
+                            <button className="btn-gold" style={{ padding: '18px', borderRadius: '16px', fontWeight: 800 }} onClick={() => setIsModalOpen(false)}>
+                                Converter em Projeto / Indicação
+                            </button>
+                        </>
+                    )}
                 </div>
             </Modal>
         </motion.div>

@@ -1,6 +1,6 @@
-import { MapPin, Filter, Search, Clock, CheckCircle, AlertTriangle, List, Map as MapIcon, ChevronRight, Camera, User, Plus, Loader2, Mic } from 'lucide-react';
+import { MapPin, Filter, Search, Clock, CheckCircle, AlertTriangle, List, Map as MapIcon, ChevronRight, Camera, User, Plus, Loader2, Mic, Sparkles, FileText, Download, Printer } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Drawer, Modal } from '../components/UIComponents';
 import { supabase } from '../lib/supabase';
 import { useTenant } from '../context/TenantContext';
@@ -101,8 +101,45 @@ const DemandsPage = () => {
         }
     };
 
+    const [isNewDemandModalOpen, setIsNewDemandModalOpen] = useState(false);
+    const [newDemandTitle, setNewDemandTitle] = useState('');
+    const [newDemandLocal, setNewDemandLocal] = useState('');
+    const [newDemandCategory, setNewDemandCategory] = useState('Infraestrutura');
+    const [isRecording, setIsRecording] = useState(false);
+    const [isProcessingIA, setIsProcessingIA] = useState(false);
+    const [isDocModalOpen, setIsDocModalOpen] = useState(false);
+    const docRef = useRef<HTMLDivElement>(null);
+
     const handleCreateIndication = () => {
-        alert("Criando Minuta de Indicação...\n\nO sistema irá gerar um documento oficial baseado nos dados desta demanda.");
+        setIsDocModalOpen(true);
+    };
+
+    const handlePrintDoc = () => {
+        const content = docRef.current;
+        if (!content) return;
+
+        const printWindow = window.open('', '_blank');
+        if (!printWindow) return;
+
+        printWindow.document.write(`
+            <html>
+                <head>
+                    <title>Ofício - ${selectedDemand?.title}</title>
+                    <style>
+                        body { font-family: 'Times New Roman', serif; padding: 40px; line-height: 1.6; }
+                        .header { text-align: center; border-bottom: 2px solid black; padding-bottom: 20px; margin-bottom: 30px; }
+                        .content { text-align: justify; }
+                        .footer { margin-top: 100px; text-align: center; }
+                        .signature { border-top: 1px solid black; display: inline-block; padding: 10px 40px; margin-top: 20px; }
+                    </style>
+                </head>
+                <body>
+                    ${content.innerHTML}
+                </body>
+            </html>
+        `);
+        printWindow.document.close();
+        printWindow.print();
     };
 
     const handleRegisterVisit = async (visitData: any) => {
@@ -137,13 +174,34 @@ const DemandsPage = () => {
         }
     };
 
-    const [isNewDemandModalOpen, setIsNewDemandModalOpen] = useState(false);
-    const [newDemandTitle, setNewDemandTitle] = useState('');
-    const [newDemandLocal, setNewDemandLocal] = useState('');
-    const [newDemandCategory, setNewDemandCategory] = useState('Infraestrutura');
-    const [isRecording, setIsRecording] = useState(false);
+    const simulateIAExtraction = (text: string) => {
+        setIsProcessingIA(true);
+        // Simulate LLM processing delay
+        setTimeout(() => {
+            const lowerText = text.toLowerCase();
+
+            // Basic extraction logic (Mocking a real NLP)
+            let category = 'Infraestrutura';
+            if (lowerText.includes('saúde') || lowerText.includes('médico') || lowerText.includes('ubs')) category = 'Saúde';
+            else if (lowerText.includes('escola') || lowerText.includes('ensino')) category = 'Educação';
+            else if (lowerText.includes('luz') || lowerText.includes('iluminação')) category = 'Iluminação Pública';
+            else if (lowerText.includes('esgoto') || lowerText.includes('cheiro')) category = 'Saneamento';
+
+            setNewDemandTitle(text.charAt(0).toUpperCase() + text.slice(1));
+            setNewDemandCategory(category);
+
+            // Extract location pattern (e.g., "no bairro X" or "na rua Y")
+            const locationMatch = text.match(/(?:no bairro|na rua|em|perto de)\s+([a-zA-Z\s]+)/i);
+            if (locationMatch) {
+                setNewDemandLocal(locationMatch[1].trim());
+            }
+
+            setIsProcessingIA(false);
+        }, 1500);
+    };
 
     const handleCreateDemand = async (e: React.FormEvent) => {
+        // ... (existing handleCreateDemand logic remains same or will be called from form)
         e.preventDefault();
 
         if (!tenant.id) {
@@ -466,82 +524,92 @@ const DemandsPage = () => {
             </AnimatePresence>
 
             {/* Quick Create Demand Modal */}
-            <Modal isOpen={isNewDemandModalOpen} onClose={() => setIsNewDemandModalOpen(false)} title="Nova Demanda">
+            <Modal isOpen={isNewDemandModalOpen} onClose={() => setIsNewDemandModalOpen(false)} title="Nova Demanda Eleitoral">
                 <form onSubmit={handleCreateDemand} style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', padding: '1rem 0.5rem' }}>
 
-                    {/* Voice Input Section - Nova Versão Premium */}
+                    {/* AI Voice Input - Zap do Mandato Roadmap Implementation */}
                     <div style={{
                         background: 'linear-gradient(135deg, var(--primary) 0%, var(--primary-accent) 100%)',
-                        padding: '1.5rem',
-                        borderRadius: '20px',
+                        padding: '2rem',
+                        borderRadius: '24px',
                         color: 'white',
                         display: 'flex',
                         flexDirection: 'column',
                         alignItems: 'center',
-                        gap: '1rem',
-                        marginBottom: '0.5rem',
-                        boxShadow: '0 10px 20px rgba(15,23,42,0.15)',
+                        gap: '1.5rem',
+                        boxShadow: '0 12px 24px rgba(15,23,42,0.2)',
                         position: 'relative',
                         overflow: 'hidden'
                     }}>
-                        <div style={{ position: 'absolute', right: '-5%', top: '-5%', width: '100px', height: '100px', background: 'white', opacity: 0.1, borderRadius: '50%' }}></div>
+                        <div style={{ position: 'absolute', top: '-20%', right: '-10%', width: '150px', height: '150px', background: 'var(--secondary)', opacity: 0.1, filter: 'blur(30px)', borderRadius: '50%' }}></div>
 
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.85rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em', opacity: 0.9 }}>
-                            <Mic size={16} />
-                            <span>Modo "Voz do Cidadão"</span>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                            <Sparkles size={18} className="text-gold" />
+                            <span style={{ fontSize: '0.75rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.1em' }}>Agente de Captura IA</span>
                         </div>
-                        <button
-                            type="button"
-                            onClick={() => {
-                                if (!('webkitSpeechRecognition' in window)) {
-                                    alert('Seu navegador não suporta reconhecimento de voz. Tente usar o Chrome.');
-                                    return;
-                                }
 
-                                const recognition = new (window as any).webkitSpeechRecognition();
-                                recognition.lang = 'pt-BR';
-                                recognition.start();
+                        {isProcessingIA ? (
+                            <div style={{ height: '70px', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                                {[1, 2, 3, 4, 5].map(i => (
+                                    <motion.div
+                                        key={i}
+                                        animate={{ height: [15, 40, 15] }}
+                                        transition={{ repeat: Infinity, duration: 0.6, delay: i * 0.1 }}
+                                        style={{ width: '6px', background: 'var(--secondary)', borderRadius: '10px' }}
+                                    />
+                                ))}
+                            </div>
+                        ) : (
+                            <motion.button
+                                type="button"
+                                whileHover={{ scale: 1.05 }}
+                                whileTap={{ scale: 0.95 }}
+                                onClick={() => {
+                                    if (!('webkitSpeechRecognition' in window)) {
+                                        alert('Navegador incompatível.');
+                                        return;
+                                    }
+                                    const recognition = new (window as any).webkitSpeechRecognition();
+                                    recognition.lang = 'pt-BR';
+                                    recognition.start();
+                                    setIsRecording(true);
 
-                                setIsRecording(true);
+                                    recognition.onresult = (event: any) => {
+                                        const transcript = event.results[0][0].transcript;
+                                        simulateIAExtraction(transcript);
+                                        setIsRecording(false);
+                                    };
+                                    recognition.onend = () => setIsRecording(false);
+                                }}
+                                style={{
+                                    width: '80px',
+                                    height: '80px',
+                                    borderRadius: '50%',
+                                    background: isRecording ? '#e53e3e' : 'white',
+                                    color: isRecording ? 'white' : 'var(--primary)',
+                                    border: 'none',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    cursor: 'pointer',
+                                    boxShadow: isRecording ? '0 0 30px rgba(229,62,62,0.4)' : '0 10px 20px rgba(0,0,0,0.2)'
+                                }}
+                            >
+                                {isRecording ? (
+                                    <motion.div
+                                        animate={{ scale: [1, 1.2, 1] }}
+                                        transition={{ repeat: Infinity, duration: 1 }}
+                                        style={{ width: '20px', height: '20px', background: 'white', borderRadius: '4px' }}
+                                    />
+                                ) : <Mic size={36} />}
+                            </motion.button>
+                        )}
 
-                                recognition.onresult = (event: any) => {
-                                    const transcript = event.results[0][0].transcript;
-                                    setNewDemandTitle(transcript);
-                                    setIsRecording(false);
-                                };
-
-                                recognition.onerror = (event: any) => {
-                                    console.error("Speech recognition error", event.error);
-                                    setIsRecording(false);
-                                    alert('Erro ao ouvir áudio. Tente novamente.');
-                                };
-
-                                recognition.onend = () => {
-                                    setIsRecording(false);
-                                };
-                            }}
-                            style={{
-                                width: '70px',
-                                height: '70px',
-                                borderRadius: '24px',
-                                background: isRecording ? '#e53e3e' : 'white',
-                                color: isRecording ? 'white' : 'var(--primary)',
-                                border: 'none',
-                                display: 'flex',
-                                alignItems: 'center',
-                                justifyContent: 'center',
-                                cursor: 'pointer',
-                                boxShadow: '0 10px 20px rgba(0,0,0,0.2)',
-                                transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-                                transform: isRecording ? 'scale(1.1)' : 'scale(1)'
-                            }}
-                        >
-                            {isRecording ? <div style={{ width: '24px', height: '24px', background: 'white', borderRadius: '6px', animation: 'pulse 1s infinite' }} /> : <Mic size={32} />}
-                        </button>
-                        <p style={{ fontSize: '0.9rem', margin: 0, fontWeight: 600, opacity: 0.9 }}>
-                            {isRecording ? 'Ouvindo o território...' : 'Toque para falar a demanda'}
+                        <p style={{ fontSize: '0.9rem', fontWeight: 600, textAlign: 'center' }}>
+                            {isRecording ? 'Gravando demanda... Fale agora.' : isProcessingIA ? 'IA extraindo dados estruturados...' : 'Toque para cadastrar por voz'}
                         </p>
                     </div>
+
 
                     <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '1.25rem' }}>
                         <div>
@@ -735,6 +803,80 @@ const DemandsPage = () => {
                     </div>
                 )}
             </Drawer>
+
+            {/* Document Preview Modal - Roadmap Implementation #3 */}
+            <Modal isOpen={isDocModalOpen} onClose={() => setIsDocModalOpen(false)} title="Gerador de Documento Oficial">
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+                    <div ref={docRef} style={{
+                        background: 'white',
+                        padding: '2rem',
+                        borderRadius: '8px',
+                        border: '1px solid #ccc',
+                        color: 'black',
+                        fontFamily: 'serif',
+                        fontSize: '0.9rem'
+                    }}>
+                        <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
+                            <h3 style={{ margin: 0 }}>CÂMARA MUNICIPAL</h3>
+                            <p style={{ margin: 0, fontWeight: 700 }}>Gabinete do Vereador {tenant.name}</p>
+                            <p style={{ margin: 0, fontSize: '0.8rem' }}>Rua Legislativa, 123 - Centro</p>
+                        </div>
+
+                        <div style={{ textAlign: 'right', marginBottom: '2rem' }}>
+                            Cidade/UF, {new Date().toLocaleDateString('pt-BR', { day: 'numeric', month: 'long', year: 'numeric' })}
+                        </div>
+
+                        <div style={{ marginBottom: '2rem' }}>
+                            <strong>OFÍCIO Nº ____ / 2026</strong><br />
+                            <strong>Assunto:</strong> Indicação de {selectedDemand?.category} - {selectedDemand?.title}
+                        </div>
+
+                        <div style={{ marginBottom: '2rem' }}>
+                            Excelentíssimo Senhor Prefeito,
+                        </div>
+
+                        <div style={{ textAlign: 'justify', marginBottom: '2rem' }}>
+                            Venho, por meio deste, indicar ao Poder Executivo Municipal a necessidade de intervenção urgente em:
+                            <strong> {selectedDemand?.local}</strong>.
+                        </div>
+
+                        <div style={{ textAlign: 'justify', marginBottom: '2rem' }}>
+                            A demanda, classificada como {selectedDemand?.category}, refere-se a: "{selectedDemand?.title}".
+                            Tal solicitação fundamenta-se na fiscalização realizada por este gabinete, onde constatamos o anseio da comunidade local por melhorias imediatas.
+                        </div>
+
+                        {selectedDemand?.visits && selectedDemand.visits.length > 0 && (
+                            <div style={{ marginBottom: '2rem' }}>
+                                <strong>Evidências da Fiscalização:</strong>
+                                <ul style={{ listStyle: 'none', padding: 0, marginTop: '10px' }}>
+                                    {selectedDemand.visits.slice(0, 2).map((v, idx) => (
+                                        <li key={idx} style={{ marginBottom: '10px', fontSize: '0.8rem', borderLeft: '2px solid #ccc', paddingLeft: '10px' }}>
+                                            <em>"{v.notes}"</em> - Visita em {new Date(v.date).toLocaleDateString()}
+                                        </li>
+                                    ))}
+                                </ul>
+                            </div>
+                        )}
+
+                        <div style={{ textAlign: 'center', marginTop: '4rem' }}>
+                            Atenciosamente,<br /><br />
+                            <div style={{ borderTop: '1px solid black', display: 'inline-block', padding: '10px 40px' }}>
+                                <strong>VEREADOR {tenant.name?.toUpperCase()}</strong><br />
+                                Legislatura 2025-2028
+                            </div>
+                        </div>
+                    </div>
+
+                    <div style={{ display: 'flex', gap: '1rem' }}>
+                        <button onClick={handlePrintDoc} className="btn-gold" style={{ flex: 1, borderRadius: '12px' }}>
+                            <Printer size={18} /> Imprimir / PDF
+                        </button>
+                        <button className="btn-primary" style={{ flex: 1, borderRadius: '12px', background: 'var(--bg-color)', border: '1px solid var(--border)', color: 'var(--text)' }}>
+                            <Download size={18} /> Enviar via Zap
+                        </button>
+                    </div>
+                </div>
+            </Modal>
 
             <Modal
                 isOpen={isVisitModalOpen}

@@ -20,6 +20,7 @@ interface Voter {
     interactions: number;
     last_contact: string | null;
     notes: string;
+    birth_date?: string;
 }
 
 const VoterCrm = () => {
@@ -149,6 +150,24 @@ const VoterCrm = () => {
     const quotientGoal = 2500; // Example goal
     const progress = (votesWon / quotientGoal) * 100;
 
+    const birthdayVoters = voters.filter(v => {
+        if (!v.birth_date) return false;
+        const today = new Date();
+        const birth = new Date(v.birth_date);
+        return today.getDate() === birth.getUTCDate() && today.getMonth() === birth.getUTCMonth();
+    });
+
+    const handleWhatsAppGreeting = (voter: Voter) => {
+        const messages = [
+            `Olá ${voter.name.split(' ')[0]}! Aqui é o Gabinete do Vereador. Passando para te desejar um feliz aniversário! Muita saúde e conquistas! 🎂✨`,
+            `Grande abraço, ${voter.name.split(' ')[0]}! Parabéns pelo seu dia! Que seu novo ciclo seja de muita luz. Conte conosco! 🥂`,
+            `Feliz aniversário, ${voter.name.split(' ')[0]}! Que alegria celebrar mais um ano da sua vida. Parabéns! 🎈`
+        ];
+        const randomMsg = messages[Math.floor(Math.random() * messages.length)];
+        const url = `https://wa.me/55${voter.phone.replace(/\D/g, '')}?text=${encodeURIComponent(randomMsg)}`;
+        window.open(url, '_blank');
+    };
+
     const getStatusColor = (status: string) => {
         switch (status) {
             case 'ganho': return '#38a169'; // Green
@@ -209,6 +228,61 @@ const VoterCrm = () => {
                     </button>
                 </div>
             </header>
+
+            {/* Quick Actions & Birthday Alert - Roadmap Implementation */}
+            {birthdayVoters.length > 0 && (
+                <motion.div
+                    initial={{ scale: 0.9, opacity: 0 }}
+                    animate={{ scale: 1, opacity: 1 }}
+                    className="glass-card"
+                    style={{
+                        marginBottom: '2.5rem',
+                        background: 'linear-gradient(135deg, #1e3a8a 0%, #0f172a 100%)',
+                        color: 'white',
+                        border: 'none',
+                        position: 'relative',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                        padding: '1.5rem 2.5rem'
+                    }}
+                >
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem' }}>
+                        <div style={{ padding: '12px', background: 'rgba(212,175,55,0.2)', borderRadius: '16px', color: 'var(--secondary)' }}>
+                            <Star size={28} />
+                        </div>
+                        <div>
+                            <h3 style={{ margin: 0, color: 'white', fontSize: '1.25rem' }}>Aniversariantes do Dia ({birthdayVoters.length})</h3>
+                            <p style={{ margin: 0, opacity: 0.8, fontSize: '0.9rem' }}>Mantenha o relacionamento ativo parabenizando seus eleitores hoje.</p>
+                        </div>
+                    </div>
+                    <div style={{ display: 'flex', gap: '0.5rem' }}>
+                        {birthdayVoters.map((v, i) => (
+                            <motion.div
+                                key={v.id}
+                                whileHover={{ scale: 1.1 }}
+                                onClick={() => handleWhatsAppGreeting(v)}
+                                style={{
+                                    width: '45px',
+                                    height: '45px',
+                                    background: 'var(--secondary)',
+                                    color: 'var(--primary)',
+                                    borderRadius: '12px',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    fontWeight: 800,
+                                    cursor: 'pointer',
+                                    border: '2px solid white'
+                                }}
+                                title={`Parabenizar ${v.name}`}
+                            >
+                                {v.name.charAt(0)}
+                            </motion.div>
+                        ))}
+                    </div>
+                </motion.div>
+            )}
 
             {/* Funnel/Stats Section */}
             <div className="responsive-grid" style={{ marginBottom: '3rem' }}>
@@ -275,6 +349,7 @@ const VoterCrm = () => {
                     </p>
                 </motion.div>
             </div>
+
 
             {/* Main List */}
             <div className="glass-card" style={{ padding: '0', border: '1px solid var(--border)' }}>

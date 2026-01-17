@@ -1,9 +1,8 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import {
-    Layout, Globe, Type, Eye, Save, Smartphone,
-    Monitor, Video, Palette, ChevronLeft, ChevronRight,
-    MessageCircle, AlertTriangle, Users, Link, Upload, RefreshCw, Check
+    Globe, Type, Eye, Save, Smartphone,
+    Monitor, Video, MessageCircle, AlertTriangle, RefreshCw
 } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { useTenant } from '../context/TenantContext';
@@ -14,7 +13,6 @@ const MandateSiteBuilder = () => {
     const [isLoading, setIsLoading] = useState(true);
     const [isPublishing, setIsPublishing] = useState(false);
     const [previewMode, setPreviewMode] = useState<'desktop' | 'mobile'>('desktop');
-    const [currentSlide, setCurrentSlide] = useState(0);
 
     // Default configuration if nothing in DB
     const defaultConfig = {
@@ -80,7 +78,7 @@ const MandateSiteBuilder = () => {
         setIsPublishing(false);
     };
 
-    if (isLoading) return <div style={{ display: 'flex', justifyContent: 'center', padding: '5rem' }}><RefreshCw className="spin" /></div>;
+    if (isLoading || !siteConfig) return <div style={{ display: 'flex', justifyContent: 'center', padding: '5rem' }}><RefreshCw className="spin" /></div>;
 
     return (
         <motion.div
@@ -126,7 +124,7 @@ const MandateSiteBuilder = () => {
                                 </div>
                             </div>
                         </div>
-                    </section> section>
+                    </section>
 
                     <section>
                         <h3 style={{ fontSize: '0.9rem', fontWeight: 800, textTransform: 'uppercase', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '8px' }}>
@@ -275,24 +273,27 @@ const MandateSiteBuilder = () => {
                             {siteConfig.showBio && (
                                 <section>
                                     <h2 style={{ borderLeft: '4px solid var(--secondary)', paddingLeft: '1rem', marginBottom: '1rem' }}>Biografia</h2>
-                                    <p style={{ color: '#4a5568', lineHeight: 1.6 }}>{siteConfig.bioText}</p> section>
+                                    <p style={{ color: '#4a5568', lineHeight: 1.6 }}>{siteConfig.bioText}</p>
+                                </section>
                             )}
 
-                                    {siteConfig.showVideo && (
-                                        <section>
-                                            <h2 style={{ borderLeft: '4px solid var(--secondary)', paddingLeft: '1rem', marginBottom: '1rem' }}>Destaque da Semana</h2>
-                                            <div style={{ aspectRatio: '16/9', background: '#000', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff' }}>
-                                                <Video size={48} opacity={0.5} />
-                                            </div> section>
+                            {siteConfig.showVideo && (
+                                <section>
+                                    <h2 style={{ borderLeft: '4px solid var(--secondary)', paddingLeft: '1rem', marginBottom: '1rem' }}>Destaque da Semana</h2>
+                                    <div style={{ aspectRatio: '16/9', background: '#000', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff' }}>
+                                        <Video size={48} />
+                                    </div>
+                                </section>
                             )}
 
-                                            {siteConfig.whatsappGroup.active && (
+                            {siteConfig.whatsappGroup.active && (
                                 <section style={{ background: siteConfig.whatsappGroup.bgColor, color: siteConfig.whatsappGroup.textColor, padding: '2rem', borderRadius: '16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                                     <div>
                                         <h3 style={{ margin: 0 }}>{siteConfig.whatsappGroup.title}</h3>
                                         <p style={{ margin: 0, opacity: 0.8 }}>{siteConfig.whatsappGroup.description}</p>
                                     </div>
-                                    <MessageCircle size={32} /> section>
+                                    <MessageCircle size={32} />
+                                </section>
                             )}
                         </div>
 
@@ -302,8 +303,8 @@ const MandateSiteBuilder = () => {
                     </div>
                 </div>
             </div>
-                    </motion.div>
-                    );
+        </motion.div>
+    );
 };
 
-                    export default MandateSiteBuilder;
+export default MandateSiteBuilder;
