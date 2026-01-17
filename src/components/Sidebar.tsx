@@ -15,7 +15,7 @@ const Sidebar = () => {
 
     // State to track expanded groups. 
     // In collapsed sidebar mode, groups might behavior differently (e.g. popups), but for now we'll just keep them expandable.
-    const [expandedGroups, setExpandedGroups] = useState<string[]>(['gestao', 'legislativo', 'comunicacao', 'estrategia']);
+    const [expandedGroups, setExpandedGroups] = useState<string[]>(['gestao', 'legislativo', 'comunicacao', 'estrategia', 'admin']);
 
     const toggleSidebar = () => setIsCollapsed(!isCollapsed);
     const toggleMobile = () => setIsMobileOpen(!isMobileOpen);
@@ -70,6 +70,15 @@ const Sidebar = () => {
                 { id: 'ai-advisor', label: 'Estratégia IA', icon: Bot, path: '/advisor', roles: ['SUPER_ADMIN', 'VEREADOR', 'ASSESSOR'] },
                 { id: 'map', label: 'Mapa da Mina', icon: Map, path: '/map', roles: ['SUPER_ADMIN', 'VEREADOR', 'ASSESSOR'] },
                 { id: 'radar', label: 'Radar de Verbas', icon: Radar, path: '/radar', roles: ['SUPER_ADMIN', 'VEREADOR', 'ASSESSOR'] },
+            ]
+        },
+        {
+            id: 'admin',
+            label: 'Administração SaaS',
+            icon: Shield,
+            items: [
+                { id: 'super-admin', label: 'Painel Admin', icon: Shield, path: '/super-admin', roles: ['SUPER_ADMIN'] },
+                { id: 'subscription', label: 'Planos e Taxas', icon: DollarSign, path: '/subscription', roles: ['SUPER_ADMIN'] },
             ]
         }
     ];

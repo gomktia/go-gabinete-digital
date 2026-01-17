@@ -172,23 +172,28 @@ export const TenantProvider: React.FC<{ children: React.ReactNode }> = ({ childr
                 const tenantData = profileWithTenant.tenants;
                 console.log('[Tenant] Successfully loaded tenant:', tenantData.name);
 
-                setTenant(prev => ({
-                    ...prev,
-                    id: tenantData.id,
-                    slug: tenantData.slug,
-                    name: tenantData.name || 'Gabinete Digital',
-                    email: profileWithTenant.email || 'usuario@sistema.com',
-                    role: (profileWithTenant.role?.toUpperCase() as any) || 'VEREADOR',
-                    plan: tenantData.plan || 'free',
-                    officeType: tenantData.office_type || 'city_councilor',
-                    partyName: tenantData.party_name,
-                    isLoggedIn: true,
-                    userId: userId,
-                    primaryColor: tenantData.settings?.primaryColor || prev.primaryColor,
-                    secondaryColor: tenantData.settings?.secondaryColor || prev.secondaryColor,
-                    photoUrl: profileWithTenant.avatar_url,
-                    theme: tenantData.settings?.theme || prev.theme // Use saved theme if exists
-                }));
+                setTenant(prev => {
+                    const dbRole = profileWithTenant.role?.toUpperCase();
+                    const mappedRole = dbRole === 'ADMIN' ? 'SUPER_ADMIN' : (dbRole || 'VEREADOR');
+
+                    return {
+                        ...prev,
+                        id: tenantData.id,
+                        slug: tenantData.slug,
+                        name: tenantData.name || 'Gabinete Digital',
+                        email: profileWithTenant.email || 'usuario@sistema.com',
+                        role: mappedRole as any,
+                        plan: tenantData.plan || 'free',
+                        officeType: tenantData.office_type || 'city_councilor',
+                        partyName: tenantData.party_name,
+                        isLoggedIn: true,
+                        userId: userId,
+                        primaryColor: tenantData.settings?.primaryColor || prev.primaryColor,
+                        secondaryColor: tenantData.settings?.secondaryColor || prev.secondaryColor,
+                        photoUrl: profileWithTenant.avatar_url,
+                        theme: tenantData.settings?.theme || prev.theme // Use saved theme if exists
+                    };
+                });
             } else {
                 console.warn('[Tenant] Incomplete profile data. Redirecting to setup...');
                 // Fallback to minimal state so user isn't stuck
