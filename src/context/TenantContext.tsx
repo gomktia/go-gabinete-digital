@@ -52,12 +52,12 @@ export const TenantProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     useEffect(() => {
         let mounted = true;
 
-        // Optimized safety timeout - 2 seconds max
+        // Optimized safety timeout - 1.5 seconds max
         // If Supabase takes longer than this to just check local session, something is wrong or network is very slow.
         // We default to "not logged in" state to show login screen immediately.
         const safetyTimeout = setTimeout(() => {
             if (mounted) setLoading(false);
-        }, 2500);
+        }, 1500);
 
         checkSession().then(() => {
             if (mounted) clearTimeout(safetyTimeout);
@@ -65,6 +65,8 @@ export const TenantProvider: React.FC<{ children: React.ReactNode }> = ({ childr
 
         const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
             if (event === 'SIGNED_IN' && session) {
+                // Skip if already fetching or loaded for this user
+                if (tenant.userId === session.user.id && tenant.isLoggedIn) return;
                 await fetchProfileAndTenant(session.user.id);
             } else if (event === 'SIGNED_OUT') {
                 setTenant(defaultSettings);
@@ -99,45 +101,39 @@ export const TenantProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     };
 
     const fetchProfileAndTenant = async (userId: string) => {
+        const startTime = performance.now();
         setLoading(true);
         try {
-            // 1. Get Profile (to find Tenant ID)
-            const { data: profile, error: profileError } = await supabase
+            // Optimization: Fetch profile and tenant in a SINGLE query using joins
+            const { data: profileWithTenant, error: fetchError } = await supabase
                 .from('profiles')
-                .select('*')
+                .select('*, tenants(*)')
                 .eq('id', userId)
                 .single();
 
-            if (profileError) throw profileError;
+            if (fetchError) throw fetchError;
 
-            // 2. Get Tenant Details
-            if (profile && profile.tenant_id) {
-                const { data: tenantData, error: tenantError } = await supabase
-                    .from('tenants')
-                    .select('*')
-                    .eq('id', profile.tenant_id)
-                    .single();
+            if (profileWithTenant) {
+                const tenantData = profileWithTenant.tenants;
 
-                if (tenantError) throw tenantError;
-
-                // Merge into state
                 setTenant(prev => ({
                     ...prev,
                     id: tenantData.id,
                     name: tenantData.name || 'Gabinete Digital',
-                    email: profile.email || 'usuario@sistema.com',
-                    role: (profile.role?.toUpperCase() as any) || 'VEREADOR',
+                    email: profileWithTenant.email || 'usuario@sistema.com',
+                    role: (profileWithTenant.role?.toUpperCase() as any) || 'VEREADOR',
                     isLoggedIn: true,
                     userId: userId,
-                    // Use settings from JSONB if available, else defaults
                     primaryColor: tenantData.settings?.primaryColor || prev.primaryColor,
                     secondaryColor: tenantData.settings?.secondaryColor || prev.secondaryColor,
-                    photoUrl: profile.avatar_url
+                    photoUrl: profileWithTenant.avatar_url
                 }));
             }
+            const endTime = performance.now();
+            console.log(`[Performance] Profile/Tenant loaded in ${(endTime - startTime).toFixed(2)}ms`);
         } catch (error) {
             console.error('Error loading tenant data:', error);
-            // Fallback or error handling
+            // On error, we still want to stop loading but stay logged out or show error
         } finally {
             setLoading(false);
         }
@@ -163,37 +159,51 @@ export const TenantProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     };
 
     const login = async (email: string, pass: string) => {
-        const { error } = await supabase.auth.signInWithPassword({
-            email,
-            password: pass,
-        });
+        try {
+            setLoading(true);
+            const { data, error } = await supabase.auth.signInWithPassword({
+                email,
+                password: pass,
+            });
 
-        if (error) {
+            if (error) throw error;
+
+            if (data.user) {
+                // Manually trigger data fetch to speed up login redirect
+                await fetchProfileAndTenant(data.user.id);
+                return { success: true };
+            }
+
+            return { success: false, error: 'Usuário não encontrado.' };
+        } catch (error: any) {
             console.error('Login error:', error.message);
+            setLoading(false);
             return { success: false, error: error.message };
         }
-
-        // State update happens in onAuthStateChange
-        return { success: true };
     };
 
     const signUp = async (email: string, pass: string, fullName: string, role: string) => {
-        const { error } = await supabase.auth.signUp({
-            email,
-            password: pass,
-            options: {
-                data: {
-                    full_name: fullName,
-                    role: role // This will be used by the trigger we created
+        try {
+            setLoading(true);
+            const { error } = await supabase.auth.signUp({
+                email,
+                password: pass,
+                options: {
+                    data: {
+                        full_name: fullName,
+                        role: role
+                    }
                 }
-            }
-        });
+            });
 
-        if (error) {
+            if (error) throw error;
+            setLoading(false);
+            return { success: true };
+        } catch (error: any) {
             console.error('Signup error:', error.message);
+            setLoading(false);
             return { success: false, error: error.message };
         }
-        return { success: true };
     };
 
     const saveSettings = async (): Promise<{ success: boolean; error?: string }> => {
