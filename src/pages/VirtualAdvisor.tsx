@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
-import { Bot, Sparkles, TrendingUp, Map as MapIcon, Users, MessageSquare, ChevronRight } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { Bot, Sparkles, TrendingUp, Map as MapIcon, Users, MessageSquare, ChevronRight, Calculator } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { Modal } from '../components/UIComponents';
 import { supabase } from '../lib/supabase';
 import { useTenant } from '../context/TenantContext';
@@ -10,6 +10,27 @@ const VirtualAdvisor = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedRec, setSelectedRec] = useState<any>(null);
     const [stats, setStats] = useState({ demands: 0, voters: 0, sentiment: 74 });
+
+    // Election Simulator State
+    const [calcState, setCalcState] = useState({
+        totalVoters: 50000,
+        validVotesPercent: 90,
+        seats: 15,
+        partyVotes: 3500,
+        candidateVotes: 1200
+    });
+    const [calcResult, setCalcResult] = useState<any>(null);
+
+    const calculateQuotient = () => {
+        const validVotes = calcState.totalVoters * (calcState.validVotesPercent / 100);
+        const quotient = Math.floor(validVotes / calcState.seats);
+        const partySeats = Math.floor(calcState.partyVotes / quotient);
+        const surplus = calcState.partyVotes % quotient;
+        const neededForNext = quotient - surplus;
+        const isElected = calcState.candidateVotes >= (quotient * 0.1); // 10% barrier rule roughly
+
+        setCalcResult({ validVotes, quotient, partySeats, neededForNext, isElected });
+    };
 
     useEffect(() => {
         if (tenant.id) {
@@ -164,6 +185,103 @@ const VirtualAdvisor = () => {
             </div>
 
             <div style={{ marginBottom: '2rem' }}>
+                {/* Election Math Simulator - Roadmap Item #4 (Scale National) */}
+                <div className="glass-card" style={{ marginBottom: '3rem', borderLeft: '4px solid var(--primary)' }}>
+                    <div style={{ display: 'flex', gap: '1rem', alignItems: 'center', marginBottom: '1.5rem' }}>
+                        <div style={{ padding: '10px', background: 'var(--primary)', borderRadius: '12px', color: 'white' }}>
+                            <Calculator size={24} />
+                        </div>
+                        <div>
+                            <h3 style={{ margin: 0 }}>Termômetro da Reeleição</h3>
+                            <p style={{ margin: 0, color: 'var(--text-light)', fontSize: '0.9rem' }}>Simulador de Quociente Eleitoral e Sobras (Matemática Pura)</p>
+                        </div>
+                    </div>
+
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1.5rem' }}>
+                        <div>
+                            <label className="text-xs font-bold text-gray-500 uppercase">Total de Eleitores Aptos</label>
+                            <input
+                                type="number"
+                                className="form-input w-full"
+                                value={calcState.totalVoters}
+                                onChange={e => setCalcState({ ...calcState, totalVoters: Number(e.target.value) })}
+                            />
+                        </div>
+                        <div>
+                            <label className="text-xs font-bold text-gray-500 uppercase">% Votos Válidos (Est.)</label>
+                            <input
+                                type="number"
+                                className="form-input w-full"
+                                value={calcState.validVotesPercent}
+                                onChange={e => setCalcState({ ...calcState, validVotesPercent: Number(e.target.value) })}
+                            />
+                        </div>
+                        <div>
+                            <label className="text-xs font-bold text-gray-500 uppercase">Cadeiras em Disputa</label>
+                            <input
+                                type="number"
+                                className="form-input w-full"
+                                value={calcState.seats}
+                                onChange={e => setCalcState({ ...calcState, seats: Number(e.target.value) })}
+                            />
+                        </div>
+                        <div>
+                            <label className="text-xs font-bold text-gray-500 uppercase">Votos do Partido</label>
+                            <input
+                                type="number"
+                                className="form-input w-full"
+                                value={calcState.partyVotes}
+                                onChange={e => setCalcState({ ...calcState, partyVotes: Number(e.target.value) })}
+                            />
+                        </div>
+                    </div>
+
+                    <div style={{ marginTop: '1.5rem', display: 'flex', justifyContent: 'flex-end' }}>
+                        <button onClick={calculateQuotient} className="btn-gold" style={{ borderRadius: '10px' }}>
+                            Simular Resultado
+                        </button>
+                    </div>
+
+                    <AnimatePresence>
+                        {calcResult && (
+                            <motion.div
+                                initial={{ height: 0, opacity: 0 }}
+                                animate={{ height: 'auto', opacity: 1 }}
+                                style={{
+                                    marginTop: '2rem',
+                                    padding: '1.5rem',
+                                    background: 'var(--bg-color)',
+                                    borderRadius: '16px',
+                                    border: '1px solid var(--border)'
+                                }}
+                            >
+                                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '1rem', textAlign: 'center' }}>
+                                    <div>
+                                        <div className="text-xs font-bold opacity-60 uppercase">Quociente Eleitoral</div>
+                                        <div className="text-2xl font-black text-gray-700">{Math.floor(calcResult.quotient).toLocaleString()}</div>
+                                        <div className="text-xs">votos para 1 vaga direta</div>
+                                    </div>
+                                    <div>
+                                        <div className="text-xs font-bold opacity-60 uppercase">Cadeiras do Partido</div>
+                                        <div className="text-2xl font-black text-primary">{calcResult.partySeats}</div>
+                                        <div className="text-xs">vagas garantidas</div>
+                                    </div>
+                                    <div>
+                                        <div className="text-xs font-bold opacity-60 uppercase">Sobra de Votos</div>
+                                        <div className="text-2xl font-black text-secondary">{Math.floor(calcResult.neededForNext).toLocaleString()}</div>
+                                        <div className="text-xs">para +1 vaga (aprox.)</div>
+                                    </div>
+                                </div>
+                                <div style={{ marginTop: '1.5rem', padding: '1rem', background: calcResult.partySeats > 0 ? 'rgba(56, 161, 105, 0.1)' : 'rgba(229, 62, 62, 0.1)', borderRadius: '10px', textAlign: 'center' }}>
+                                    <h4 style={{ margin: 0, color: calcResult.partySeats > 0 ? '#38a169' : '#e53e3e', fontWeight: 800 }}>
+                                        {calcResult.partySeats > 0 ? 'PARTIDO FAZ CADEIRA!' : 'PARTIDO AINDA NÃO ATINGIU O QUOCIENTE'}
+                                    </h4>
+                                </div>
+                            </motion.div>
+                        )}
+                    </AnimatePresence>
+                </div>
+
                 <h2 style={{ fontSize: '1.75rem', fontWeight: 800, display: 'flex', alignItems: 'center', gap: '12px' }}>
                     <Sparkles className="text-gold" /> Próximas Jogadas Sugeridas
                 </h2>
