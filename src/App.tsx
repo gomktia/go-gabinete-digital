@@ -26,6 +26,10 @@ import VerbasRadar from './pages/VerbasRadar';
 import SubscriptionPage from './pages/SubscriptionPage';
 import OnboardingSetup from './components/OnboardingSetup';
 import LandingPage from './pages/LandingPage';
+import AdminFinance from './pages/AdminFinance';
+import AdminLeads from './pages/AdminLeads';
+import AdminPlans from './pages/AdminPlans';
+import AdminIntegrations from './pages/AdminIntegrations';
 import { PageGuide } from './components/PageGuide';
 import { TenantProvider, useTenant } from './context/TenantContext';
 
@@ -193,6 +197,12 @@ function AppContent() {
           <Route path="/super-admin" element={<SuperAdmin />} />
           <Route path="/subscription" element={<SubscriptionPage />} />
           <Route path="/setup" element={<OnboardingSetup />} />
+
+          {/* New Super Admin Modules */}
+          <Route path="/admin/finance" element={<AdminFinance />} />
+          <Route path="/admin/leads" element={<AdminLeads />} />
+          <Route path="/admin/plans" element={<AdminPlans />} />
+          <Route path="/admin/integrations" element={<AdminIntegrations />} />
           <Route path="*" element={<Navigate to="/" />} />
         </Routes>
       </main>

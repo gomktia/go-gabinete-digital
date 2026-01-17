@@ -31,21 +31,24 @@ const Sidebar = () => {
     const navGroups = tenant.role === 'SUPER_ADMIN' ? [
         {
             id: 'admin_core',
-            label: 'Plataforma SaaS',
+            label: 'Operação Global',
             icon: Shield,
             items: [
-                { id: 'admin_dash', label: 'Dashboard Global', icon: LayoutDashboard, path: '/', roles: ['SUPER_ADMIN'] },
+                { id: 'admin_dash', label: 'Monitor Global', icon: LayoutDashboard, path: '/', roles: ['SUPER_ADMIN'] },
                 { id: 'tenants', label: 'Gestão de Clientes', icon: Users, path: '/super-admin', roles: ['SUPER_ADMIN'] },
-                { id: 'subscription', label: 'Planos e Faturamento', icon: DollarSign, path: '/subscription', roles: ['SUPER_ADMIN'] },
+                { id: 'finance', label: 'Financeiro SaaS', icon: DollarSign, path: '/admin/finance', roles: ['SUPER_ADMIN'] },
+                { id: 'leads', label: 'Funil de Leads', icon: Globe, path: '/admin/leads', roles: ['SUPER_ADMIN'] },
             ]
         },
         {
             id: 'system_tools',
-            label: 'Monitoramento',
+            label: 'Config & Produto',
             icon: Settings,
             items: [
-                { id: 'wa_config', label: 'Status Conexões', icon: Zap, path: '/wa-config', roles: ['SUPER_ADMIN'] },
-                { id: 'settings', label: 'Configurações Master', icon: Settings, path: '/settings', roles: ['SUPER_ADMIN'] },
+                { id: 'plans', label: 'Planos & Tiers', icon: List, path: '/admin/plans', roles: ['SUPER_ADMIN'] },
+                { id: 'integrations', label: 'Integrações Hub', icon: Zap, path: '/admin/integrations', roles: ['SUPER_ADMIN'] },
+                { id: 'wa_config_master', label: 'Status Conexões', icon: Zap, path: '/wa-config', roles: ['SUPER_ADMIN'] },
+                { id: 'settings', label: 'Admin Settings', icon: Settings, path: '/settings', roles: ['SUPER_ADMIN'] },
             ]
         }
     ] : [
