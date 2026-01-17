@@ -1,9 +1,8 @@
 import { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import {
-    Globe, Type, Eye, Save, Smartphone,
-    Monitor, Video, MessageCircle, AlertTriangle, RefreshCw,
-    Layout, Image as ImageIcon, Plus, Trash2, Palette, Check
+    Save, MessageCircle, RefreshCw,
+    Palette
 } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { useTenant } from '../context/TenantContext';

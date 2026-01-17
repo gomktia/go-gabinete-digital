@@ -3,6 +3,7 @@ import { supabase } from '../lib/supabase';
 
 export interface TenantSettings {
     id: string; // Tenant ID
+    slug?: string;
     primaryColor: string;
     secondaryColor: string;
     name: string;
@@ -30,6 +31,7 @@ interface TenantContextType {
 
 const defaultSettings: TenantSettings = {
     id: '',
+    slug: '',
     primaryColor: '#1a365d',
     secondaryColor: '#d4af37',
     name: 'GABINETE DIGITAL',
@@ -130,6 +132,7 @@ export const TenantProvider: React.FC<{ children: React.ReactNode }> = ({ childr
                 setTenant(prev => ({
                     ...prev,
                     id: tenantData.id,
+                    slug: tenantData.slug,
                     name: tenantData.name || 'Gabinete Digital',
                     email: profileWithTenant.email || 'usuario@sistema.com',
                     role: (profileWithTenant.role?.toUpperCase() as any) || 'VEREADOR',
