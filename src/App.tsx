@@ -25,6 +25,8 @@ import VoteGenealogy from './pages/VoteGenealogy';
 import VerbasRadar from './pages/VerbasRadar';
 import SubscriptionPage from './pages/SubscriptionPage';
 import OnboardingSetup from './components/OnboardingSetup';
+import LandingPage from './pages/LandingPage';
+import { PageGuide } from './components/PageGuide';
 import { TenantProvider, useTenant } from './context/TenantContext';
 
 function AppContent() {
@@ -116,16 +118,34 @@ function AppContent() {
     );
   }
 
-  if (!tenant.isLoggedIn) {
-    return <LoginPage />;
+  // Check if it's a public route that should render full page (no sidebar)
+  const isPublicRoute = ['/login', '/register', '/'].includes(location.pathname) && !tenant.isLoggedIn;
+
+  if (isPublicRoute) {
+    if (location.pathname === '/') return <LandingPage />;
+    if (location.pathname === '/login') return <LoginPage />;
+    // if (location.pathname === '/register') return <RegisterPage />; // RegisterPage not imported yet
+    return <LandingPage />;
   }
 
+  // If not public route and not logged in, redirect to login (PROTECTED ROUTES)
+  if (!tenant.isLoggedIn) {
+    // Small check to avoid loop if they are already on a public route handled above, 
+    // but 'isPublicRoute' logic covers it. 
+    // This block is for deep links like /dashboard when not logged in.
+    return <Navigate to="/login" />;
+  }
+
+  // LOGGED IN APP LAYOUT
   return (
     <div className="app-container">
       <Sidebar />
       <main className="main-content">
         <Routes>
           <Route path="/" element={<Dashboard />} />
+          {/* Public routes redirect to home if logged in */}
+          <Route path="/login" element={<Navigate to="/" />} />
+          <Route path="/register" element={<Navigate to="/" />} />
           <Route path="/calendar" element={<CalendarPage />} />
           <Route path="/documents" element={<DocumentTracking />} />
           <Route path="/demands" element={<DemandsPage />} />
@@ -149,6 +169,7 @@ function AppContent() {
           <Route path="*" element={<Navigate to="/" />} />
         </Routes>
       </main>
+      <PageGuide />
       <AIAssistant />
     </div>
   );

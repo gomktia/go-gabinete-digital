@@ -1,6 +1,7 @@
 
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
+import { supabase } from '../lib/supabase';
 import {
     Radar, Search, ExternalLink, ArrowRight,
     DollarSign
@@ -25,58 +26,27 @@ const VerbasRadar = () => {
     const [opportunities, setOpportunities] = useState<Opportunity[]>([]);
 
     useEffect(() => {
-        // Simulate fetching data (Scraping Mock)
-        setTimeout(() => {
-            const mockData: Opportunity[] = [
-                {
-                    id: '1',
-                    title: 'Edital de Cultura 2026 - Lei Paulo Gustavo II',
-                    source: 'Diário Oficial da União',
-                    type: 'edital',
-                    date: new Date().toISOString(),
-                    description: 'Abertura de crédito extraordinário para fomento cultural em municípios com menos de 100k habitantes.',
-                    amount: 'R$ 500.000,00',
-                    status: 'new',
-                    tags: ['Cultura', 'Federal', 'Fomento']
-                },
-                {
-                    id: '2',
-                    title: 'Pavimentação Asfáltica - Programa Vias Urbanas',
-                    source: 'Governo do Estado',
-                    type: 'verba',
-                    date: new Date(Date.now() - 86400000).toISOString(),
-                    description: 'Liberação de recursos para pavimentação de vias urbanas. Prazo de cadastro até 30/03.',
-                    amount: 'R$ 2.000.000,00',
-                    status: 'analyzed',
-                    tags: ['Infraestrutura', 'Estadual']
-                },
-                {
-                    id: '3',
-                    title: 'Aquisição de Equipamentos de Saúde',
-                    source: 'Ministério da Saúde',
-                    type: 'emenda',
-                    date: new Date(Date.now() - 172800000).toISOString(),
-                    description: 'Emendas parlamentares impositivas para compra de ambulâncias e equipamentos de UBS.',
-                    amount: 'Variável',
-                    status: 'new',
-                    tags: ['Saúde', 'Equipamentos']
-                },
-                {
-                    id: '4',
-                    title: 'Reforma de Quadras Poliesportivas',
-                    source: 'Secretaria de Esportes',
-                    type: 'edital',
-                    date: new Date(Date.now() - 259200000).toISOString(),
-                    description: 'Programa Esporte Para Todos: Reforma e construção de espaços de lazer.',
-                    amount: 'R$ 300.000,00',
-                    status: 'archived',
-                    tags: ['Esporte', 'Lazer']
-                }
-            ];
-            setOpportunities(mockData);
-            setLoading(false);
-        }, 1500);
+        fetchOpportunities();
     }, []);
+
+    const fetchOpportunities = async () => {
+        setLoading(true);
+        try {
+            const { data, error } = await supabase
+                .from('funding_opportunities')
+                .select('*')
+                .order('date', { ascending: false });
+
+            if (error) throw error;
+
+            // Map DB fields to Interface if needed (but we matched them in migration)
+            setOpportunities(data as any || []);
+        } catch (err) {
+            console.error('Error fetching radar:', err);
+        } finally {
+            setLoading(false);
+        }
+    };
 
     const filteredOpps = opportunities.filter(opp => {
         const matchesSearch = opp.title.toLowerCase().includes(searchTerm.toLowerCase()) ||

@@ -41,6 +41,12 @@ const Dashboard = () => {
                 .select('responsible')
                 .eq('tenant_id', tenant.id);
 
+            // 3. Get Campaign Finance Total
+            const { data: financeData } = await supabase
+                .from('campaign_finance')
+                .select('value, type')
+                .eq('tenant_id', tenant.id);
+
             if (votersError) throw votersError;
             if (visitsError) throw visitsError;
 
@@ -64,7 +70,8 @@ const Dashboard = () => {
             setStats(prev => ({
                 ...prev,
                 voters: votersCount || 0,
-                visits: visitsData?.length || 0
+                visits: visitsData?.length || 0,
+                campaignSpend: financeData?.filter(t => t.type === 'expense').reduce((acc, curr) => acc + Number(curr.value), 0) || 0
             }));
 
         } catch (error) {
@@ -86,7 +93,7 @@ const Dashboard = () => {
 
     const dashboardStats = [
         { label: 'Eleitores na Base', value: stats.voters.toLocaleString(), icon: Users, color: '#d4af37', trend: 'CRM Ativo', trendUp: true, path: '/voters' },
-        { label: 'Gastos Campanha', value: 'R$ 0,00', icon: DollarSign, color: '#38a169', trend: 'Simulado', trendUp: true, path: '/finance' }, // Keep as placeholder for now
+        { label: 'Gastos Campanha', value: `R$ ${stats.campaignSpend.toLocaleString('pt-BR')}`, icon: DollarSign, color: '#38a169', trend: 'Auditável', trendUp: true, path: '/finance' },
         { label: 'Visitas em Campo', value: stats.visits.toLocaleString(), icon: Share2, color: '#E1306C', trend: 'Real-time', trendUp: true, path: '/demands' },
     ];
 
