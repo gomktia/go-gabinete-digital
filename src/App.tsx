@@ -1,4 +1,4 @@
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { LogIn } from 'lucide-react';
 import Sidebar from './components/Sidebar';
@@ -15,6 +15,7 @@ import SuperAdmin from './pages/SuperAdmin';
 import LoginPage from './pages/LoginPage';
 import SocialMediaPlanner from './pages/SocialMediaPlanner';
 import MandateSiteBuilder from './pages/MandateSiteBuilder';
+import PublicMandateSite from './pages/PublicMandateSite';
 import CampaignFinance from './pages/CampaignFinance';
 import DocumentTracking from './pages/DocumentTracking';
 import VoterCrm from './pages/VoterCrm';
@@ -24,6 +25,16 @@ import { TenantProvider, useTenant } from './context/TenantContext';
 
 function AppContent() {
   const { tenant, loading } = useTenant();
+  const location = useLocation();
+
+  // Allow public access to site pages
+  if (location.pathname.startsWith('/s/')) {
+    return (
+      <Routes>
+        <Route path="/s/:slug" element={<PublicMandateSite />} />
+      </Routes>
+    );
+  }
 
   if (loading) {
     return (

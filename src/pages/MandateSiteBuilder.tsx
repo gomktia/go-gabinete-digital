@@ -381,9 +381,29 @@ const MandateSiteBuilder = () => {
                     <button className="btn-gold" style={{ width: '100%', borderRadius: '12px', padding: '14px', fontWeight: 800 }} onClick={handlePublish} disabled={isPublishing}>
                         {isPublishing ? <RefreshCw className="spin" size={18} /> : <span><Save size={18} style={{ marginRight: '8px' }} /> Publicar Site</span>}
                     </button>
-                    <a href={`http://${tenant.slug || 'mandato'}.gabinete.app`} target="_blank" style={{ display: 'block', textAlign: 'center', marginTop: '1rem', color: 'var(--text-light)', fontSize: '0.85rem', textDecoration: 'none' }}>
-                        Ver online: {tenant.slug}.gabinete.app
-                    </a>
+
+                    <div style={{ marginTop: '1.5rem', padding: '1rem', background: 'var(--bg-color)', borderRadius: '12px', border: '1px solid var(--border)' }}>
+                        <label style={{ fontSize: '0.75rem', fontWeight: 700, opacity: 0.7, textTransform: 'uppercase', marginBottom: '8px', display: 'block' }}>Link para Compartilhar</label>
+                        <div style={{ display: 'flex', gap: '8px' }}>
+                            <input
+                                readOnly
+                                value={`${window.location.origin}/s/${tenant.slug || 'mandato'}`}
+                                style={{ flex: 1, fontSize: '0.85rem', padding: '8px', background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: '6px', color: 'var(--text)', outline: 'none' }}
+                            />
+                            <button
+                                onClick={() => {
+                                    navigator.clipboard.writeText(`${window.location.origin}/s/${tenant.slug || 'mandato'}`);
+                                    alert('Link copiado para a área de transferência!');
+                                }}
+                                style={{ background: 'var(--secondary)', border: 'none', borderRadius: '6px', padding: '0 12px', cursor: 'pointer', fontWeight: 600, color: 'var(--primary)' }}
+                            >
+                                Copiar
+                            </button>
+                        </div>
+                        <a href={`/s/${tenant.slug || 'mandato'}`} target="_blank" style={{ display: 'block', textAlign: 'center', marginTop: '0.8rem', color: 'var(--primary)', fontSize: '0.8rem', fontWeight: 700, textDecoration: 'none' }}>
+                            Abrir site em nova aba <ExternalLink size={12} style={{ display: 'inline', marginLeft: '2px' }} />
+                        </a>
+                    </div>
                 </div>
             </div>
 
