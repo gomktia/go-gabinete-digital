@@ -1,4 +1,4 @@
-import { MapPin, Filter, Search, Clock, CheckCircle, AlertTriangle, List, Map as MapIcon, ChevronRight, Camera, User, Plus, Loader2 } from 'lucide-react';
+import { MapPin, Filter, Search, Clock, CheckCircle, AlertTriangle, List, Map as MapIcon, ChevronRight, Camera, User, Plus, Loader2, Mic } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useState, useEffect } from 'react';
 import { Drawer, Modal } from '../components/UIComponents';
@@ -140,6 +140,7 @@ const DemandsPage = () => {
     const [newDemandTitle, setNewDemandTitle] = useState('');
     const [newDemandLocal, setNewDemandLocal] = useState('');
     const [newDemandCategory, setNewDemandCategory] = useState('Infraestrutura');
+    const [isRecording, setIsRecording] = useState(false);
 
     const handleCreateDemand = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -413,8 +414,85 @@ const DemandsPage = () => {
             {/* Quick Create Demand Modal */}
             <Modal isOpen={isNewDemandModalOpen} onClose={() => setIsNewDemandModalOpen(false)} title="Nova Demanda">
                 <form onSubmit={handleCreateDemand} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+
+                    {/* Voice Input Section */}
+                    <div style={{
+                        background: 'linear-gradient(to right, var(--primary), var(--secondary))',
+                        padding: '1rem',
+                        borderRadius: '0.75rem',
+                        color: 'white',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        alignItems: 'center',
+                        gap: '0.5rem',
+                        marginBottom: '0.5rem'
+                    }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.9rem', opacity: 0.9 }}>
+                            <Mic size={16} />
+                            <span>Modo "Zap do Mandato"</span>
+                        </div>
+                        <button
+                            type="button"
+                            onClick={() => {
+                                if (!('webkitSpeechRecognition' in window)) {
+                                    alert('Seu navegador não suporta reconhecimento de voz. Tente usar o Chrome.');
+                                    return;
+                                }
+
+                                const recognition = new (window as any).webkitSpeechRecognition();
+                                recognition.lang = 'pt-BR';
+                                recognition.start();
+
+                                setIsRecording(true);
+
+                                recognition.onresult = (event: any) => {
+                                    const transcript = event.results[0][0].transcript;
+
+                                    // Simple heuristic to try to fill fields (can be improved with AI later)
+                                    // Assuming user speaks somewhat naturally: "Buraco na rua das flores"
+                                    setNewDemandTitle(transcript);
+
+                                    // If we had an AI service, we would send 'transcript' to it to extract 'local' and 'category'.
+                                    // For now, put it in title and let user refine.
+
+                                    setIsRecording(false);
+                                };
+
+                                recognition.onerror = (event: any) => {
+                                    console.error("Speech recognition error", event.error);
+                                    setIsRecording(false);
+                                    alert('Erro ao ouvir áudio. Tente novamente.');
+                                };
+
+                                recognition.onend = () => {
+                                    setIsRecording(false);
+                                };
+                            }}
+                            style={{
+                                width: '60px',
+                                height: '60px',
+                                borderRadius: '50%',
+                                background: isRecording ? '#e53e3e' : 'white',
+                                color: isRecording ? 'white' : 'var(--primary)',
+                                border: 'none',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                cursor: 'pointer',
+                                boxShadow: '0 4px 10px rgba(0,0,0,0.2)',
+                                transition: 'all 0.2s',
+                                animation: isRecording ? 'pulse 1.5s infinite' : 'none'
+                            }}
+                        >
+                            {isRecording ? <div style={{ width: '20px', height: '20px', background: 'white', borderRadius: '4px' }} /> : <Mic size={24} />}
+                        </button>
+                        <p style={{ fontSize: '0.8rem', margin: 0, opacity: 0.8 }}>
+                            {isRecording ? 'Ouvindo... Pode falar!' : 'Toque para falar a demanda'}
+                        </p>
+                    </div>
+
                     <div>
-                        <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.9rem' }}>Título</label>
+                        <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.9rem' }}>O que é? (Título)</label>
                         <input
                             type="text"
                             required
@@ -426,7 +504,7 @@ const DemandsPage = () => {
                         />
                     </div>
                     <div>
-                        <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.9rem' }}>Local</label>
+                        <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.9rem' }}>Onde é? (Local)</label>
                         <input
                             type="text"
                             required
