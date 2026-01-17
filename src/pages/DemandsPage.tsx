@@ -57,6 +57,7 @@ const DemandsPage = () => {
                 *,
                 visits:demand_visits(*)
             `)
+            .eq('tenant_id', tenant.id)
             .order('created_at', { ascending: false });
 
         if (error) {

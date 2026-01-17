@@ -55,6 +55,7 @@ const VoterCrm = () => {
         const { data, error } = await supabase
             .from('voters')
             .select('*')
+            .eq('tenant_id', tenant.id)
             .order('created_at', { ascending: false });
 
         if (error) {

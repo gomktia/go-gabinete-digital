@@ -46,18 +46,29 @@ const TenantContext = createContext<TenantContextType | undefined>(undefined);
 
 export const TenantProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     const [tenant, setTenant] = useState<TenantSettings>(defaultSettings);
-    const [loading, setLoading] = useState(true);
+    const [loading, setLoading] = useState(() => {
+        // FAST PATH: Check if we have any Supabase session in localStorage
+        if (typeof window !== 'undefined') {
+            try {
+                const keys = Object.keys(localStorage);
+                const hasAuth = keys.some(k => k.includes('auth-token'));
+                // If NO auth token exists, we don't need to show splash, go straight to login
+                if (!hasAuth) return false;
+            } catch (e) {
+                return true;
+            }
+        }
+        return true;
+    });
 
     // Initial Session Check
     useEffect(() => {
         let mounted = true;
 
-        // Optimized safety timeout - 1.5 seconds max
-        // If Supabase takes longer than this to just check local session, something is wrong or network is very slow.
-        // We default to "not logged in" state to show login screen immediately.
+        // Optimized safety timeout - 1 second max
         const safetyTimeout = setTimeout(() => {
             if (mounted) setLoading(false);
-        }, 1500);
+        }, 1000);
 
         checkSession().then(() => {
             if (mounted) clearTimeout(safetyTimeout);

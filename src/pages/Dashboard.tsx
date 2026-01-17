@@ -31,12 +31,14 @@ const Dashboard = () => {
             // 1. Get Voters Count
             const { count: votersCount, error: votersError } = await supabase
                 .from('voters')
-                .select('*', { count: 'exact', head: true });
+                .select('*', { count: 'exact', head: true })
+                .eq('tenant_id', tenant.id);
 
             // 2. Get Visits for Distribution
             const { data: visitsData, error: visitsError } = await supabase
                 .from('demand_visits')
-                .select('responsible');
+                .select('responsible')
+                .eq('tenant_id', tenant.id);
 
             if (votersError) throw votersError;
             if (visitsError) throw visitsError;
