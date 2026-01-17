@@ -1,4 +1,4 @@
-import { MapPin, Filter, Search, Clock, CheckCircle, AlertTriangle, List, Map as MapIcon, ChevronRight, Camera, User, Plus, Loader2, Mic, Sparkles, Download, Printer } from 'lucide-react';
+import { MapPin, Filter, Search, Clock, CheckCircle, AlertTriangle, List, Map as MapIcon, ChevronRight, Camera, User, Plus, Loader2, Mic, Sparkles, Download, Printer, Share2, Image as ImageIcon } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useState, useEffect, useRef } from 'react';
 import { Drawer, Modal } from '../components/UIComponents';
@@ -108,7 +108,9 @@ const DemandsPage = () => {
     const [isRecording, setIsRecording] = useState(false);
     const [isProcessingIA, setIsProcessingIA] = useState(false);
     const [isDocModalOpen, setIsDocModalOpen] = useState(false);
+    const [isArtGeneratorOpen, setIsArtGeneratorOpen] = useState(false);
     const docRef = useRef<HTMLDivElement>(null);
+    const artRef = useRef<HTMLDivElement>(null);
 
     const handleCreateIndication = () => {
         setIsDocModalOpen(true);
@@ -798,6 +800,15 @@ const DemandsPage = () => {
                                 >
                                     <List size={18} /> Criar Indicação
                                 </button>
+                                {selectedDemand.status === 'resolved' && (
+                                    <button
+                                        className="btn-gold"
+                                        onClick={() => setIsArtGeneratorOpen(true)}
+                                        style={{ padding: '12px', borderRadius: '12px', fontSize: '0.9rem', fontWeight: 700, gridColumn: 'span 2', background: 'linear-gradient(90deg, #1e3a8a 0%, #3b82f6 100%)', color: 'white' }}
+                                    >
+                                        <Share2 size={18} /> Gerar Card Instantâneo (Antes/Depois)
+                                    </button>
+                                )}
                             </div>
                         </div>
                     </div>
@@ -875,6 +886,88 @@ const DemandsPage = () => {
                             <Download size={18} /> Enviar via Zap
                         </button>
                     </div>
+                </div>
+            </Modal>
+
+            {/* Art Generator for Social Media - Roadmap Item #3 */}
+            <Modal isOpen={isArtGeneratorOpen} onClose={() => setIsArtGeneratorOpen(false)} title="Gerador Automático de Artes">
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', alignItems: 'center' }}>
+                    <p style={{ margin: 0, color: 'var(--text-light)', textAlign: 'center', fontSize: '0.9rem' }}>
+                        Compartilhe esta conquista com seus eleitores. O sistema gera automaticamente o layout institucional.
+                    </p>
+
+                    {/* The Canvas Area */}
+                    <div ref={artRef} style={{
+                        width: '100%',
+                        maxWidth: '400px',
+                        aspectRatio: '4/5', // Instagram Portrait Ratio
+                        background: 'linear-gradient(135deg, #0f172a 0%, #1e3a8a 100%)',
+                        position: 'relative',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        borderRadius: '0', // Sharp corners for export
+                        overflow: 'hidden',
+                        boxShadow: '0 20px 50px rgba(0,0,0,0.5)'
+                    }}>
+                        {/* Header */}
+                        <div style={{ padding: '20px', textAlign: 'center', background: 'rgba(255,255,255,0.05)' }}>
+                            <h3 style={{ margin: 0, color: '#fcd34d', fontSize: '1.5rem', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '2px' }}>
+                                CONQUISTA
+                            </h3>
+                            <h2 style={{ margin: 0, color: 'white', fontSize: '2rem', fontWeight: 900, lineHeight: 1 }}>
+                                DO SEU BAIRRO
+                            </h2>
+                        </div>
+
+                        {/* Image Split */}
+                        <div style={{ flex: 1, position: 'relative', display: 'flex', flexDirection: 'column' }}>
+                            <div style={{ flex: 1, background: '#333', position: 'relative', overflow: 'hidden' }}>
+                                <div style={{ position: 'absolute', top: '10px', left: '10px', background: 'rgba(0,0,0,0.7)', color: 'white', padding: '4px 12px', borderRadius: '4px', fontWeight: 800, fontSize: '0.8rem', zIndex: 10 }}>ANTES</div>
+                                {selectedDemand?.visits[selectedDemand.visits.length - 1]?.photo_url ? (
+                                    <img src={selectedDemand.visits[selectedDemand.visits.length - 1].photo_url} style={{ width: '100%', height: '100%', objectFit: 'cover', filter: 'grayscale(100%) contrast(1.2)' }} />
+                                ) : (
+                                    <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'rgba(255,255,255,0.3)' }}><ImageIcon size={48} /></div>
+                                )}
+                            </div>
+                            <div style={{ height: '4px', background: '#fcd34d' }}></div>
+                            <div style={{ flex: 1, background: '#222', position: 'relative', overflow: 'hidden' }}>
+                                <div style={{ position: 'absolute', top: '10px', left: '10px', background: '#38a169', color: 'white', padding: '4px 12px', borderRadius: '4px', fontWeight: 800, fontSize: '0.8rem', zIndex: 10 }}>DEPOIS</div>
+                                {selectedDemand?.visits[0]?.photo_url ? (
+                                    <img src={selectedDemand.visits[0].photo_url} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                                ) : (
+                                    <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'rgba(255,255,255,0.3)' }}><ImageIcon size={48} /></div>
+                                )}
+                            </div>
+                        </div>
+
+                        {/* Footer Info */}
+                        <div style={{ padding: '20px', background: 'var(--primary)', color: 'white' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
+                                <CheckCircle size={24} className="text-gold" />
+                                <div>
+                                    <p style={{ margin: 0, fontWeight: 800, fontSize: '1rem', textTransform: 'uppercase' }}>{selectedDemand?.title}</p>
+                                    <p style={{ margin: 0, fontSize: '0.8rem', opacity: 0.8 }}>{selectedDemand?.local}</p>
+                                </div>
+                            </div>
+                            <div style={{ marginTop: '10px', paddingTop: '10px', borderTop: '1px solid rgba(255,255,255,0.2)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                <span style={{ fontWeight: 700, fontSize: '0.9rem' }}>VEREADOR {tenant.name.toUpperCase()}</span>
+                                <span style={{ fontSize: '0.7rem', opacity: 0.7 }}>Trabalho que você vê.</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button
+                        className="btn-gold"
+                        onClick={() => {
+                            alert("Download da imagem iniciado!\n(Simulação: Em produção, isso baixaria o JPG)");
+                        }}
+                        style={{ width: '100%', borderRadius: '14px', paddingTop: '16px', paddingBottom: '16px', fontWeight: 800 }}
+                    >
+                        <Download size={20} /> Baixar para Instagram/WhatsApp
+                    </button>
+                    <button onClick={() => setIsArtGeneratorOpen(false)} style={{ background: 'transparent', border: 'none', color: 'var(--text-light)', cursor: 'pointer', fontSize: '0.9rem' }}>
+                        Cancelar
+                    </button>
                 </div>
             </Modal>
 
