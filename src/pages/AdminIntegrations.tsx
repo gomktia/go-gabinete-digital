@@ -2,13 +2,12 @@
 import { useState } from 'react';
 import {
     Zap, Globe, Shield, MessageSquare, Database,
-    Settings, CheckCircle, AlertTriangle, RefreshCw,
-    ExternalLink, Code
+    Settings, RefreshCw, Code
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 const AdminIntegrations = () => {
-    const [integrations, setIntegrations] = useState([
+    const [integrations] = useState([
         { id: 'wa-gateway', name: 'WhatsApp Gateway (Baileys/Evo)', status: 'online', latency: '120ms', icon: MessageSquare, color: '#25D366' },
         { id: 'stripe', name: 'Stripe Payments', status: 'online', latency: '45ms', icon: Shield, color: '#635bff' },
         { id: 'openai', name: 'OpenAI GPT-4o', status: 'online', latency: '1.2s', icon: Zap, color: '#10a37f' },

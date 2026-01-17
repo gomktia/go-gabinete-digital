@@ -1,21 +1,17 @@
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import {
-    LayoutDashboard, DollarSign, TrendingUp, Download,
-    Filter, Calendar, ArrowUpRight, ArrowDownRight,
-    Users, CreditCard, Receipt, Building2, Search
+    DollarSign, TrendingUp, Download,
+    ArrowUpRight, ArrowDownRight,
+    Users, CreditCard, Search
 } from 'lucide-react';
 import { motion } from 'framer-motion';
-import { supabase } from '../lib/supabase';
 import {
-    AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
-    BarChart, Bar, Cell
+    AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer
 } from 'recharts';
 
 const AdminFinance = () => {
     const [period, setPeriod] = useState('30d');
-    const [loading, setLoading] = useState(true);
-    const [activeTab, setActiveTab] = useState<'overview' | 'invoices' | 'payouts'>('overview');
     const [searchTerm, setSearchTerm] = useState('');
 
     // Simulated Financial Data

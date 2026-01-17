@@ -1,9 +1,8 @@
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import {
-    Search, UserPlus, Mail, Phone, Calendar,
-    Filter, MoreHorizontal, ArrowRight,
-    CheckCircle, MessageCircle, Star, BadgeCheck
+    Search, Mail, ArrowRight,
+    MessageCircle, Star
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 

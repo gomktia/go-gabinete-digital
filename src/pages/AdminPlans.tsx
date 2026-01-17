@@ -1,14 +1,13 @@
 
 import { useState } from 'react';
 import {
-    Package, Check, X, Edit, Plus,
-    Save, Trash2, Info, Zap, Shield,
-    Star, ArrowUpRight
+    Package, Check, Edit, Plus,
+    Trash2, ArrowUpRight
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 const AdminPlans = () => {
-    const [plans, setPlans] = useState([
+    const [plans] = useState([
         {
             id: 'starter', name: 'Gabinete Starter', price: 297, interval: 'mês',
             active: true, users: 3, features: ['WhatsApp CRM', 'Gestão de Demandas', 'Site do Mandato'], color: '#3182ce'
@@ -95,11 +94,11 @@ const AdminPlans = () => {
                     </div>
                 ))}
 
-                <div className="glass-card" style={{
+                <div style={{
                     display: 'flex', flexDirection: 'column', alignItems: 'center',
                     justifyContent: 'center', padding: '2rem', border: '2px dashed var(--border)',
                     background: 'transparent', cursor: 'pointer', transition: 'all 0.2s'
-                }} className="hover-lift">
+                }} className="glass-card hover-lift">
                     <Plus size={48} color="var(--text-light)" style={{ marginBottom: '1rem' }} />
                     <h3 style={{ margin: 0, color: 'var(--text-light)' }}>Criar Promoção / Cupom</h3>
                     <p style={{ fontSize: '0.85rem', color: 'var(--text-light)', textAlign: 'center' }}>Clique aqui para configurar descontos sazonais.</p>
