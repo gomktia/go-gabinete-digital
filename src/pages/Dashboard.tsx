@@ -1,4 +1,4 @@
-import { Users, TrendingUp, Calendar, ArrowUpRight, ArrowDownRight, DollarSign, Share2, Loader2 } from 'lucide-react';
+import { Users, TrendingUp, Calendar, DollarSign, Share2, Loader2, Award, Zap, Bell } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useTenant } from '../context/TenantContext';
 import { useNavigate } from 'react-router-dom';
@@ -91,77 +91,111 @@ const Dashboard = () => {
 
     return (
         <motion.div
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
+            transition={{ duration: 0.4 }}
             style={{ flex: 1 }}
         >
-            <header className="responsive-header">
+            <header className="responsive-header" style={{ alignItems: 'center' }}>
                 <div>
-                    <h1 style={{ marginBottom: '0.25rem' }}>Olá, {tenant.name}</h1>
-                    <p style={{ color: 'var(--text-light)', fontSize: '1.1rem' }}>
-                        Gestão do Mandato em Tempo Real
+                    <motion.h1
+                        initial={{ opacity: 0, x: -20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        style={{ marginBottom: '0.25rem', fontSize: '2.5rem', fontWeight: 800 }}
+                    >
+                        Olá, <span style={{ color: 'var(--secondary)' }}>{tenant.name.split(' ')[0]}</span>
+                    </motion.h1>
+                    <p style={{ color: 'var(--text-light)', fontSize: '1.1rem', fontWeight: 500 }}>
+                        Mandato Inovador • Gestão em tempo real
                     </p>
                 </div>
-                <div
+                <motion.div
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
                     onClick={() => navigate('/calendar')}
-                    style={{ padding: '0.75rem 1.25rem', background: 'var(--surface)', borderRadius: '1rem', boxShadow: 'var(--shadow)', display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer', border: '1px solid var(--border)' }}
+                    style={{
+                        padding: '1rem 1.5rem',
+                        background: 'var(--surface)',
+                        borderRadius: '16px',
+                        boxShadow: 'var(--shadow-md)',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '12px',
+                        cursor: 'pointer',
+                        border: '1px solid var(--border)'
+                    }}
                 >
-                    <Calendar size={20} style={{ color: 'var(--primary)' }} />
-                    <span style={{ fontWeight: 600, fontSize: '0.9rem', color: 'var(--text)' }}>
+                    <div style={{ padding: '8px', background: 'rgba(212,175,55,0.1)', borderRadius: '12px', color: 'var(--secondary)' }}>
+                        <Calendar size={20} />
+                    </div>
+                    <span style={{ fontWeight: 700, fontSize: '1rem', color: 'var(--text)' }}>
                         {new Date().toLocaleDateString('pt-BR', { weekday: 'long', day: 'numeric', month: 'long' })}
                     </span>
-                </div>
+                </motion.div>
             </header>
 
-            <div className="responsive-grid" style={{ marginBottom: '2.5rem' }}>
+            <div className="responsive-grid" style={{ marginBottom: '3rem' }}>
                 {dashboardStats.map((stat, index) => {
                     const Icon = stat.icon;
                     return (
                         <motion.div
                             key={index}
                             className="glass-card"
-                            whileHover={{ scale: 1.02 }}
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: index * 0.1 }}
+                            whileHover={{ y: -8, boxShadow: 'var(--shadow-lg)' }}
                             onClick={() => navigate(stat.path)}
-                            style={{ display: 'flex', flexDirection: 'column', gap: '1rem', position: 'relative', overflow: 'hidden', cursor: 'pointer' }}
+                            style={{
+                                display: 'flex',
+                                flexDirection: 'column',
+                                gap: '1.5rem',
+                                position: 'relative',
+                                overflow: 'hidden',
+                                cursor: 'pointer',
+                                borderLeft: `4px solid ${stat.color}`
+                            }}
                         >
-                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                                 <div style={{
                                     background: `${stat.color}15`,
-                                    padding: '0.75rem',
-                                    borderRadius: '0.75rem',
-                                    color: stat.color
+                                    padding: '12px',
+                                    borderRadius: '14px',
+                                    color: stat.color,
+                                    boxShadow: `0 8px 16px ${stat.color}10`
                                 }}>
                                     <Icon size={24} />
                                 </div>
                                 <div style={{
                                     display: 'flex',
                                     alignItems: 'center',
-                                    gap: '2px',
+                                    gap: '4px',
                                     fontSize: '0.75rem',
-                                    fontWeight: 700,
-                                    color: stat.trendUp ? '#38a169' : '#e53e3e',
-                                    background: stat.trendUp ? '#f0fff4' : '#fff5f5',
-                                    padding: '2px 8px',
-                                    borderRadius: '10px'
+                                    fontWeight: 800,
+                                    color: '#38a169',
+                                    background: 'rgba(56, 161, 105, 0.1)',
+                                    padding: '4px 10px',
+                                    borderRadius: '20px',
+                                    textTransform: 'uppercase',
+                                    letterSpacing: '0.05em'
                                 }}>
-                                    {stat.trendUp ? <ArrowUpRight size={14} /> : <ArrowDownRight size={14} />}
                                     {stat.trend}
                                 </div>
                             </div>
                             <div>
-                                <p style={{ fontSize: '0.85rem', color: 'var(--text-light)', fontWeight: 600, marginBottom: '0.25rem' }}>{stat.label}</p>
-                                <h2 style={{ margin: 0, fontSize: '2rem' }}>
+                                <p style={{ fontSize: '0.9rem', color: 'var(--text-light)', fontWeight: 600, marginBottom: '0.5rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                                    {stat.label}
+                                </p>
+                                <h2 style={{ margin: 0, fontSize: '2.5rem', fontWeight: 800 }}>
                                     {loading ? <Loader2 className="animate-spin" size={24} /> : stat.value}
                                 </h2>
                             </div>
-                            <div style={{ height: '40px', marginTop: 'auto', display: 'flex', alignItems: 'flex-end', gap: '4px' }}>
-                                {[...Array(10)].map((_, i) => (
+                            <div style={{ height: '50px', display: 'flex', alignItems: 'flex-end', gap: '3px', opacity: 0.3 }}>
+                                {[...Array(12)].map((_, i) => (
                                     <div key={i} style={{
                                         flex: 1,
-                                        height: `${20 + Math.random() * 80}%`,
+                                        height: `${30 + Math.random() * 70}%`,
                                         background: stat.color,
-                                        opacity: 0.1 + (i * 0.05),
                                         borderRadius: '2px'
                                     }}></div>
                                 ))}
@@ -171,71 +205,111 @@ const Dashboard = () => {
                 })}
             </div>
 
-            <div className="responsive-grid-large" style={{ display: 'grid', gap: '2rem' }}>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
-                    <div className="glass-card" style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+            <div className="responsive-grid-large" style={{ display: 'grid', gap: '2.5rem' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '2.5rem' }}>
+                    <div className="glass-card" style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                            <h3 style={{ margin: 0 }}>Funil de Votos (Quociente)</h3>
-                            <span
-                                onClick={() => navigate('/voters')}
-                                style={{ fontSize: '0.8rem', color: 'var(--primary)', fontWeight: 700, cursor: 'pointer' }}
-                            >
-                                Ver CRM
-                            </span>
-                        </div>
-                        <div style={{ padding: '1rem', background: 'linear-gradient(135deg, rgba(212, 175, 55, 0.1) 0%, rgba(212, 175, 55, 0.05) 100%)', borderRadius: '1rem' }}>
-                            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem', color: 'var(--secondary)', fontWeight: 700 }}>
-                                <span>{stats.voters} Votos</span>
-                                <span>Meta: 3.500</span>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                                <div style={{ padding: '8px', background: 'rgba(212,175,55,0.1)', borderRadius: '10px', color: 'var(--secondary)' }}>
+                                    <Award size={20} />
+                                </div>
+                                <h3 style={{ margin: 0 }}>Meta Eleitoral (Quociente)</h3>
                             </div>
-                            <div style={{ width: '100%', height: '12px', background: 'rgba(0,0,0,0.1)', borderRadius: '6px', overflow: 'hidden' }}>
+                            <button
+                                onClick={() => navigate('/voters')}
+                                className="btn-gold outline"
+                                style={{ padding: '6px 16px', fontSize: '0.8rem', borderRadius: '10px' }}
+                            >
+                                Detalhes CRM
+                            </button>
+                        </div>
+
+                        <div style={{ padding: '1.5rem', background: 'linear-gradient(135deg, var(--primary) 0%, var(--primary-accent) 100%)', borderRadius: '20px', color: 'white', position: 'relative', overflow: 'hidden' }}>
+                            <div style={{ position: 'absolute', right: '-20px', top: '-20px', width: '100px', height: '100px', background: 'var(--secondary)', opacity: 0.1, borderRadius: '50%', filter: 'blur(30px)' }}></div>
+
+                            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '1rem', fontWeight: 700 }}>
+                                <div style={{ display: 'flex', flexDirection: 'column' }}>
+                                    <span style={{ fontSize: '0.8rem', opacity: 0.7, textTransform: 'uppercase' }}>Consolidado</span>
+                                    <span style={{ fontSize: '1.5rem' }}>{stats.voters} Votos</span>
+                                </div>
+                                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end' }}>
+                                    <span style={{ fontSize: '0.8rem', opacity: 0.7, textTransform: 'uppercase' }}>Objetivo</span>
+                                    <span style={{ fontSize: '1.5rem' }}>3.500</span>
+                                </div>
+                            </div>
+
+                            <div style={{ width: '100%', height: '10px', background: 'rgba(255,255,255,0.1)', borderRadius: '10px', overflow: 'hidden', boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.2)' }}>
                                 <motion.div
                                     initial={{ width: 0 }}
                                     animate={{ width: `${Math.min((stats.voters / 3500) * 100, 100)}%` }}
-                                    transition={{ duration: 1 }}
-                                    style={{ width: `${Math.min((stats.voters / 3500) * 100, 100)}%`, height: '100%', background: 'var(--secondary)' }}
+                                    transition={{ duration: 1.5, ease: "easeOut" }}
+                                    style={{
+                                        width: `${Math.min((stats.voters / 3500) * 100, 100)}%`,
+                                        height: '100%',
+                                        background: 'linear-gradient(90deg, var(--secondary) 0%, #f6e05e 100%)',
+                                        boxShadow: '0 0 15px var(--secondary-glow)'
+                                    }}
                                 />
                             </div>
-                            <p style={{ fontSize: '0.8rem', marginTop: '0.5rem', color: 'var(--text-light)' }}>
-                                {stats.voters === 0 ? 'Cadastre eleitores para iniciar o funil.' : 'Continue cadastrando para atingir a meta.'}
+
+                            <p style={{ fontSize: '0.85rem', marginTop: '1rem', opacity: 0.8, display: 'flex', alignItems: 'center', gap: '6px' }}>
+                                <Zap size={14} /> {stats.voters === 0 ? 'Inicie o cadastro de eleitores hoje para tracionar o funil.' : `Você já atingiu ${((stats.voters / 3500) * 100).toFixed(1)}% da sua meta eleitoral.`}
                             </p>
                         </div>
 
-                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
-                            <div style={{ padding: '1rem', background: 'var(--bg-color)', borderRadius: '0.5rem', textAlign: 'center' }}>
-                                <p style={{ margin: 0, fontSize: '0.8rem', color: 'var(--text-light)' }}>Gastos (Semana)</p>
-                                <p style={{ margin: 0, fontWeight: 700, color: '#e53e3e' }}>R$ 0,00</p>
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' }}>
+                            <div style={{ padding: '1.25rem', background: 'rgba(229, 62, 62, 0.03)', border: '1px solid rgba(229, 62, 62, 0.1)', borderRadius: '16px', textAlign: 'center' }}>
+                                <p style={{ margin: 0, fontSize: '0.8rem', color: 'var(--text-light)', fontWeight: 600 }}>Gastos (Semana)</p>
+                                <p style={{ margin: '4px 0 0', fontSize: '1.25rem', fontWeight: 800, color: '#e53e3e' }}>R$ 0,00</p>
                             </div>
-                            <div style={{ padding: '1rem', background: 'var(--bg-color)', borderRadius: '0.5rem', textAlign: 'center' }}>
-                                <p style={{ margin: 0, fontSize: '0.8rem', color: 'var(--text-light)' }}>Novos Apoios</p>
-                                <p style={{ margin: 0, fontWeight: 700, color: '#38a169' }}>+{stats.voters}</p>
+                            <div style={{ padding: '1.25rem', background: 'rgba(56, 161, 105, 0.03)', border: '1px solid rgba(56, 161, 105, 0.1)', borderRadius: '16px', textAlign: 'center' }}>
+                                <p style={{ margin: 0, fontSize: '0.8rem', color: 'var(--text-light)', fontWeight: 600 }}>Novos Apoios</p>
+                                <p style={{ margin: '4px 0 0', fontSize: '1.25rem', fontWeight: 800, color: '#38a169' }}>+{stats.voters}</p>
                             </div>
                         </div>
                     </div>
 
                     <div className="glass-card">
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
-                            <h3 style={{ margin: 0 }}>Produtividade: Visitas em Campo</h3>
-                            <span style={{ fontSize: '0.75rem', color: 'var(--text-light)' }}>Total: {loading ? '...' : stats.visits} visitas</span>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                                <div style={{ padding: '8px', background: 'rgba(66, 153, 225, 0.1)', borderRadius: '10px', color: '#4299e1' }}>
+                                    <TrendingUp size={20} />
+                                </div>
+                                <h3 style={{ margin: 0 }}>Ranking de Produtividade</h3>
+                            </div>
+                            <span style={{ fontSize: '0.85rem', color: 'var(--text-light)', background: 'var(--bg-color)', padding: '4px 12px', borderRadius: '10px', fontWeight: 600 }}>
+                                {loading ? '...' : stats.visits} Visitas Totais
+                            </span>
                         </div>
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
                             {loading ? (
-                                <div style={{ textAlign: 'center', padding: '1rem' }}><Loader2 className="animate-spin" /></div>
+                                <div style={{ textAlign: 'center', padding: '2rem' }}><Loader2 className="animate-spin" /></div>
                             ) : visitDistribution.length === 0 ? (
-                                <p style={{ fontSize: '0.9rem', color: 'var(--text-light)', fontStyle: 'italic' }}>Nenhuma visita registrada ainda.</p>
+                                <div style={{ textAlign: 'center', padding: '2rem', border: '2px dashed var(--border)', borderRadius: '16px' }}>
+                                    <p style={{ fontSize: '0.9rem', color: 'var(--text-light)', fontStyle: 'italic' }}>Nenhuma visita registrada em campo.</p>
+                                </div>
                             ) : (
                                 visitDistribution.map((item, idx) => (
                                     <div key={idx}>
-                                        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px', fontSize: '0.85rem' }}>
-                                            <span style={{ fontWeight: 600 }}>{item.name}</span>
-                                            <span style={{ fontWeight: 700 }}>{item.visits} visitas</span>
+                                        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px', alignItems: 'flex-end' }}>
+                                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                                <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: item.color }}></div>
+                                                <span style={{ fontWeight: 700, fontSize: '0.95rem' }}>{item.name}</span>
+                                            </div>
+                                            <span style={{ fontWeight: 800, fontSize: '0.9rem', color: item.color }}>{item.visits} <span style={{ fontWeight: 500, opacity: 0.7 }}>visitas</span></span>
                                         </div>
-                                        <div style={{ height: '8px', background: 'var(--bg-color)', borderRadius: '4px', overflow: 'hidden' }}>
+                                        <div style={{ height: '10px', background: 'var(--bg-color)', borderRadius: '10px', overflow: 'hidden', border: '1px solid var(--border)' }}>
                                             <motion.div
                                                 initial={{ width: 0 }}
                                                 animate={{ width: `${(item.visits / Math.max(stats.visits, 1)) * 100}%` }}
-                                                transition={{ duration: 0.8, delay: idx * 0.1 }}
-                                                style={{ height: '100%', background: item.color }}
+                                                transition={{ duration: 1, delay: idx * 0.1 }}
+                                                style={{
+                                                    height: '100%',
+                                                    background: item.color,
+                                                    boxShadow: `0 0 10px ${item.color}30`,
+                                                    borderRadius: '10px'
+                                                }}
                                             />
                                         </div>
                                     </div>
@@ -245,44 +319,70 @@ const Dashboard = () => {
                     </div>
                 </div>
 
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-                    <div
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
+                    <motion.div
+                        whileHover={{ y: -5 }}
                         onClick={() => navigate('/advisor')}
                         className="glass-card"
-                        style={{ background: 'linear-gradient(135deg, var(--primary) 0%, #2c5282 100%)', color: 'white', cursor: 'pointer' }}
+                        style={{ background: 'linear-gradient(135deg, var(--primary) 0%, #1e3a8a 100%)', color: 'white', cursor: 'pointer', border: 'none' }}
                     >
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '1rem' }}>
-                            <TrendingUp size={20} color="var(--secondary)" />
-                            <h3 style={{ margin: 0, color: 'white' }}>Meta Semanal</h3>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '1.5rem' }}>
+                            <div style={{ padding: '8px', background: 'rgba(212,175,55,0.2)', borderRadius: '10px', color: 'var(--secondary)' }}>
+                                <Zap size={20} />
+                            </div>
+                            <h3 style={{ margin: 0, color: 'white' }}>Meta de Atuação</h3>
                         </div>
-                        <p style={{ fontSize: '0.9rem', opacity: 0.9, marginBottom: '1.5rem', color: 'white' }}>
-                            Você está a <b>{(stats.visits / 10 * 100).toFixed(0)}%</b> de completar seu objetivo de visitas legislativas desta semana (Meta: 10).
+                        <p style={{ fontSize: '1rem', opacity: 0.9, marginBottom: '2rem', lineHeight: 1.6 }}>
+                            Otimização de rotas: Você está a <b>{(stats.visits / 10 * 100).toFixed(0)}%</b> da sua meta semanal de fiscalização.
                         </p>
-                        <div style={{ height: '12px', background: 'rgba(255,255,255,0.1)', borderRadius: '6px', overflow: 'hidden', marginBottom: '0.5rem' }}>
-                            <motion.div
-                                initial={{ width: 0 }}
-                                animate={{ width: `${Math.min((stats.visits / 10) * 100, 100)}%` }}
-                                transition={{ duration: 1, delay: 0.5 }}
-                                style={{ height: '100%', background: 'var(--secondary)' }}
-                            />
-                        </div>
-                        <p style={{ fontSize: '0.75rem', textAlign: 'right', opacity: 0.8, color: 'white' }}>
-                            {stats.visits >= 10 ? 'Meta atingida!' : `falta ${10 - stats.visits} visita(s)`}
-                        </p>
-                    </div>
 
-                    <div className="glass-card">
-                        <h3>Agenda de Hoje</h3>
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                            <p style={{ fontSize: '0.9rem', color: 'var(--text-light)', fontStyle: 'italic' }}>Nenhum evento agendado para hoje.</p>
+                        <div style={{ marginBottom: '0.5rem' }}>
+                            <div style={{ width: '100%', height: '12px', background: 'rgba(255,255,255,0.1)', borderRadius: '20px', overflow: 'hidden' }}>
+                                <motion.div
+                                    initial={{ width: 0 }}
+                                    animate={{ width: `${Math.min((stats.visits / 10) * 100, 100)}%` }}
+                                    transition={{ duration: 1.2, delay: 0.3 }}
+                                    style={{ height: '100%', background: 'var(--secondary)', boxShadow: '0 0 20px var(--secondary-glow)' }}
+                                />
+                            </div>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '10px', fontSize: '0.8rem', fontWeight: 600 }}>
+                                <span style={{ opacity: 0.7 }}>Semanal</span>
+                                <span>{stats.visits >= 10 ? 'Meta Alcançada! 🏆' : `${stats.visits}/10 Visitas`}</span>
+                            </div>
                         </div>
-                        <button
-                            onClick={() => navigate('/calendar')}
-                            className="btn-primary"
-                            style={{ width: '100%', marginTop: '1.5rem', background: '#edf2f7', color: 'var(--primary)' }}
-                        >
-                            Ver Agenda Completa
-                        </button>
+                    </motion.div>
+
+                    <div className="glass-card" style={{ flex: 1 }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '1.5rem' }}>
+                            <div style={{ padding: '8px', background: 'rgba(15,23,42,0.05)', borderRadius: '10px', color: 'var(--primary)' }}>
+                                <Bell size={20} />
+                            </div>
+                            <h3 style={{ margin: 0 }}>Agenda Estratégica</h3>
+                        </div>
+
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', padding: '1rem', background: 'var(--bg-color)', borderRadius: '14px', border: '1px solid var(--border)' }}>
+                                <div style={{ padding: '10px', background: 'white', borderRadius: '10px', textAlign: 'center', minWidth: '50px' }}>
+                                    <span style={{ display: 'block', fontSize: '0.7rem', fontWeight: 800, color: 'var(--secondary)', textTransform: 'uppercase' }}>HOJE</span>
+                                    <span style={{ fontSize: '1.1rem', fontWeight: 800 }}>{new Date().getDate()}</span>
+                                </div>
+                                <div style={{ flex: 1 }}>
+                                    <p style={{ margin: 0, fontSize: '0.9rem', fontWeight: 700 }}>Nenhum compromisso oficial</p>
+                                    <p style={{ margin: 0, fontSize: '0.75rem', color: 'var(--text-light)' }}>Horário disponível para gabinete</p>
+                                </div>
+                            </div>
+
+                            <div style={{ padding: '1.5rem', border: '2px dashed var(--border)', borderRadius: '16px', textAlign: 'center' }}>
+                                <p style={{ fontSize: '0.85rem', color: 'var(--text-light)', marginBottom: '1rem' }}>Mantenha sua agenda parlamentar atualizada.</p>
+                                <button
+                                    onClick={() => navigate('/calendar')}
+                                    className="btn-primary"
+                                    style={{ width: '100%', padding: '0.75rem', borderRadius: '12px' }}
+                                >
+                                    Gerenciar Agenda
+                                </button>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>

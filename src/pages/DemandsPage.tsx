@@ -191,36 +191,61 @@ const DemandsPage = () => {
 
     return (
         <motion.div
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 15 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
+            transition={{ duration: 0.4 }}
         >
             <header className="responsive-header">
                 <div>
-                    <h1>Mapa de Demandas</h1>
-                    <p style={{ color: 'var(--text-light)' }}>Gestão geolocalizada e acompanhamento de visitas em campo.</p>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '0.5rem' }}>
+                        <div style={{
+                            padding: '12px',
+                            background: 'var(--primary)',
+                            borderRadius: '16px',
+                            color: 'var(--secondary)',
+                            boxShadow: '0 8px 16px rgba(15,23,42,0.1)'
+                        }}>
+                            <MapPin size={32} />
+                        </div>
+                        <h1 style={{ fontSize: '2.5rem', fontWeight: 800 }}>Mapa de Demandas</h1>
+                    </div>
+                    <p style={{ color: 'var(--text-light)', fontSize: '1.1rem', fontWeight: 500 }}>
+                        Monitoramento geolocalizado e fiscalização ativa do mandato.
+                    </p>
                 </div>
                 <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
-                    <button className="btn-gold" onClick={() => setIsNewDemandModalOpen(true)} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                        <Plus size={18} /> Nova Demanda
+                    <button
+                        className="btn-gold"
+                        onClick={() => setIsNewDemandModalOpen(true)}
+                        style={{ display: 'flex', alignItems: 'center', gap: '10px', borderRadius: '14px', padding: '12px 20px' }}
+                    >
+                        <Plus size={20} /> Nova Demanda
                     </button>
 
-                    <div style={{ display: 'flex', background: 'var(--bg-color)', padding: '4px', borderRadius: '0.75rem', border: '1px solid var(--border)' }}>
+                    <div style={{
+                        display: 'flex',
+                        background: 'var(--bg-color)',
+                        padding: '6px',
+                        borderRadius: '14px',
+                        border: '1px solid var(--border)',
+                        boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.02)'
+                    }}>
                         <button
                             onClick={() => setView('list')}
                             style={{
-                                padding: '0.5rem 1rem',
-                                borderRadius: '0.5rem',
+                                padding: '0.6rem 1.25rem',
+                                borderRadius: '10px',
                                 border: 'none',
                                 background: view === 'list' ? 'var(--surface)' : 'transparent',
-                                boxShadow: view === 'list' ? '0 2px 4px rgba(0,0,0,0.1)' : 'none',
+                                boxShadow: view === 'list' ? '0 4px 12px rgba(0,0,0,0.08)' : 'none',
                                 cursor: 'pointer',
                                 display: 'flex',
                                 alignItems: 'center',
                                 gap: '8px',
-                                fontWeight: 600,
+                                fontWeight: 700,
+                                fontSize: '0.85rem',
                                 color: view === 'list' ? 'var(--primary)' : 'var(--text-light)',
-                                transition: 'all 0.2s'
+                                transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
                             }}
                         >
                             <List size={18} /> Lista
@@ -228,18 +253,19 @@ const DemandsPage = () => {
                         <button
                             onClick={() => setView('map')}
                             style={{
-                                padding: '0.5rem 1rem',
-                                borderRadius: '0.5rem',
+                                padding: '0.6rem 1.25rem',
+                                borderRadius: '10px',
                                 border: 'none',
                                 background: view === 'map' ? 'var(--surface)' : 'transparent',
-                                boxShadow: view === 'map' ? '0 2px 4px rgba(0,0,0,0.1)' : 'none',
+                                boxShadow: view === 'map' ? '0 4px 12px rgba(0,0,0,0.08)' : 'none',
                                 cursor: 'pointer',
                                 display: 'flex',
                                 alignItems: 'center',
                                 gap: '8px',
-                                fontWeight: 600,
+                                fontWeight: 700,
+                                fontSize: '0.85rem',
                                 color: view === 'map' ? 'var(--primary)' : 'var(--text-light)',
-                                transition: 'all 0.2s'
+                                transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
                             }}
                         >
                             <MapIcon size={18} /> Mapa
@@ -248,39 +274,58 @@ const DemandsPage = () => {
                 </div>
             </header>
 
-            <div className="glass-card flex-col-mobile" style={{ marginBottom: '2rem', display: 'flex', gap: '1rem', flexWrap: 'wrap', alignItems: 'center' }}>
-                <div style={{ flex: 1, minWidth: '250px', position: 'relative', width: '100%' }}>
-                    <Search size={18} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-light)' }} />
+            <div className="glass-card flex-col-mobile" style={{ marginBottom: '2.5rem', display: 'flex', gap: '1.5rem', flexWrap: 'wrap', alignItems: 'center', padding: '1.5rem 2rem', border: '1px solid var(--border)' }}>
+                <div style={{ flex: 1, minWidth: '300px', position: 'relative', width: '100%' }}>
+                    <Search size={18} style={{ position: 'absolute', left: '1.25rem', top: '50%', transform: 'translateY(-50%)', opacity: 0.4, color: 'var(--text)' }} />
                     <input
                         type="text"
                         placeholder="Buscar por local ou descrição..."
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
-                        style={{ width: '100%', padding: '0.75rem 2.5rem', borderRadius: '0.5rem', border: '1px solid var(--border)', background: 'var(--bg-color)', color: 'var(--text)', outline: 'none', marginTop: 0 }}
+                        style={{
+                            width: '100%',
+                            padding: '0.875rem 1rem 0.875rem 3.2rem',
+                            borderRadius: '12px',
+                            border: '1px solid var(--border)',
+                            background: 'var(--bg-color)',
+                            color: 'var(--text)',
+                            outline: 'none',
+                            fontSize: '0.95rem'
+                        }}
                     />
                 </div>
-                <div className="flex-col-mobile" style={{ display: 'flex', gap: '1rem', width: '100%', flex: 1 }}>
+                <div className="flex-col-mobile" style={{ display: 'flex', gap: '1rem', width: '100%', flex: 1.5 }}>
                     <select
                         value={filterResponsible}
                         onChange={(e) => setFilterResponsible(e.target.value)}
-                        style={{ width: 'auto', flex: 1, minWidth: '180px', marginTop: 0, background: 'var(--bg-color)', color: 'var(--text)', border: '1px solid var(--border)' }}
+                        style={{
+                            width: 'auto',
+                            flex: 1,
+                            minWidth: '200px',
+                            background: 'var(--bg-color)',
+                            color: 'var(--text)',
+                            border: '1px solid var(--border)',
+                            borderRadius: '12px',
+                            padding: '0.875rem 1rem',
+                            fontWeight: 600
+                        }}
                     >
                         <option value="Todos">Por Responsável: Todos</option>
                         <option value="Vereador João">Vereador João</option>
                         <option value="Assessor Marcos">Assessor Marcos</option>
                         <option value="Assessora Sandra">Assessora Sandra</option>
                     </select>
-                    <button className="btn-primary flex-center gap-1" style={{ background: 'var(--bg-color)', color: 'var(--primary)', border: '1px solid var(--border)', width: 'auto' }}>
-                        <Filter size={18} /> Filtros Avançados
+                    <button className="btn-primary flex-center gap-1" style={{ background: 'var(--primary)', color: 'white', border: 'none', borderRadius: '12px', padding: '0 20px', minWidth: '160px' }}>
+                        <Filter size={18} /> Filtrar
                     </button>
                 </div>
             </div>
 
             <AnimatePresence mode="wait">
                 {isLoading ? (
-                    <motion.div key="loading" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} style={{ padding: '3rem', textAlign: 'center', color: 'var(--text-light)' }}>
-                        <Loader2 className="animate-spin" size={32} style={{ margin: '0 auto 1rem auto' }} />
-                        <p>Carregando demandas do território...</p>
+                    <motion.div key="loading" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} style={{ padding: '5rem 3rem', textAlign: 'center', color: 'var(--text-light)' }}>
+                        <Loader2 className="animate-spin" size={40} style={{ margin: '0 auto 1.5rem auto', color: 'var(--primary)' }} />
+                        <p style={{ fontSize: '1.1rem', fontWeight: 600 }}>Sincronizando demandas territoriais...</p>
                     </motion.div>
                 ) : view === 'list' ? (
                     <motion.div
@@ -288,16 +333,18 @@ const DemandsPage = () => {
                         initial={{ opacity: 0, x: -20 }}
                         animate={{ opacity: 1, x: 0 }}
                         exit={{ opacity: 0, x: -20 }}
-                        style={{ display: 'grid', gap: '1rem' }}
+                        style={{ display: 'grid', gap: '1.25rem' }}
                     >
                         {filteredDemands.length === 0 ? (
-                            <div style={{ padding: '2rem', textAlign: 'center', color: 'var(--text-light)', background: 'var(--surface)', borderRadius: '1rem' }}>
-                                Nenhuma demanda encontrada para os filtros atuais.
+                            <div style={{ padding: '4rem 2rem', textAlign: 'center', color: 'var(--text-light)', background: 'var(--surface)', borderRadius: '20px', border: '2px dashed var(--border)' }}>
+                                <AlertTriangle size={48} style={{ margin: '0 auto 1rem', opacity: 0.3 }} />
+                                <p style={{ fontSize: '1.1rem', fontWeight: 500 }}>Nenhuma demanda encontrada para os filtros atuais.</p>
                             </div>
                         ) : (
                             filteredDemands.map((demand) => (
-                                <div
+                                <motion.div
                                     key={demand.id}
+                                    whileHover={{ y: -3, boxShadow: '0 12px 24px rgba(0,0,0,0.08)' }}
                                     className="glass-card flex-col-mobile"
                                     onClick={() => openDemandDetails(demand)}
                                     style={{
@@ -306,45 +353,51 @@ const DemandsPage = () => {
                                         alignItems: 'center',
                                         background: 'var(--surface)',
                                         cursor: 'pointer',
-                                        gap: '1rem',
-                                        borderLeft: `4px solid ${demand.status === 'resolved' ? '#38a169' : demand.priority === 'high' ? '#e53e3e' : '#ed8936'}`
+                                        gap: '1.5rem',
+                                        padding: '1.5rem 2rem',
+                                        borderRadius: '20px',
+                                        borderLeft: `6px solid ${demand.status === 'resolved' ? '#38a169' : demand.priority === 'high' ? '#e53e3e' : '#ed8936'}`,
+                                        transition: 'all 0.3s ease'
                                     }}
                                 >
-                                    <div style={{ display: 'flex', gap: '1.5rem', alignItems: 'center' }}>
+                                    <div style={{ display: 'flex', gap: '2rem', alignItems: 'center', flex: 1 }}>
                                         <div style={{
-                                            padding: '0.75rem',
+                                            padding: '12px',
                                             background: demand.status === 'resolved' ? 'rgba(56, 161, 105, 0.1)' : demand.priority === 'high' ? 'rgba(229, 62, 62, 0.1)' : 'rgba(237, 137, 54, 0.1)',
-                                            borderRadius: '0.5rem',
+                                            borderRadius: '14px',
                                             color: demand.status === 'resolved' ? '#38a169' : demand.priority === 'high' ? '#e53e3e' : '#ed8936'
                                         }}>
-                                            {demand.status === 'resolved' ? <CheckCircle size={24} /> : <AlertTriangle size={24} />}
+                                            {demand.status === 'resolved' ? <CheckCircle size={30} /> : <AlertTriangle size={30} />}
                                         </div>
                                         <div>
-                                            <h3 style={{ margin: 0, fontSize: '1.1rem', color: 'var(--text)' }}>{demand.title}</h3>
-                                            <div style={{ display: 'flex', gap: '1rem', fontSize: '0.85rem', color: 'var(--text-light)', marginTop: '0.25rem' }}>
-                                                <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}><MapPin size={14} /> {demand.local}</span>
-                                                <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}><Clock size={14} /> {formatTimeAgo(demand.created_at)}</span>
-                                                <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                                                    <User size={14} /> {demand.visits.length > 0 ? `${demand.visits.length} visitas` : 'Sem visitas'}
+                                            <h3 style={{ margin: 0, fontSize: '1.25rem', fontWeight: 800, color: 'var(--text)' }}>{demand.title}</h3>
+                                            <div style={{ display: 'flex', gap: '1.25rem', fontSize: '0.9rem', color: 'var(--text-light)', marginTop: '0.5rem', fontWeight: 500 }}>
+                                                <span style={{ display: 'flex', alignItems: 'center', gap: '6px' }}><MapPin size={16} color="var(--primary)" /> {demand.local}</span>
+                                                <span style={{ display: 'flex', alignItems: 'center', gap: '6px' }}><Clock size={16} /> {formatTimeAgo(demand.created_at)}</span>
+                                                <span style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                                                    <User size={16} /> {demand.visits.length > 0 ? `${demand.visits.length} visitas` : 'Sem fiscalização'}
                                                 </span>
                                             </div>
                                         </div>
                                     </div>
-                                    <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', width: '100%', justifyContent: 'space-between' }}>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem', width: '100%', justifyContent: 'space-between', maxWidth: '280px' }}>
                                         <span style={{
-                                            padding: '0.25rem 0.75rem',
-                                            borderRadius: '1rem',
-                                            fontSize: '0.75rem',
-                                            fontWeight: 700,
+                                            padding: '8px 16px',
+                                            borderRadius: '12px',
+                                            fontSize: '0.8rem',
+                                            fontWeight: 800,
                                             background: demand.status === 'resolved' ? 'rgba(56, 161, 105, 0.1)' : demand.status === 'in-progress' ? 'rgba(49, 130, 206, 0.1)' : 'rgba(237, 137, 54, 0.1)',
                                             color: demand.status === 'resolved' ? '#38a169' : demand.status === 'in-progress' ? '#3182ce' : '#ed8936',
-                                            border: '1px solid transparent'
+                                            textTransform: 'uppercase',
+                                            letterSpacing: '0.05em'
                                         }}>
-                                            {demand.status === 'resolved' ? 'Resolvido' : demand.status === 'in-progress' ? 'Em Andamento' : 'Pendente'}
+                                            {demand.status === 'resolved' ? 'Resolvido' : demand.status === 'in-progress' ? 'Em campo' : 'Triagem'}
                                         </span>
-                                        <ChevronRight size={20} color="var(--text-light)" />
+                                        <div style={{ background: 'var(--bg-color)', padding: '8px', borderRadius: '50%', color: 'var(--text-light)' }}>
+                                            <ChevronRight size={20} />
+                                        </div>
                                     </div>
-                                </div>
+                                </motion.div>
                             ))
                         )}
                     </motion.div>
@@ -414,23 +467,28 @@ const DemandsPage = () => {
 
             {/* Quick Create Demand Modal */}
             <Modal isOpen={isNewDemandModalOpen} onClose={() => setIsNewDemandModalOpen(false)} title="Nova Demanda">
-                <form onSubmit={handleCreateDemand} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                <form onSubmit={handleCreateDemand} style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', padding: '1rem 0.5rem' }}>
 
-                    {/* Voice Input Section */}
+                    {/* Voice Input Section - Nova Versão Premium */}
                     <div style={{
-                        background: 'linear-gradient(to right, var(--primary), var(--secondary))',
-                        padding: '1rem',
-                        borderRadius: '0.75rem',
+                        background: 'linear-gradient(135deg, var(--primary) 0%, var(--primary-accent) 100%)',
+                        padding: '1.5rem',
+                        borderRadius: '20px',
                         color: 'white',
                         display: 'flex',
                         flexDirection: 'column',
                         alignItems: 'center',
-                        gap: '0.5rem',
-                        marginBottom: '0.5rem'
+                        gap: '1rem',
+                        marginBottom: '0.5rem',
+                        boxShadow: '0 10px 20px rgba(15,23,42,0.15)',
+                        position: 'relative',
+                        overflow: 'hidden'
                     }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.9rem', opacity: 0.9 }}>
+                        <div style={{ position: 'absolute', right: '-5%', top: '-5%', width: '100px', height: '100px', background: 'white', opacity: 0.1, borderRadius: '50%' }}></div>
+
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.85rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em', opacity: 0.9 }}>
                             <Mic size={16} />
-                            <span>Modo "Zap do Mandato"</span>
+                            <span>Modo "Voz do Cidadão"</span>
                         </div>
                         <button
                             type="button"
@@ -448,14 +506,7 @@ const DemandsPage = () => {
 
                                 recognition.onresult = (event: any) => {
                                     const transcript = event.results[0][0].transcript;
-
-                                    // Simple heuristic to try to fill fields (can be improved with AI later)
-                                    // Assuming user speaks somewhat naturally: "Buraco na rua das flores"
                                     setNewDemandTitle(transcript);
-
-                                    // If we had an AI service, we would send 'transcript' to it to extract 'local' and 'category'.
-                                    // For now, put it in title and let user refine.
-
                                     setIsRecording(false);
                                 };
 
@@ -470,9 +521,9 @@ const DemandsPage = () => {
                                 };
                             }}
                             style={{
-                                width: '60px',
-                                height: '60px',
-                                borderRadius: '50%',
+                                width: '70px',
+                                height: '70px',
+                                borderRadius: '24px',
                                 background: isRecording ? '#e53e3e' : 'white',
                                 color: isRecording ? 'white' : 'var(--primary)',
                                 border: 'none',
@@ -480,60 +531,63 @@ const DemandsPage = () => {
                                 alignItems: 'center',
                                 justifyContent: 'center',
                                 cursor: 'pointer',
-                                boxShadow: '0 4px 10px rgba(0,0,0,0.2)',
-                                transition: 'all 0.2s',
-                                animation: isRecording ? 'pulse 1.5s infinite' : 'none'
+                                boxShadow: '0 10px 20px rgba(0,0,0,0.2)',
+                                transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                                transform: isRecording ? 'scale(1.1)' : 'scale(1)'
                             }}
                         >
-                            {isRecording ? <div style={{ width: '20px', height: '20px', background: 'white', borderRadius: '4px' }} /> : <Mic size={24} />}
+                            {isRecording ? <div style={{ width: '24px', height: '24px', background: 'white', borderRadius: '6px', animation: 'pulse 1s infinite' }} /> : <Mic size={32} />}
                         </button>
-                        <p style={{ fontSize: '0.8rem', margin: 0, opacity: 0.8 }}>
-                            {isRecording ? 'Ouvindo... Pode falar!' : 'Toque para falar a demanda'}
+                        <p style={{ fontSize: '0.9rem', margin: 0, fontWeight: 600, opacity: 0.9 }}>
+                            {isRecording ? 'Ouvindo o território...' : 'Toque para falar a demanda'}
                         </p>
                     </div>
 
-                    <div>
-                        <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.9rem' }}>O que é? (Título)</label>
-                        <input
-                            type="text"
-                            required
-                            className="form-input"
-                            placeholder="Ex: Buraco na Rua X"
-                            style={{ width: '100%' }}
-                            value={newDemandTitle}
-                            onChange={(e) => setNewDemandTitle(e.target.value)}
-                        />
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '1.25rem' }}>
+                        <div>
+                            <label style={{ display: 'block', marginBottom: '8px', fontSize: '0.85rem', fontWeight: 700, color: 'var(--text-light)', textTransform: 'uppercase' }}>Descrição da Demanda</label>
+                            <input
+                                type="text"
+                                required
+                                className="form-input"
+                                placeholder="Ex: Reforma da Praça Central ou Buraco na Rua X"
+                                style={{ width: '100%', padding: '12px 16px', borderRadius: '12px', background: 'var(--bg-color)', border: '1px solid var(--border)' }}
+                                value={newDemandTitle}
+                                onChange={(e) => setNewDemandTitle(e.target.value)}
+                            />
+                        </div>
+                        <div>
+                            <label style={{ display: 'block', marginBottom: '8px', fontSize: '0.85rem', fontWeight: 700, color: 'var(--text-light)', textTransform: 'uppercase' }}>Local / Endereço</label>
+                            <input
+                                type="text"
+                                required
+                                className="form-input"
+                                placeholder="Endereço, bairro ou ponto de referência"
+                                style={{ width: '100%', padding: '12px 16px', borderRadius: '12px', background: 'var(--bg-color)', border: '1px solid var(--border)' }}
+                                value={newDemandLocal}
+                                onChange={(e) => setNewDemandLocal(e.target.value)}
+                            />
+                        </div>
+                        <div>
+                            <label style={{ display: 'block', marginBottom: '8px', fontSize: '0.85rem', fontWeight: 700, color: 'var(--text-light)', textTransform: 'uppercase' }}>Classificação</label>
+                            <select
+                                className="form-input"
+                                style={{ width: '100%', padding: '12px 16px', borderRadius: '12px', background: 'var(--bg-color)', border: '1px solid var(--border)', fontWeight: 600 }}
+                                value={newDemandCategory}
+                                onChange={(e) => setNewDemandCategory(e.target.value)}
+                            >
+                                <option>Infraestrutura</option>
+                                <option>Saúde</option>
+                                <option>Educação</option>
+                                <option>Segurança</option>
+                                <option>Saneamento</option>
+                                <option>Iluminação Pública</option>
+                                <option>Outros</option>
+                            </select>
+                        </div>
                     </div>
-                    <div>
-                        <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.9rem' }}>Onde é? (Local)</label>
-                        <input
-                            type="text"
-                            required
-                            className="form-input"
-                            placeholder="Endereço ou Ponto de referência"
-                            style={{ width: '100%' }}
-                            value={newDemandLocal}
-                            onChange={(e) => setNewDemandLocal(e.target.value)}
-                        />
-                    </div>
-                    <div>
-                        <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.9rem' }}>Categoria</label>
-                        <select
-                            className="form-input"
-                            style={{ width: '100%' }}
-                            value={newDemandCategory}
-                            onChange={(e) => setNewDemandCategory(e.target.value)}
-                        >
-                            <option>Infraestrutura</option>
-                            <option>Saúde</option>
-                            <option>Educação</option>
-                            <option>Segurança</option>
-                            <option>Saneamento</option>
-                            <option>Outros</option>
-                        </select>
-                    </div>
-                    <button type="submit" className="btn-gold" style={{ marginTop: '1rem' }}>
-                        Criar Demanda
+                    <button type="submit" className="btn-gold" style={{ marginTop: '0.5rem', padding: '14px', borderRadius: '14px', fontSize: '1rem', fontWeight: 800 }}>
+                        Registrar Demanda de Campo
                     </button>
                 </form>
             </Modal>
@@ -545,81 +599,137 @@ const DemandsPage = () => {
             >
                 {selectedDemand && (
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                        {/* Header Section */}
+                        <div style={{
+                            padding: '2rem 1.5rem',
+                            background: 'linear-gradient(135deg, var(--primary) 0%, var(--primary-accent) 100%)',
+                            borderRadius: '24px',
+                            color: 'white',
+                            position: 'relative',
+                            overflow: 'hidden'
+                        }}>
+                            <div style={{
+                                position: 'absolute',
+                                right: '1rem',
+                                top: '1rem',
+                                padding: '6px 14px',
+                                borderRadius: '10px',
+                                fontSize: '0.7rem',
+                                fontWeight: 800,
+                                background: 'rgba(255,255,255,0.2)',
+                                border: '1px solid rgba(255,255,255,0.3)',
+                                color: 'white'
+                            }}>
+                                ID: #{selectedDemand.id}
+                            </div>
+
                             <span style={{
-                                padding: '4px 12px',
-                                borderRadius: '20px',
+                                padding: '6px 12px',
+                                borderRadius: '10px',
                                 fontSize: '0.75rem',
-                                fontWeight: 700,
-                                background: selectedDemand.priority === 'high' ? '#fff5f5' : '#fffaf0',
-                                color: selectedDemand.priority === 'high' ? '#e53e3e' : '#ed8936',
-                                border: '1px solid currentColor'
+                                fontWeight: 800,
+                                background: 'var(--secondary)',
+                                color: 'var(--primary)',
+                                display: 'inline-block',
+                                marginBottom: '1.25rem'
                             }}>
                                 {selectedDemand.category}
                             </span>
-                            <span style={{ fontSize: '0.8rem', color: 'var(--text-light)' }}>ID: #{selectedDemand.id}</span>
+
+                            <h2 style={{ fontSize: '1.75rem', margin: 0, fontWeight: 800, lineHeight: 1.2 }}>{selectedDemand.title}</h2>
+
+                            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1.25rem', marginTop: '1.5rem', opacity: 0.9 }}>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.95rem', fontWeight: 600 }}>
+                                    <MapPin size={18} />
+                                    <span>{selectedDemand.local}</span>
+                                </div>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.95rem', fontWeight: 600 }}>
+                                    <Clock size={18} />
+                                    <span>{new Date(selectedDemand.created_at).toLocaleDateString()}</span>
+                                </div>
+                            </div>
                         </div>
 
-                        <h2 style={{ fontSize: '1.5rem', margin: 0 }}>{selectedDemand.title}</h2>
-
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                                <MapPin size={18} style={{ color: 'var(--primary)' }} />
-                                <span style={{ fontWeight: 600 }}>{selectedDemand.local}</span>
-                            </div>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                                <Clock size={18} style={{ color: 'var(--primary)' }} />
-                                <span>Registrado em: {new Date(selectedDemand.created_at).toLocaleDateString()}</span>
-                            </div>
-                        </div>
-
-                        <div style={{ marginTop: '1rem', borderTop: '1px solid #edf2f7', paddingTop: '1.5rem' }}>
-                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-                                <h4 style={{ margin: 0 }}>Monitoramento em Campo</h4>
+                        {/* Visit Log Section */}
+                        <div>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
+                                <h4 style={{ margin: 0, fontSize: '1rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Fiscalização e Visitas</h4>
                                 <button
                                     onClick={() => setIsVisitModalOpen(true)}
-                                    style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.8rem', background: 'var(--secondary)', border: 'none', padding: '6px 12px', borderRadius: '6px', color: 'var(--primary)', fontWeight: 700, cursor: 'pointer' }}
+                                    className="btn-gold"
+                                    style={{ fontSize: '0.8rem', padding: '8px 16px', borderRadius: '10px' }}
                                 >
-                                    <Plus size={14} /> Registrar Visita
+                                    <Plus size={16} /> Nova Visita
                                 </button>
                             </div>
 
-                            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
                                 {selectedDemand.visits.length === 0 ? (
-                                    <p style={{ fontSize: '0.85rem', color: 'var(--text-light)', fontStyle: 'italic' }}>Nenhuma visita registrada para esta demanda.</p>
+                                    <div style={{ padding: '2rem', textAlign: 'center', background: 'var(--bg-color)', borderRadius: '16px', border: '1px dashed var(--border)', color: 'var(--text-light)' }}>
+                                        <Camera size={32} style={{ margin: '0 auto 0.75rem', opacity: 0.3 }} />
+                                        <p style={{ margin: 0, fontSize: '0.9rem', fontWeight: 600 }}>Nenhuma visita em campo ainda.</p>
+                                    </div>
                                 ) : (
                                     selectedDemand.visits.map((visit) => (
-                                        <div key={visit.id} style={{ background: '#f8fafc', padding: '1rem', borderRadius: '0.75rem', border: '1px solid #e2e8f0' }}>
-                                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '0.5rem' }}>
-                                                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                                                    <div style={{ width: '28px', height: '28px', borderRadius: '50%', background: 'var(--primary)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                                                        <User size={14} color="white" />
+                                        <div key={visit.id} style={{
+                                            background: 'var(--bg-color)',
+                                            padding: '1.25rem',
+                                            borderRadius: '16px',
+                                            border: '1px solid var(--border)',
+                                            boxShadow: '0 4px 12px rgba(0,0,0,0.02)'
+                                        }}>
+                                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1rem' }}>
+                                                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                                                    <div style={{
+                                                        width: '36px',
+                                                        height: '36px',
+                                                        borderRadius: '10px',
+                                                        background: 'var(--primary)',
+                                                        display: 'flex',
+                                                        alignItems: 'center',
+                                                        justifyContent: 'center',
+                                                        color: 'white',
+                                                        fontWeight: 800,
+                                                        fontSize: '0.9rem'
+                                                    }}>
+                                                        {visit.responsible.charAt(0)}
                                                     </div>
                                                     <div>
-                                                        <p style={{ margin: 0, fontSize: '0.85rem', fontWeight: 700 }}>{visit.responsible}</p>
-                                                        <p style={{ margin: 0, fontSize: '0.75rem', color: 'var(--text-light)' }}>{new Date(visit.date).toLocaleDateString()}</p>
+                                                        <p style={{ margin: 0, fontSize: '0.9rem', fontWeight: 700, color: 'var(--text)' }}>{visit.responsible}</p>
+                                                        <p style={{ margin: 0, fontSize: '0.75rem', fontWeight: 600, color: 'var(--text-light)' }}>{new Date(visit.date).toLocaleDateString()}</p>
                                                     </div>
                                                 </div>
                                                 {visit.photo_url && (
-                                                    <div style={{ width: '40px', height: '40px', borderRadius: '4px', overflow: 'hidden', border: '1px solid #cbd5e0' }}>
+                                                    <motion.div whileHover={{ scale: 1.05 }} style={{ width: '50px', height: '50px', borderRadius: '10px', overflow: 'hidden', border: '2px solid var(--border)', cursor: 'pointer' }}>
                                                         <img src={visit.photo_url} alt="Visit" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                                                    </div>
+                                                    </motion.div>
                                                 )}
                                             </div>
-                                            <p style={{ margin: 0, fontSize: '0.85rem', color: 'var(--text)', lineHeight: '1.4' }}>{visit.notes}</p>
+                                            <p style={{ margin: 0, fontSize: '0.95rem', color: 'var(--text)', lineHeight: '1.6', fontWeight: 500 }}>{visit.notes}</p>
                                         </div>
                                     ))
                                 )}
                             </div>
                         </div>
 
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                            <h4>Ações de Gabinete</h4>
+                        {/* Cabinet Actions */}
+                        <div style={{ borderTop: '1px solid var(--border)', paddingTop: '2rem' }}>
+                            <h4 style={{ marginBottom: '1.25rem', fontSize: '1rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Desdobramentos do Mandato</h4>
                             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
-                                <button className="btn-primary" onClick={handleUpdateStatus}>
-                                    {selectedDemand.status === 'resolved' ? 'Reabrir Demanda' : 'Marcar como Resolvido'}
+                                <button
+                                    className="btn-primary"
+                                    onClick={handleUpdateStatus}
+                                    style={{ padding: '12px', borderRadius: '12px', fontSize: '0.9rem', fontWeight: 700, background: selectedDemand.status === 'resolved' ? 'var(--bg-color)' : 'var(--primary)', color: selectedDemand.status === 'resolved' ? 'var(--text)' : 'white', border: '1px solid var(--border)' }}
+                                >
+                                    {selectedDemand.status === 'resolved' ? 'Reabrir Fiscalização' : 'Concluir Demanda'}
                                 </button>
-                                <button className="btn-gold" onClick={handleCreateIndication}>Criar Indicação</button>
+                                <button
+                                    className="btn-gold"
+                                    onClick={handleCreateIndication}
+                                    style={{ padding: '12px', borderRadius: '12px', fontSize: '0.9rem', fontWeight: 700 }}
+                                >
+                                    <List size={18} /> Criar Indicação
+                                </button>
                             </div>
                         </div>
                     </div>

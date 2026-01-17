@@ -154,16 +154,16 @@ const Sidebar = () => {
                                 <li key={group.id} style={{ marginBottom: isCollapsed ? '0.5rem' : '0' }}>
                                     {!isCollapsed ? (
                                         // Expanded Sidebar Group Header
-                                        <div>
+                                        <div style={{ padding: '0 0.5rem' }}>
                                             <div
                                                 onClick={() => toggleGroup(group.id)}
                                                 style={{
-                                                    padding: '0.5rem 1rem',
-                                                    fontSize: '0.75rem',
-                                                    fontWeight: 700,
-                                                    color: 'var(--text-light)',
+                                                    padding: '1rem 0.5rem 0.5rem',
+                                                    fontSize: '0.7rem',
+                                                    fontWeight: 800,
+                                                    color: 'rgba(255,255,255,0.4)',
                                                     textTransform: 'uppercase',
-                                                    letterSpacing: '0.05em',
+                                                    letterSpacing: '0.1em',
                                                     display: 'flex',
                                                     justifyContent: 'space-between',
                                                     alignItems: 'center',
@@ -172,7 +172,7 @@ const Sidebar = () => {
                                                 }}
                                             >
                                                 {group.label}
-                                                <ChevronDown size={14} style={{ transform: isExpanded ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 0.2s' }} />
+                                                <ChevronDown size={12} style={{ transform: isExpanded ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 0.3s' }} />
                                             </div>
 
                                             <AnimatePresence>
@@ -181,8 +181,8 @@ const Sidebar = () => {
                                                         initial={{ height: 0, opacity: 0 }}
                                                         animate={{ height: 'auto', opacity: 1 }}
                                                         exit={{ height: 0, opacity: 0 }}
-                                                        transition={{ duration: 0.2 }}
-                                                        style={{ listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '2px', overflow: 'hidden' }}
+                                                        transition={{ duration: 0.3, ease: "easeInOut" }}
+                                                        style={{ listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '4px', overflow: 'hidden' }}
                                                     >
                                                         {visibleItems.map(item => {
                                                             const Icon = item.icon;
@@ -195,19 +195,19 @@ const Sidebar = () => {
                                                                         style={{
                                                                             display: 'flex',
                                                                             alignItems: 'center',
-                                                                            gap: '0.75rem',
-                                                                            padding: '0.6rem 1rem 0.6rem 1.5rem',
-                                                                            color: isActive ? 'var(--sidebar-active-text)' : 'var(--sidebar-text)',
+                                                                            gap: '12px',
+                                                                            padding: '0.75rem 1rem',
+                                                                            color: isActive ? '#fff' : 'rgba(255,255,255,0.6)',
                                                                             textDecoration: 'none',
-                                                                            borderRadius: '0.5rem',
-                                                                            background: isActive ? 'var(--sidebar-active-bg)' : 'transparent',
-                                                                            fontWeight: isActive ? 600 : 400,
-                                                                            transition: 'all 0.2s',
-                                                                            margin: '0 0.5rem',
+                                                                            borderRadius: '12px',
+                                                                            background: isActive ? 'linear-gradient(90deg, rgba(212,175,55,0.2) 0%, rgba(212,175,55,0.05) 100%)' : 'transparent',
+                                                                            boxShadow: isActive ? 'inset 0 0 0 1px rgba(212,175,55,0.3)' : 'none',
+                                                                            fontWeight: isActive ? 600 : 500,
+                                                                            transition: 'all 0.2s ease',
                                                                             fontSize: '0.9rem'
                                                                         }}
                                                                     >
-                                                                        <Icon size={18} />
+                                                                        <Icon size={18} style={{ color: isActive ? 'var(--secondary)' : 'inherit' }} />
                                                                         <span>{item.label}</span>
                                                                     </Link>
                                                                 </li>
@@ -219,8 +219,8 @@ const Sidebar = () => {
                                         </div>
                                     ) : (
                                         // Collapsed Sidebar - Show Icons Only (Linear)
-                                        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', alignItems: 'center' }}>
-                                            <div style={{ width: '20px', height: '1px', background: 'var(--border)', margin: '0.5rem 0' }} title={group.label} />
+                                        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', alignItems: 'center' }}>
+                                            <div style={{ width: '24px', height: '1px', background: 'rgba(255,255,255,0.1)', margin: '1rem 0 0.5rem' }} />
                                             {visibleItems.map(item => {
                                                 const Icon = item.icon;
                                                 const isActive = location.pathname === item.path;
@@ -233,12 +233,13 @@ const Sidebar = () => {
                                                             display: 'flex',
                                                             alignItems: 'center',
                                                             justifyContent: 'center',
-                                                            width: '40px',
-                                                            height: '40px',
-                                                            color: isActive ? 'var(--sidebar-active-text)' : 'var(--sidebar-text)',
-                                                            borderRadius: '0.5rem',
-                                                            background: isActive ? 'var(--sidebar-active-bg)' : 'transparent',
+                                                            width: '44px',
+                                                            height: '44px',
+                                                            color: isActive ? 'var(--secondary)' : 'rgba(255,255,255,0.6)',
+                                                            borderRadius: '12px',
+                                                            background: isActive ? 'rgba(255,255,255,0.1)' : 'transparent',
                                                             transition: 'all 0.2s',
+                                                            boxShadow: isActive ? 'inset 0 0 0 1px rgba(212,175,55,0.2)' : 'none',
                                                         }}
                                                         title={item.label}
                                                     >
