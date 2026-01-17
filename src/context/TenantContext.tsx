@@ -52,10 +52,12 @@ export const TenantProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     useEffect(() => {
         let mounted = true;
 
-        // Safety timeout to prevent infinite loading
+        // Optimized safety timeout - 2 seconds max
+        // If Supabase takes longer than this to just check local session, something is wrong or network is very slow.
+        // We default to "not logged in" state to show login screen immediately.
         const safetyTimeout = setTimeout(() => {
             if (mounted) setLoading(false);
-        }, 8000);
+        }, 2500);
 
         checkSession().then(() => {
             if (mounted) clearTimeout(safetyTimeout);
@@ -66,7 +68,6 @@ export const TenantProvider: React.FC<{ children: React.ReactNode }> = ({ childr
                 await fetchProfileAndTenant(session.user.id);
             } else if (event === 'SIGNED_OUT') {
                 setTenant(defaultSettings);
-                // Ensure loading is false on sign out
                 setLoading(false);
             }
         });
@@ -80,12 +81,15 @@ export const TenantProvider: React.FC<{ children: React.ReactNode }> = ({ childr
 
     const checkSession = async () => {
         try {
+            // Fast check: get session from local storage first
             const { data: { session }, error } = await supabase.auth.getSession();
+
             if (error) throw error;
 
             if (session) {
                 await fetchProfileAndTenant(session.user.id);
             } else {
+                // Returns immediately if no session found locally
                 setLoading(false);
             }
         } catch (error) {
