@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import {
     Search, Filter, Plus, BookOpen, Clock,
-    FileText, ChevronRight, RefreshCw, Save, Sparkles,
+    FileText, ChevronRight, RefreshCw, Save,
     Scale, Gavel
 } from 'lucide-react';
 import { Drawer, Modal } from '../components/UIComponents';

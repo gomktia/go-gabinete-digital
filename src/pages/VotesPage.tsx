@@ -20,7 +20,7 @@ interface Vote {
 }
 
 const VotesPage = () => {
-    const { tenant } = useTenant();
+    const { } = useTenant();
     const [activeTab, setActiveTab] = useState<'current' | 'history'>('current');
     const [searchQuery, setSearchQuery] = useState('');
     const [selectedVote, setSelectedVote] = useState<Vote | null>(null);

@@ -1,14 +1,13 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import {
-    Users, UserPlus, Filter, Search, Phone,
+    Users, UserPlus, Search, Phone,
     MapPin, Star, ThumbsUp, ThumbsDown, MessageCircle,
-    MoreHorizontal, TrendingUp, Award, Loader2, Save, Network, Sparkles
+    MoreHorizontal, TrendingUp, Award, Loader2, Save, Sparkles
 } from 'lucide-react';
 import { Modal, Drawer } from '../components/UIComponents';
 import { supabase } from '../lib/supabase';
 import { useTenant } from '../context/TenantContext';
-import { useNavigate } from 'react-router-dom';
 
 // Interface matching Supabase table
 interface Voter {
@@ -16,7 +15,7 @@ interface Voter {
     name: string;
     neighborhood: string;
     phone: string;
-    status: 'lideranca' | 'apoiador' | 'neutro' | 'pendente';
+    status: 'lideranca' | 'apoiador' | 'neutro' | 'pendente' | 'indeciso' | 'ganho' | 'perdido';
     leader: string;
     interactions: number;
     last_contact: string | null;
@@ -27,7 +26,6 @@ interface Voter {
 
 const VoterCrm = () => {
     const { tenant } = useTenant();
-    const navigate = useNavigate();
     const [voters, setVoters] = useState<Voter[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [isAddModalOpen, setIsAddModalOpen] = useState(false);

@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import {
-    LayoutDashboard, Map, FileText, Bot, Share2, DollarSign, Users,
+    LayoutDashboard, Map, FileText, Share2, DollarSign, Users,
     Settings, LogOut, MessageSquare, ChevronLeft, ChevronRight, Menu, X, Calendar, Sun, Moon, User, Shield, Zap, Globe, Briefcase, ChevronDown, List, Radar, CheckCircle
 } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
