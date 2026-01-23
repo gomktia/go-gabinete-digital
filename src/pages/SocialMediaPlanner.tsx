@@ -98,8 +98,10 @@ const SocialMediaPlanner = () => {
 
         if (error) alert('Erro ao agendar');
         else {
-            setPosts([...posts, data[0]]);
-            alert('Post agendado para amanhã!');
+            if (data && data.length > 0) {
+                setPosts([...posts, data[0]]);
+                alert('Post agendado para amanhã!');
+            }
         }
     };
 

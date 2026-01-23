@@ -163,9 +163,9 @@ const VoterCrm = () => {
 
     const handleWhatsAppGreeting = (voter: Voter) => {
         const messages = [
-            `Olá ${voter.name.split(' ')[0]}! Aqui é o Gabinete do Vereador. Passando para te desejar um feliz aniversário! Muita saúde e conquistas! 🎂✨`,
-            `Grande abraço, ${voter.name.split(' ')[0]}! Parabéns pelo seu dia! Que seu novo ciclo seja de muita luz. Conte conosco! 🥂`,
-            `Feliz aniversário, ${voter.name.split(' ')[0]}! Que alegria celebrar mais um ano da sua vida. Parabéns! 🎈`
+            `Olá ${voter.name?.split(' ')[0] || ''}! Aqui é o Gabinete do Vereador. Passando para te desejar um feliz aniversário! Muita saúde e conquistas! 🎂✨`,
+            `Grande abraço, ${voter.name?.split(' ')[0] || ''}! Parabéns pelo seu dia! Que seu novo ciclo seja de muita luz. Conte conosco! 🥂`,
+            `Feliz aniversário, ${voter.name?.split(' ')[0] || ''}! Que alegria celebrar mais um ano da sua vida. Parabéns! 🎈`
         ];
         const randomMsg = messages[Math.floor(Math.random() * messages.length)];
         const url = `https://wa.me/55${voter.phone.replace(/\D/g, '')}?text=${encodeURIComponent(randomMsg)}`;

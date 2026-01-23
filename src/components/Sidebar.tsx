@@ -325,7 +325,7 @@ const Sidebar = () => {
                         {!isCollapsed && (
                             <div style={{ overflow: 'hidden', flex: 1 }}>
                                 <p style={{ margin: 0, fontSize: '0.8rem', color: 'var(--sidebar-text)', fontWeight: 600, whiteSpace: 'nowrap', textOverflow: 'ellipsis' }}>
-                                    {tenant.name.split(' ')[0]}
+                                    {tenant.name?.split(' ')[0] || ''}
                                 </p>
                                 <div
                                     onClick={toggleTheme}

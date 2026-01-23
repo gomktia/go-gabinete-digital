@@ -182,7 +182,7 @@ const VerbasRadar = () => {
                                 </p>
 
                                 <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', marginBottom: '1.5rem' }}>
-                                    {opp.tags.map(tag => (
+                                    {opp.tags?.map(tag => (
                                         <span key={tag} style={{ fontSize: '0.75rem', padding: '2px 8px', background: 'rgba(255,255,255,0.05)', borderRadius: '4px' }}>
                                             #{tag}
                                         </span>

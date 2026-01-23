@@ -40,7 +40,7 @@ export const MandateIntelligence = () => {
             // Group by Neighborhood (local)
             const locationCounts: Record<string, number> = {};
             demands?.forEach(d => {
-                const local = d.local?.split(',')[0].trim() || 'Desconhecido';
+                const local = d.local?.split(',')[0]?.trim() || 'Desconhecido';
                 locationCounts[local] = (locationCounts[local] || 0) + 1;
             });
 

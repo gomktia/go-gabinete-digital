@@ -73,7 +73,7 @@ const Dashboard = () => {
             const activeDemands = demandsData?.filter(d => d.status !== 'resolved').length || 0;
             const totalVisits = visitsData?.length || 0;
             const totalExpenses = financeData?.filter(f => f.type === 'expense').reduce((sum, f) => sum + Number(f.value), 0) || 0;
-            const teamMembers = [...new Set(visitsData?.map(v => v.responsible))].filter(Boolean);
+            const teamMembers = [...new Set((visitsData || []).map(v => v.responsible))].filter(Boolean);
 
             setStats({
                 voters: totalVoters,
@@ -382,7 +382,7 @@ const Dashboard = () => {
                                     <div style={{ height: '8px', background: 'var(--bg-color)', borderRadius: '10px', overflow: 'hidden' }}>
                                         <motion.div
                                             initial={{ width: 0 }}
-                                            animate={{ width: `${(p.visits / chartsData.productivityRanking[0].visits) * 100}%` }}
+                                            animate={{ width: `${chartsData.productivityRanking[0].visits > 0 ? (p.visits / chartsData.productivityRanking[0].visits) * 100 : 0}%` }}
                                             style={{ height: '100%', background: i === 0 ? 'var(--secondary)' : 'var(--primary)', borderRadius: '10px' }}
                                         />
                                     </div>

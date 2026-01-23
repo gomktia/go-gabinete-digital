@@ -52,7 +52,7 @@ const TeamManagement = () => {
                 .select('*')
                 .eq('tenant_id', tenant.id);
 
-            const merged = profiles.map(p => ({
+            const merged = (profiles || []).map(p => ({
                 ...p,
                 tasks: tasks?.filter(t => t.assigned_to === p.id) || []
             }));

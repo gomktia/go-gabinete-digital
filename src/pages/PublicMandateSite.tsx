@@ -149,7 +149,7 @@ const PublicMandateSite = () => {
                     <section style={{ background: siteConfig.sections.gallery.bgColor, color: siteConfig.sections.gallery.textColor, padding: '3rem', borderRadius: '24px' }}>
                         <h2 style={{ fontSize: '2.5rem', fontWeight: 800, marginBottom: '2rem', textAlign: 'center', color: theme.secondary }}>{siteConfig.sections.gallery.title}</h2>
                         <div style={{ display: 'flex', gap: '1.5rem', overflowX: 'auto', paddingBottom: '1.5rem', scrollbarWidth: 'none' }}>
-                            {siteConfig.sections.gallery.images.map((img: string, i: number) => (
+                            {siteConfig.sections.gallery.images?.map((img: string, i: number) => (
                                 <img key={i} src={img} style={{ height: '350px', aspectRatio: '3/4', borderRadius: '16px', objectFit: 'cover', flexShrink: 0, boxShadow: '0 4px 10px rgba(0,0,0,0.1)' }} />
                             ))}
                         </div>
@@ -161,7 +161,7 @@ const PublicMandateSite = () => {
                     <section style={{ background: siteConfig.sections.news.bgColor, color: siteConfig.sections.news.textColor, padding: '3rem', borderRadius: '24px' }}>
                         <h2 style={{ fontSize: '2.5rem', fontWeight: 800, marginBottom: '2rem', textAlign: 'center', color: theme.primary }}>{siteConfig.sections.news.title}</h2>
                         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '2rem' }}>
-                            {siteConfig.sections.news.posts.map((post: any, i: number) => (
+                            {siteConfig.sections.news.posts?.map((post: any, i: number) => (
                                 <div key={i} style={{ background: 'white', padding: '2rem', borderRadius: '16px', boxShadow: '0 4px 6px rgba(0,0,0,0.05)', borderLeft: `4px solid ${theme.secondary}` }}>
                                     <span style={{ fontSize: '0.9rem', fontWeight: 700, color: '#94a3b8' }}>{post.date}</span>
                                     <h3 style={{ margin: '0.5rem 0', fontSize: '1.4rem', fontWeight: 800, color: theme.primary }}>{post.title}</h3>
